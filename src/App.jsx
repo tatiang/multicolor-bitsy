@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from "react";
 
-// âââ Constants ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Constants ────────────────────────────────────────────────────────────────
 const DEFAULT_PALETTE = [
   "#000000","#ffffff","#ff004d","#ffa300",
   "#ffec27","#00e436","#29adff","#7e2553",
@@ -15,7 +15,7 @@ const TILE_TYPE_COLORS = { walkable:"#00e436", wall:"#ff004d", item:"#ffec27", e
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const TUNE_STEPS = 16;
 
-// âââ Sound ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Sound ────────────────────────────────────────────────────────────────────
 let _audioCtx = null;
 function getAudioCtx() {
   try { if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return _audioCtx; } catch(e) { return null; }
@@ -34,10 +34,10 @@ function playBlip(wave="square", freq=440, dur=0.15, vol=0.25) {
   } catch(e) {}
 }
 
-// âââ Pre-made Asset Packs âââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Pre-made Asset Packs ─────────────────────────────────────────────────────
 const ASSET_PACKS = [
   {
-    name: "ð Bug Pack", color: "#00e436",
+    name: "🐝 Bug Pack", color: "#00e436",
     assets: [
       { name:"Bee", itemType:"sprite", tileType:"walkable", dialog:"Bzzzz! I make honey!", grid:[
         [0,0,1,0,0,1,0,0],[0,1,1,0,0,1,1,0],[0,0,4,4,4,4,0,0],[0,0,4,0,0,4,0,0],
@@ -74,7 +74,7 @@ const ASSET_PACKS = [
     ],
   },
   {
-    name: "âï¸ Fantasy Pack", color: "#ffa300",
+    name: "⚔️ Fantasy Pack", color: "#ffa300",
     assets: [
       { name:"Stone Wall", itemType:"tile", tileType:"wall", grid:[
         [14,15,15,14,14,15,15,14],[14,15,15,14,14,15,15,14],[14,14,14,14,14,14,14,14],[15,14,15,15,15,14,15,15],
@@ -111,7 +111,7 @@ const ASSET_PACKS = [
     ],
   },
   {
-    name: "ð Space Pack", color: "#29adff",
+    name: "🚀 Space Pack", color: "#29adff",
     assets: [
       { name:"Star Field", itemType:"tile", tileType:"walkable", grid:[
         [11,11,1,11,11,11,11,11],[11,11,11,11,1,11,11,11],[11,11,11,11,11,11,1,11],[11,1,11,11,11,11,11,11],
@@ -134,7 +134,7 @@ const ASSET_PACKS = [
         [0,0,15,15,15,0,0,0],[0,2,15,15,15,2,0,0],[0,2,2,15,2,2,0,0],[0,0,2,0,2,0,0,0],
       ]},
       { name:"Alien", itemType:"sprite", tileType:"walkable", dialog:"Greetings, Earthling!", grid:[
-        [0,0,5,5,5,5,0,0],[0,5,5,5,5,5,5,0],[0,5,1,5,5,5,5,0],[0,5,0,5,5,0,5,0],
+        [0,0,5,5,5,5,0,0],[0,5,5,5,5,5,5,0],[0,5,1,5,5,1,5,0],[0,5,0,5,5,0,5,0],
         [0,5,5,5,5,5,5,0],[5,5,5,5,5,5,5,5],[5,0,5,5,5,5,0,5],[0,0,5,0,0,5,0,0],
       ]},
       { name:"Crystal", itemType:"sprite", tileType:"item", dialog:"", grid:[
@@ -148,7 +148,7 @@ const ASSET_PACKS = [
     ],
   },
   {
-    name: "ð« School Pack", color: "#ff77a8",
+    name: "🏫 School Pack", color: "#ff77a8",
     assets: [
       { name:"Brick Wall", itemType:"tile", tileType:"wall", grid:[
         [2,2,2,13,2,2,2,13],[2,2,2,13,2,2,2,13],[13,13,13,13,13,13,13,13],[2,13,2,2,2,13,2,2],
@@ -186,7 +186,7 @@ const ASSET_PACKS = [
   },
 ];
 
-// âââ Utility ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Utility ──────────────────────────────────────────────────────────────────
 function quantizeColors(pixels, maxColors) {
   const colorMap = new Map();
   for (let i = 0; i < pixels.length; i += 4) {
@@ -243,7 +243,7 @@ function nearestColor(r,g,b,palette) {
 }
 function emptyGrid(w,h) { return Array.from({length:h},()=>Array(w).fill(0)); }
 
-// âââ Styles âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Styles ───────────────────────────────────────────────────────────────────
 const S = {
   app:{ fontFamily:"'Inter',system-ui,sans-serif", background:"#1a1a2e", color:"#e0e0e0", minHeight:"100vh", display:"flex", flexDirection:"column" },
   header:{ background:"#16213e", padding:"10px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"2px solid #0f3460", gap:12 },
@@ -268,7 +268,7 @@ const S = {
   frameThumb:(active)=>({ border:active?"2px solid #e94560":"2px solid #444", borderRadius:4, cursor:"pointer", imageRendering:"pixelated", margin:2, background:"#111", display:"block" }),
 };
 
-// âââ Pixel Canvas âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Pixel Canvas ─────────────────────────────────────────────────────────────
 function PixelCanvas({ grid, palette, onDraw, pixelSize=20, showGrid:showG=true }) {
   const ref = useRef(null);
   const drawing = useRef(false);
@@ -313,7 +313,7 @@ function PixelCanvas({ grid, palette, onDraw, pixelSize=20, showGrid:showG=true 
     onMouseLeave={()=>{drawing.current=false;lastPos.current=null;}} />;
 }
 
-// âââ Mini Canvas ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Mini Canvas ──────────────────────────────────────────────────────────────
 function MiniCanvas({ grid, palette, size=48 }) {
   const ref = useRef(null);
   const w=grid[0]?.length||8, h=grid.length||8;
@@ -326,7 +326,7 @@ function MiniCanvas({ grid, palette, size=48 }) {
   return <canvas ref={ref} style={{imageRendering:"pixelated",display:"block"}} />;
 }
 
-// âââ Room Canvas ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Room Canvas ──────────────────────────────────────────────────────────────
 function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH, onPlace, roomTool, selectedTileId, selectedSpriteId }) {
   const ref = useRef(null);
   const dragging = useRef(false);
@@ -393,7 +393,7 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
     onMouseUp={()=>dragging.current=false} onMouseLeave={()=>dragging.current=false} />;
 }
 
-// âââ PNG Import Modal âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── PNG Import Modal ─────────────────────────────────────────────────────────
 function PngImportModal({ onImport, onClose, palette, maxColors }) {
   const [preview,setPreview]=useState(null);
   const [imgData,setImgData]=useState(null);
@@ -448,8 +448,8 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
         <h3 style={{margin:"0 0 14px",color:"#e94560"}}>Import Image</h3>
         <input type="file" accept="image/*" onChange={handleFile} style={{...S.input,marginBottom:10}} />
         {preview&&<div style={{textAlign:"center",marginBottom:10}}>
-          <img src={imgData} alt="preview" style={{maxWidth:180,maxHeight:180'imageRendering:"pixelated",border:"1px solid #333",borderRadius:4}} />
-          <div style={{fontSize:11,color:"#888",marginTop:4}}>Original: {preview.width}Ã{preview.height}</div>
+          <img src={imgData} alt="preview" style={{maxWidth:180,maxHeight:180,imageRendering:"pixelated",border:"1px solid #333",borderRadius:4}} />
+          <div style={{fontSize:11,color:"#888",marginTop:4}}>Original: {preview.width}×{preview.height}</div>
         </div>}
         <div style={S.row}><span style={S.label}>Import as:</span>
           <button style={S.btn(importMode==="sprite")} onClick={()=>setImportMode("sprite")}>Sprite/NPC</button>
@@ -457,7 +457,7 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
         </div>
         <div style={S.row}><span style={S.label}>Size:</span>
           <input type="number" min={4} max={64} value={targetW} onChange={e=>setTargetW(+e.target.value||8)} style={{...S.input,width:56}} />
-          <span>Ã</span>
+          <span>×</span>
           <input type="number" min={4} max={64} value={targetH} onChange={e=>setTargetH(+e.target.value||8)} style={{...S.input,width:56}} />
         </div>
         <div style={S.row}><span style={S.label}>Palette:</span>
@@ -478,7 +478,7 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
   );
 }
 
-// âââ Exit Config Modal ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Exit Config Modal ────────────────────────────────────────────────────────
 function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
   const firstOther = rooms.findIndex((_,i)=>i!==currentRoom);
   const [destRoom, setDestRoom] = useState(firstOther>=0?firstOther:0);
@@ -487,7 +487,7 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
   return (
     <div style={S.modal} onClick={onClose}>
       <div style={{...S.modalContent,maxWidth:340}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 12px",color:"#e94560"}}>ðª Configure Exit</h3>
+        <h3 style={{margin:"0 0 12px",color:"#e94560"}}>🚪 Configure Exit</h3>
         <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Exit at ({position.x},{position.y}) teleports player to:</p>
         <div style={S.row}>
           <span style={S.label}>Destination:</span>
@@ -502,7 +502,7 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
           <input type="number" min={0} max={31} value={destY} onChange={e=>setDestY(+e.target.value||0)} style={{...S.input,width:54}} />
         </div>
         <div style={{display:"flex",gap:8,marginTop:14}}>
-          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({x:position.x,y:position.y,destRoom,destX,destY})}>â Add Exit</button>
+          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({x:position.x,y:position.y,destRoom,destX,destY})}>✓ Add Exit</button>
           <button style={{...S.btn(false),flex:1}} onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -510,7 +510,7 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
   );
 }
 
-// âââ Tune Editor ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Tune Editor ──────────────────────────────────────────────────────────────
 function TuneEditor({ tune, onChange }) {
   const [playing, setPlaying] = useState(false);
   const [bpm, setBpm] = useState(160);
@@ -535,12 +535,12 @@ function TuneEditor({ tune, onChange }) {
   const stopPlay = ()=>{ setPlaying(false); setActiveStep(-1); clearInterval(ivRef.current); };
   useEffect(()=>()=>clearInterval(ivRef.current),[]);
 
-  // Show 2 octaves (C4âB5), top = high
+  // Show 2 octaves (C4–B5), top = high
   const ROWS = 24;
   return (
     <div>
       <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8,flexWrap:"wrap"}}>
-        <button style={S.btn(playing)} onClick={playing?stopPlay:startPlay}>{playing?"â¹ Stop":"â¶ Play"}</button>
+        <button style={S.btn(playing)} onClick={playing?stopPlay:startPlay}>{playing?"⏹ Stop":"▶ Play"}</button>
         <span style={{fontSize:11,color:"#aaa"}}>BPM:</span>
         <input type="range" min={60} max={240} value={bpm} onChange={e=>setBpm(+e.target.value)} style={{width:70}} />
         <span style={{fontSize:11}}>{bpm}</span>
@@ -565,12 +565,12 @@ function TuneEditor({ tune, onChange }) {
           }).flat()}
         </div>
       </div>
-      <div style={{fontSize:10,color:"#555",marginTop:5}}>Click cells to place notes Â· Each column = one 16th note step</div>
+      <div style={{fontSize:10,color:"#555",marginTop:5}}>Click cells to place notes · Each column = one 16th note step</div>
     </div>
   );
 }
 
-// âââ Playtest Modal âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Playtest Modal ───────────────────────────────────────────────────────────
 function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, onClose }) {
   const findStart = (r) => {
     if(!r)return{x:1,y:1};
@@ -720,20 +720,20 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
     <div style={S.modal}>
       <div style={{...S.modalContent,maxWidth:560}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-          <h3 style={{margin:0,color:"#e94560"}}>â¶ Playtest</h3>
+          <h3 style={{margin:0,color:"#e94560"}}>▶ Playtest</h3>
           <div style={{display:"flex",gap:6,alignItems:"center"}}>
             <span style={{fontSize:11,color:"#888",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{rooms[roomIdx]?.name}</span>
-            <button style={{...S.btn(showInv),fontSize:11}} onClick={()=>setShowInv(v=>!v)}>ð {collected.length}</button>
-            <button style={S.btn(false)} onClick={onClose}>â</button>
+            <button style={{...S.btn(showInv),fontSize:11}} onClick={()=>setShowInv(v=>!v)}>🎒 {collected.length}</button>
+            <button style={S.btn(false)} onClick={onClose}>✕</button>
           </div>
         </div>
         {won ? (
           <div style={{textAlign:"center",padding:32}}>
-            <div style={{fontSize:40,marginBottom:12}}>ð</div>
+            <div style={{fontSize:40,marginBottom:12}}>🎉</div>
             <div style={{fontSize:22,color:"#ffec27",fontWeight:700,marginBottom:8}}>You Win!</div>
             <div style={{color:"#aaa",marginBottom:16}}>Items collected: {collected.length}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button style={S.btn(true)} onClick={restart}>âº Play Again</button>
+              <button style={S.btn(true)} onClick={restart}>↺ Play Again</button>
               <button style={S.btn(false)} onClick={onClose}>Back to Editor</button>
             </div>
           </div>
@@ -747,12 +747,12 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
                   {dialog.pages.length>1&&<div style={{fontSize:10,color:"#888"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
                 </div>
                 <div style={{fontSize:14,lineHeight:1.5,whiteSpace:"pre-wrap"}}>{dialog.pages[dialog.pageIdx]}</div>
-                <div style={{fontSize:11,color:"#555",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / âµ to continue â":"Space / âµ to close"}</div>
+                <div style={{fontSize:11,color:"#555",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / ↵ to continue →":"Space / ↵ to close"}</div>
               </div>
             )}
             {showInv&&(
               <div style={{background:"#0d1b3e",border:"1px solid #0f3460",borderRadius:6,padding:10,marginTop:8}}>
-                <div style={{fontSize:11,fontWeight:700,color:"#ffec27",marginBottom:5}}>ð Inventory</div>
+                <div style={{fontSize:11,fontWeight:700,color:"#ffec27",marginBottom:5}}>🎒 Inventory</div>
                 {collected.length===0?<div style={{fontSize:11,color:"#555"}}>Nothing yet.</div>:(
                   <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
                     {collected.map((it,i)=><span key={i} style={{background:"#1a1a2e",border:"1px solid #333",borderRadius:4,padding:"2px 8px",fontSize:12,color:"#ffec27"}}>{it.name}</span>)}
@@ -761,11 +761,11 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
               </div>
             )}
             <div style={{display:"flex",justifyContent:"space-between",marginTop:10,fontSize:11,color:"#555",flexWrap:"wrap",gap:4}}>
-              <span>Arrow keys to move Â· NPCs talk Â· ð¸ = exit portal</span>
+              <span>Arrow keys to move · NPCs talk · 🌸 = exit portal</span>
               <span>Rooms: {roomIdx+1}/{rooms.length}</span>
             </div>
             <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:8}}>
-              <button style={S.btn(false)} onClick={restart}>âº Restart</button>
+              <button style={S.btn(false)} onClick={restart}>↺ Restart</button>
             </div>
           </>
         )}
@@ -774,8 +774,8 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
   );
 }
 
-// âââ Export Bitsy Data ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-// Clamp a pixel value to a valid base-36 digit (0â35), guarding against NaN /
+// ─── Export Bitsy Data ────────────────────────────────────────────────────────
+// Clamp a pixel value to a valid base-36 digit (0–35), guarding against NaN /
 // undefined that can appear in imported-JPEG grids due to quantization edge cases.
 const safePixel = v => (Number.isFinite(v) ? Math.max(0, Math.min(35, Math.round(v))) : 0);
 
@@ -785,12 +785,12 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
   // Bitsy 8.x requires these version directive lines or the editor won't parse correctly
   out += `! VER_MAJ 8\n! VER_MIN 12\n! ROOM_FORMAT 1\n! DLG_COMPAT 0\n! TXT_MODE 0\n\n`;
 
-  // ââ PAL ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── PAL ──────────────────────────────────────────────────────────────────
   out += `PAL 0\n`;
   palette.forEach(hex => { const c = hexToRgb(hex); out += `${c.r},${c.g},${c.b}\n`; });
   out += `\n`;
 
-  // ââ ROOM (must come before TIL and SPR in Bitsy's parse order) âââââââââââ
+  // ── ROOM (must come before TIL and SPR in Bitsy's parse order) ───────────
   rooms.forEach((room, ri) => {
     out += `ROOM ${ri}\n`;
     (room.tiles || []).forEach(row => {
@@ -807,7 +807,7 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
     out += `PAL 0\n\n`;
   });
 
-  // ââ TIL ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── TIL ──────────────────────────────────────────────────────────────────
   tiles.forEach((tile, i) => {
     out += `TIL ${String.fromCharCode(97 + i)}\n`;
     tile.frames.forEach((frame, fi) => {
@@ -820,8 +820,8 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
     out += `\n`;
   });
 
-  // ââ SPR ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
-  // sprites[0] â SPR A (avatar/player); sprites[1..n] â SPR a, b, câ¦ (NPCs)
+  // ── SPR ──────────────────────────────────────────────────────────────────
+  // sprites[0] → SPR A (avatar/player); sprites[1..n] → SPR a, b, c… (NPCs)
   let dlgIndex = 0;
   sprites.forEach((spr, i) => {
     const sprId = i === 0 ? "A" : String.fromCharCode(97 + (i - 1));
@@ -843,7 +843,7 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
     out += `POS ${posRoom} ${posX},${posY}\n\n`;
   });
 
-  // ââ DLG ââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+  // ── DLG ──────────────────────────────────────────────────────────────────
   let dlgOut = 0;
   sprites.forEach((spr, i) => {
     if (i > 0 && spr.dialog) {
@@ -852,7 +852,7 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
     }
   });
 
-  // ââ TUNE (if any steps active) ââââââââââââââââââââââââââââââââââââââââââââ
+  // ── TUNE (if any steps active) ────────────────────────────────────────────
   if (tune && tune.some(s=>s.active)) {
     out += `TUNE 0\n`;
     out += `NAME theme\n`;
@@ -865,7 +865,7 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
   return out;
 }
 
-// âââ Export Modal âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Export Modal ─────────────────────────────────────────────────────────────
 function ExportModal({ data, onClose }) {
   const [copied, setCopied] = useState(false);
   const textRef = useRef(null);
@@ -887,13 +887,13 @@ function ExportModal({ data, onClose }) {
       <div style={{ ...S.modalContent, maxWidth: 600 }} onClick={e => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <h3 style={{ margin: 0, color: "#e94560" }}>{data.title}</h3>
-          <button style={S.btn(false)} onClick={onClose}>â</button>
+          <button style={S.btn(false)} onClick={onClose}>✕</button>
         </div>
 
         {data.type === "text" && (
           <>
             <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>
-              Copy this text and paste it into a <code style={{ color: "#ffec27" }}>.txt</code> file, then rename it to <code style={{ color: "#ffec27" }}>.bitsy</code> â or paste it into the Bitsy editor directly.
+              Copy this text and paste it into a <code style={{ color: "#ffec27" }}>.txt</code> file, then rename it to <code style={{ color: "#ffec27" }}>.bitsy</code> — or paste it into the Bitsy editor directly.
             </div>
             <textarea
               ref={textRef}
@@ -904,7 +904,7 @@ function ExportModal({ data, onClose }) {
             />
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
               <button style={{ ...S.btn(copied), flex: 1 }} onClick={copy}>
-                {copied ? "â Copied!" : "ð Copy All to Clipboard"}
+                {copied ? "✓ Copied!" : "📋 Copy All to Clipboard"}
               </button>
               <button style={{ ...S.btn(false), flex: 1 }} onClick={() => { textRef.current?.select(); }}>
                 Select All
@@ -916,13 +916,13 @@ function ExportModal({ data, onClose }) {
         {data.type === "image" && (
           <>
             <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>
-              Right-click the image below and choose <b>Save Image Asâ¦</b> to download it.
+              Right-click the image below and choose <b>Save Image As…</b> to download it.
             </div>
             <div style={{ textAlign: "center", background: "#0d1b3e", borderRadius: 6, padding: 16, marginBottom: 10 }}>
               <img src={data.content} alt={data.title} style={{ imageRendering: "pixelated", maxWidth: "100%", maxHeight: 300, border: "1px solid #333" }} />
             </div>
             <div style={{ fontSize: 11, color: "#666", textAlign: "center" }}>
-              Right-click â Save Image Asâ¦ Â· or long-press on mobile
+              Right-click → Save Image As… · or long-press on mobile
             </div>
           </>
         )}
@@ -931,11 +931,11 @@ function ExportModal({ data, onClose }) {
   );
 }
 
-// âââ ID gen âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── ID gen ───────────────────────────────────────────────────────────────────
 let nextId=1;
 function uid(){ return `id_${nextId++}`; }
 
-// âââ Main App âââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
+// ─── Main App ─────────────────────────────────────────────────────────────────
 export default function App() {
   const [tab,setTab]=useState("sprite");
   const [palette,setPalette]=useState([...DEFAULT_PALETTE]);
@@ -956,38 +956,25 @@ export default function App() {
   const [tileW,setTileW]=useState(8);   const [tileH,setTileH]=useState(8);
   const [roomW,setRoomW]=useState(16);  const [roomH,setRoomH]=useState(16);
 
-  const [sprites,setSprites]=useState([{id:uid(),name:"avatar",frames:[emptyGrid(8,8)],dialog:"",tileType:"walkable",blip:{Ø]NÜ]X\H\N
-_WJNÂÛÛÝÝ[\ËÙ][\×O]\ÙTÝ]JÞÚYZY
+  const [sprites,setSprites]=useState([{id:uid(),name:"avatar",frames:[emptyGrid(8,8)],dialog:"",tileType:"walkable",blip:{wave:"square",freq:440}}]);
+  const [tiles,setTiles]=useState([{id:uid(),name:"wall",frames:[emptyGrid(8,8)],tileType:"wall"}]);
+  const [selectedSprite,setSelectedSprite]=useState(0);
+  const [selectedTile,setSelectedTile]=useState(0);
+  const [selectedFrame,setSelectedFrame]=useState(0);
 
-K[YNØ[[Y\ÎÙ[\QÜY
-
-WK[U\NØ[WJNÂÛÛÝÜÙ[XÝYÜ]KÙ]Ù[XÝYÜ]WO]\ÙTÝ]J
-NÂÛÛÝÜÙ[XÝY[KÙ]Ù[XÝY[WO]\ÙTÝ]J
-NÂÛÛÝÜÙ[XÝY[YKÙ]Ù[XÝY[YWO]\ÙTÝ]J
-NÂÛÛÝÜÛÛ\ËÙ]ÛÛ\×O]\ÙTÝ]JÞÚYZY
+  const [rooms,setRooms]=useState([{id:uid(),name:"room 0",tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[]}]);
+  const [selectedRoom,setSelectedRoom]=useState(0);
+  const [roomTool,setRoomTool]=useState("place"); // place | erase | fill | npc
 
-K[YNÛÛH[\Î[\QÜY
-MMKX\
-OX\
+  const [animFrame,setAnimFrame]=useState(0);
+  const [playing,setPlaying]=useState(false);
 
+  useEffect(()=>{ if(!playing)return; const t=setInterval(()=>setAnimFrame(f=>f+1),200); return()=>clearInterval(t); },[playing]);
 
-OO[
-JKÜÎ×K^]Î×_WJNÂÛÛÝÜÙ[XÝYÛÛKÙ]Ù[XÝYÛÛWO]\ÙTÝ]J
-NÂÛÛÝÜÛÛUÛÛÙ]ÛÛUÛÛO]\ÙTÝ]JXÙHNÈËÈXÙH\\ÙH[ÂÛÛÝØ[[Q[YKÙ][[Q[YWO]\ÙTÝ]J
-NÂÛÛÝÜ^Z[ËÙ]^Z[×O]\ÙTÝ]J[ÙJNÂ\ÙQYXÝ
-
-
-OOÈY\^Z[Ê\]\ÈÛÛÝ\Ù][\[
-
-
-OOÙ][[Q[YJOÌJK
-NÈ]\
-OOÛX\[\[
-
-NÈKÜ^Z[×JNÂËÈÙ^XØ\ÚÜÝ]Â\ÙQYXÝ
-
-
-OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT"||e.target.tagName==="TEXTAREA")return;
+  // Keyboard shortcuts
+  useEffect(()=>{
+    const h=(e)=>{
+      if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT"||e.target.tagName==="TEXTAREA")return;
       switch(e.key.toLowerCase()){
         case"d":setTool("draw");break; case"e":setTool("erase");break;
         case"f":setTool("fill");break; case"g":setShowGrid(v=>!v);break;
@@ -1097,7 +1084,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
     if(newPalette)setPalette(newPalette.slice(0,MAX_COLORS));
     if(mode==="sprite"){
       const n={id:uid(),name:"imported",frames:[grid],tileType:"walkable",dialog:""};
-      setSprites(p=>{setSelectedSprite(p.length);return[...p,t];});
+      setSprites(p=>{setSelectedSprite(p.length);return[...p,n];});
       setSpriteW(grid[0].length);setSpriteH(grid.length);setTab("sprite");
     } else {
       const n={id:uid(),name:"imported_tile",frames:[grid],tileType:"walkable"};
@@ -1152,7 +1139,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
     }
   };
 
-  // ââ Exports (modal-based â sandboxed iframes block programmatic downloads) ââ
+  // ── Exports (modal-based — sandboxed iframes block programmatic downloads) ──
   const makeSpriteCanvas=(frame,scale)=>{
     const w=frame[0].length,h=frame.length;
     const c=document.createElement("canvas");c.width=w*scale;c.height=h*scale;
@@ -1213,7 +1200,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
         // Toggle: clicking existing exit removes it; clicking empty opens config modal
         const existing=(room.exits||[]).find(e=>e.x===rx&&e.y===ry);
         if(existing){ room.exits=(room.exits||[]).filter(e=>!(e.x===rx&&e.y===ry)); rs[selectedRoom]=room; return rs; }
-        // Open config modal â we can't do async from here, so set exitModal and bail
+        // Open config modal — we can't do async from here, so set exitModal and bail
         setExitModal({x:rx,y:ry});
         return prev; // don't mutate yet; confirmed in ExitConfigModal callback
       } else if(roomTool==="fill"){
@@ -1276,12 +1263,12 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
     <div style={S.app}>
       {/* Header */}
       <div style={S.header}>
-        <span style={S.title}>ð® Multicolor Bitsy</span>
+        <span style={S.title}>🎮 Multicolor Bitsy</span>
         <input value={gameTitle} onChange={e=>setGameTitle(e.target.value)}
           style={{...S.input,width:200,fontSize:13}} placeholder="Game title..." />
         <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
           <button style={S.btnGreen} onClick={()=>setShowImport(true)}>Import Image</button>
-          <button style={S.btn(false)} onClick={()=>setShowPlaytest(true)}>â¶ Test Game</button>
+          <button style={S.btn(false)} onClick={()=>setShowPlaytest(true)}>▶ Test Game</button>
           <button style={S.btn(false)} onClick={exportPng}>PNG</button>
           {currentItem?.frames.length>1&&<button style={S.btn(false)} onClick={exportSpritesheet}>Sheet</button>}
           <button style={S.btn(false)} onClick={exportGameData}>Export .bitsy</button>
@@ -1292,7 +1279,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
       <div style={{background:"#16213e",padding:"0 20px",display:"flex"}}>
         {["sprite","tile","room","tune"].map(t=>(
           <button key={t} style={S.tab(tab===t)} onClick={()=>{setTab(t);setSelectedFrame(0);}}>
-            {t==="sprite"?"ð§ Sprites":t==="tile"?"ð¦ Tiles":t==="room"?"ðº Rooms":"ðµ Tune"}
+            {t==="sprite"?"🧑 Sprites":t==="tile"?"🟦 Tiles":t==="room"?"🗺 Rooms":"🎵 Tune"}
           </button>
         ))}
       </div>
@@ -1319,7 +1306,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
             <div style={S.section}>
               <div style={S.sectionTitle}>Tools</div>
               <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                {[["draw","âï¸"],["erase","ð§¹"],["fill","ðª£"]].map(([t,emoji])=>(
+                {[["draw","✏️"],["erase","🧹"],["fill","🪣"]].map(([t,emoji])=>(
                   <button key={t} style={S.btn(tool===t)} onClick={()=>setTool(t)}>{emoji} {t}</button>
                 ))}
               </div>
@@ -1338,7 +1325,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                   onChange={e=>tab==="sprite"?resizeSprite(+e.target.value,spriteH):resizeTile(+e.target.value,tileH)}>
                   {GRID_OPTIONS.map(v=><option key={v} value={v}>{v}</option>)}
                 </select>
-                <span style={{color:"#888"}}>Ã</span>
+                <span style={{color:"#888"}}>×</span>
                 <select style={S.select} value={itemH}
                   onChange={e=>tab==="sprite"?resizeSprite(spriteW,+e.target.value):resizeTile(tileW,+e.target.value)}>
                   {GRID_OPTIONS.map(v=><option key={v} value={v}>{v}</option>)}
@@ -1352,16 +1339,16 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
             <div style={S.section}>
               <div style={S.sectionTitle}>Room Tools</div>
               <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                {[["place","ð¦ Place"],["erase","ð§¹ Erase"],["fill","ðª£ Fill"],["npc","ð§ NPC"],["exit","ðª Exit"]].map(([t,label])=>(
+                {[["place","🟦 Place"],["erase","🧹 Erase"],["fill","🪣 Fill"],["npc","🧑 NPC"],["exit","🚪 Exit"]].map(([t,label])=>(
                   <button key={t} style={S.btn(roomTool===t)} onClick={()=>setRoomTool(t)}>{label}</button>
                 ))}
               </div>
               {roomTool==="npc"&&<div style={{fontSize:11,color:"#888",marginTop:6}}>Select a sprite below (not avatar) and click room to place</div>}
-              {roomTool==="exit"&&<div style={{fontSize:11,color:"#ff44ee",marginTop:6}}>Click a cell to place an exit portal (pink â¶). Click again to remove.</div>}
+              {roomTool==="exit"&&<div style={{fontSize:11,color:"#ff44ee",marginTop:6}}>Click a cell to place an exit portal (pink ▶). Click again to remove.</div>}
               <div style={{marginTop:8,display:"flex",gap:4,alignItems:"center"}}>
                 <span style={{fontSize:11,color:"#aaa"}}>Room:</span>
                 <select style={S.select} value={roomW} onChange={e=>setRoomW(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
-                <span style={{color:"#888"}}>Ã</span>
+                <span style={{color:"#888"}}>×</span>
                 <select style={S.select} value={roomH} onChange={e=>setRoomH(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
               </div>
             </div>
@@ -1370,7 +1357,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
           {/* Find / Search */}
           {tab!=="room"&&tab!=="tune"&&(
             <div style={S.section}>
-              <input value={findQuery} onChange={e=>setFindQuery(e.target.value)} placeholder="ð Find by nameâ¦" style={{...S.input,fontSize:11}} />
+              <input value={findQuery} onChange={e=>setFindQuery(e.target.value)} placeholder="🔍 Find by name…" style={{...S.input,fontSize:11}} />
             </div>
           )}
 
@@ -1443,14 +1430,14 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
             <div style={S.sectionTitle}>Asset Packs</div>
             {tab==="sprite"&&selectedSprite===0&&(
               <div style={{fontSize:10,color:"#29adff",background:"#082040",borderRadius:3,padding:"4px 6px",marginBottom:6,border:"1px solid #29adff"}}>
-                Avatar selected â clicking a character sprite below will replace the avatar's pixels directly.
+                Avatar selected — clicking a character sprite below will replace the avatar's pixels directly.
               </div>
             )}
             {ASSET_PACKS.map((pack,pi)=>(
               <div key={pi} style={{marginBottom:6}}>
                 <button onClick={()=>setActivePack(activePack===pi?null:pi)}
                   style={{...S.btn(activePack===pi),width:"100%",textAlign:"left",marginBottom:2,fontSize:11}}>
-                  {pack.name} {activePack===pi?"â²":"â¼"}
+                  {pack.name} {activePack===pi?"▲":"▼"}
                 </button>
                 {activePack===pi&&(
                   <div style={{display:"flex",flexWrap:"wrap",gap:3,padding:4,background:"#0d1b3e",borderRadius:4}}>
@@ -1475,7 +1462,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
         <div style={S.center}>
           {tab==="tune"?(
             <div style={{width:"100%",maxWidth:640,padding:8}}>
-              <div style={{fontWeight:700,color:"#e94560",marginBottom:12,fontSize:14}}>ðµ Background Tune</div>
+              <div style={{fontWeight:700,color:"#e94560",marginBottom:12,fontSize:14}}>🎵 Background Tune</div>
               <TuneEditor tune={tune} onChange={setTune} />
               <div style={{marginTop:16,fontSize:11,color:"#555",lineHeight:1.8}}>
                 The tune loops in the background while your game is playing.<br/>
@@ -1490,7 +1477,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
           ):(tab!=="tune"&&(
             <>
               <PixelCanvas grid={currentFrame} palette={palette} onDraw={handleDraw} pixelSize={pixelSize} showGrid={showGrid} />
-              {currentItem&&<div style={{marginTop:6,fontSize:11,color:"#888"}}>{currentItem.name} Â· Frame {selectedFrame+1}/{currentItem.frames.length} Â· {itemW}Ã{itemH}</div>}
+              {currentItem&&<div style={{marginTop:6,fontSize:11,color:"#888"}}>{currentItem.name} · Frame {selectedFrame+1}/{currentItem.frames.length} · {itemW}×{itemH}</div>}
             </>
           ))}
         </div>
@@ -1504,10 +1491,10 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                 <input value={currentItem.name} onChange={e=>renameItem(e.target.value)} style={S.input} />
               </div>
 
-              {/* Set as Avatar â shown on any non-avatar sprite */}
+              {/* Set as Avatar — shown on any non-avatar sprite */}
               {tab==="sprite"&&selectedSprite===0&&(
                 <div style={{background:"#0d1b3e",border:"1px solid #1a1a5e",borderRadius:4,padding:"6px 10px",marginBottom:12,fontSize:11,color:"#888"}}>
-                  ð§ <b style={{color:"#e94560"}}>This is the Avatar</b> â the player character.<br/>
+                  🧑 <b style={{color:"#e94560"}}>This is the Avatar</b> — the player character.<br/>
                   To set its look: select it here, then click any character sprite in an Asset Pack below to replace its pixels instantly.
                 </div>
               )}
@@ -1515,7 +1502,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                 <div style={{marginBottom:12}}>
                   <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#082040",borderColor:"#29adff",color:"#29adff"}}
                     onClick={()=>setAsAvatar(selectedSprite)}>
-                    ð¤ Set as Avatar (replace player appearance)
+                    👤 Set as Avatar (replace player appearance)
                   </button>
                   <div style={{fontSize:10,color:"#555",marginTop:3}}>Copies this sprite's pixels into sprites[0], which is the playable character.</div>
                 </div>
@@ -1528,12 +1515,12 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                   {TILE_TYPES.map(t=>(
                     <button key={t} onClick={()=>updateTileType(t)}
                       style={{...S.btn(currentTileType===t),fontSize:11,color:currentTileType===t?"#fff":TILE_TYPE_COLORS[t]||"#aaa",borderColor:TILE_TYPE_COLORS[t]||"#333"}}>
-                      {t==="walkable"?"ð¢":t==="wall"?"ð´":t==="item"?"ð¡":"ðµ"} {t}
+                      {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
                     </button>
                   ))}
                 </div>
                 <div style={{fontSize:10,color:"#666",marginTop:4}}>
-                  ð¢ walkable Â· ð´ wall (blocks player) Â· ð¡ item (collect it!) Â· ðµ end (win the game)
+                  🟢 walkable · 🔴 wall (blocks player) · 🟡 item (collect it!) · 🔵 end (win the game)
                 </div>
               </div>
 
@@ -1544,7 +1531,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                   <textarea value={currentItem.dialog||""} onChange={e=>updateDialog(e.target.value)}
                     placeholder="What does this character say? Separate pages with --- on its own line."
                     style={{...S.input,height:64,resize:"vertical",fontFamily:"inherit"}} />
-                  <div style={{fontSize:10,color:"#666",marginTop:3}}>Separate pages with <code>---</code> Â· Sprite 0 is the player â dialog ignored.</div>
+                  <div style={{fontSize:10,color:"#666",marginTop:3}}>Separate pages with <code>---</code> · Sprite 0 is the player — dialog ignored.</div>
                 </div>
               )}
 
@@ -1565,7 +1552,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                   </div>
                   <button style={{...S.btn(false),fontSize:10,width:"100%"}}
                     onClick={()=>playBlip(currentItem.blip?.wave||"square",currentItem.blip?.freq||440,0.15)}>
-                    â¶ Preview Blip
+                    ▶ Preview Blip
                   </button>
                 </div>
               )}
@@ -1596,7 +1583,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
                     <MiniCanvas grid={previewFrame} palette={palette} size={64} />
                     <button style={S.btn(playing)} onClick={()=>{setPlaying(!playing);setAnimFrame(0);}}>
-                      {playing?"â¹ Stop":"â¶ Play"}
+                      {playing?"⏹ Stop":"▶ Play"}
                     </button>
                   </div>
                 </div>
@@ -1637,8 +1624,8 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                 <div style={{fontSize:11,color:"#aaa",lineHeight:1.8}}>
                   {TILE_TYPES.map(t=>(
                     <div key={t} style={{color:TILE_TYPE_COLORS[t]||"#aaa"}}>
-                      {t==="walkable"?"ð¢":t==="wall"?"ð´":t==="item"?"ð¡":"ðµ"} {t}
-                      {t==="wall"?" â blocks player":t==="item"?" â collected on touch":t==="end"?" â triggers win":""}
+                      {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
+                      {t==="wall"?" — blocks player":t==="item"?" — collected on touch":t==="end"?" — triggers win":""}
                     </div>
                   ))}
                 </div>
@@ -1648,9 +1635,9 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
                   <div style={S.sectionTitle}>Exits ({rooms[selectedRoom].exits.length})</div>
                   {rooms[selectedRoom].exits.map((ex,i)=>(
                     <div key={i} style={{fontSize:11,color:"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#0d1b3e",borderRadius:3,padding:"3px 6px"}}>
-                      <span>({ex.x},{ex.y}) â Room {ex.destRoom} @ ({ex.destX},{ex.destY})</span>
+                      <span>({ex.x},{ex.y}) → Room {ex.destRoom} @ ({ex.destX},{ex.destY})</span>
                       <button style={{background:"none",border:"none",color:"#e94560",cursor:"pointer",fontSize:12,padding:"0 2px"}}
-                        onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:rs[selectedRoom].exits.filter((_,j)=>j!==i)};return rs;})}>â</button>
+                        onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:rs[selectedRoom].exits.filter((_,j)=>j!==i)};return rs;})}>✕</button>
                     </div>
                   ))}
                 </div>
@@ -1671,7 +1658,7 @@ OOÂÛÛÝJJOOÊ      if(e.target.tagName==="INPUT"||e.target.ta
           <div style={{...S.section,marginTop:12}}>
             <div style={S.sectionTitle}>Shortcuts</div>
             <div style={{fontSize:10,color:"#555",lineHeight:1.8}}>
-              D draw Â· E erase Â· F fill Â· G grid<br/>1â9 select color
+              D draw · E erase · F fill · G grid<br/>1–9 select color
             </div>
           </div>
         </div>
