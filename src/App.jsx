@@ -11,7 +11,7 @@ const GRID_OPTIONS = [8, 16, 32];
 const MAX_FRAMES = 8;
 const MAX_COLORS = 16;
 const TILE_TYPES = ["walkable","wall","item","end"];
-const TILE_TYPE_COLORS = { walkable:"#00e436", wall:"#ff004d", item:"#ffec27", end:"#29adff" };
+const TILE_TYPE_COLORS = { walkable:"#4ade80", wall:"#f87171", item:"#fbbf24", end:"#60a5fa" };
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const TUNE_STEPS = 16;
 
@@ -167,8 +167,8 @@ const ASSET_PACKS = [
         [13,13,13,13,13,13,13,0],[13,13,13,13,13,13,13,0],[0,13,0,0,0,13,0,0],[0,13,0,0,0,13,0,0],
       ]},
       { name:"Student", itemType:"sprite", tileType:"walkable", dialog:"Did you finish homework?", grid:[
-        [0,0,10,10,10,0,0,0],[0,0,10,10,10,0,0,0],[0,0,10,10,10,0,0,0],[0,0,6,6,6,0,0,0],
-        [0,6,6,6,6,6,0,0],[0,0,6,6,6,0,0,0],[0,10,0,0,0,10,0,0],[0,10,0,0,0,10,0,0],
+        [0,0,13,13,13,0,0,0],[0,13,10,10,10,0,0,0],[0,0,10,0,0,10,0,0],[0,0,10,10,10,0,0,0],
+        [0,6,6,6,6,6,0,0],[0,3,6,6,6,3,0,0],[0,0,11,0,11,0,0,0],[0,0,14,0,14,0,0,0],
       ]},
       { name:"Book", itemType:"sprite", tileType:"item", dialog:"", grid:[
         [0,0,0,0,0,0,0,0],[0,2,2,2,2,2,0,0],[0,2,1,1,1,2,0,0],[0,2,1,14,1,2,0,0],
@@ -181,6 +181,80 @@ const ASSET_PACKS = [
       { name:"Sidewalk", itemType:"tile", tileType:"walkable", grid:[
         [8,8,8,8,8,8,8,8],[8,15,15,8,8,15,15,8],[8,15,15,8,8,15,15,8],[8,8,8,8,8,8,8,8],
         [8,8,8,8,8,8,8,8],[8,15,15,8,8,15,15,8],[8,15,15,8,8,15,15,8],[8,8,8,8,8,8,8,8],
+      ]},
+    ],
+  },
+  {
+    name: "⚽ Sports Pack", color: "#ffec27",
+    assets: [
+      { name:"Soccer Ball", itemType:"sprite", tileType:"item", dialog:"", grid:[
+        [0,0,1,1,1,1,0,0],[0,1,1,14,1,1,1,0],[1,1,14,1,1,14,1,0],[1,14,1,1,14,1,1,0],
+        [1,1,14,1,1,1,1,0],[1,14,1,14,1,1,1,0],[0,1,1,1,14,1,1,0],[0,0,1,1,1,1,0,0],
+      ]},
+      { name:"Basketball", itemType:"sprite", tileType:"item", dialog:"", grid:[
+        [0,0,3,3,3,3,0,0],[0,3,3,13,3,3,3,0],[3,3,13,3,3,3,3,0],[3,3,3,13,3,3,3,0],
+        [3,3,3,3,13,3,3,0],[3,13,3,3,3,13,3,0],[0,3,3,3,3,3,3,0],[0,0,3,3,3,3,0,0],
+      ]},
+      { name:"Trophy", itemType:"sprite", tileType:"item", dialog:"You win!", grid:[
+        [0,4,0,0,0,0,4,0],[4,4,4,4,4,4,4,0],[4,4,4,4,4,4,4,0],[0,4,4,4,4,4,0,0],
+        [0,0,4,4,4,0,0,0],[0,0,4,4,4,0,0,0],[0,4,4,4,4,4,0,0],[4,4,4,4,4,4,4,0],
+      ]},
+      { name:"Goal Post", itemType:"sprite", tileType:"wall", dialog:"", grid:[
+        [1,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],
+        [1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],
+      ]},
+      { name:"Coach", itemType:"sprite", tileType:"walkable", dialog:"Great hustle out there!", blip:{wave:"square",freq:330}, grid:[
+        [0,0,14,14,14,0,0,0],[0,0,10,10,10,0,0,0],[0,0,10,0,10,0,0,0],[0,0,10,10,10,0,0,0],
+        [0,2,2,2,2,2,0,0],[0,0,2,2,2,0,0,0],[0,0,14,0,14,0,0,0],[0,0,14,0,14,0,0,0],
+      ]},
+      { name:"Track Lane", itemType:"tile", tileType:"walkable", grid:[
+        [3,3,3,3,3,3,3,3],[3,3,3,3,3,3,3,3],[1,1,1,1,1,1,1,1],[3,3,3,3,3,3,3,3],
+        [3,3,3,3,3,3,3,3],[1,1,1,1,1,1,1,1],[3,3,3,3,3,3,3,3],[3,3,3,3,3,3,3,3],
+      ]},
+      { name:"Gym Floor", itemType:"tile", tileType:"walkable", grid:[
+        [13,13,13,13,13,13,13,13],[3,3,3,3,3,3,3,3],[13,13,13,13,13,13,13,13],[13,13,13,13,13,13,13,13],
+        [3,3,3,3,3,3,3,3],[13,13,13,13,13,13,13,13],[13,13,13,13,13,13,13,13],[3,3,3,3,3,3,3,3],
+      ]},
+      { name:"Scoreboard", itemType:"sprite", tileType:"wall", dialog:"The game is on!", grid:[
+        [14,14,14,14,14,14,0,0],[14,1,1,14,1,1,14,0],[14,1,1,14,1,1,14,0],[14,14,14,14,14,14,0,0],
+        [14,2,2,14,5,5,14,0],[14,2,2,14,5,5,14,0],[14,14,14,14,14,14,0,0],[0,14,14,14,14,0,0,0],
+      ]},
+    ],
+  },
+  {
+    name: "🐾 Animal Pack", color: "#ab5236",
+    assets: [
+      { name:"Cat", itemType:"sprite", tileType:"walkable", dialog:"Meow~", blip:{wave:"sine",freq:660}, grid:[
+        [14,0,0,0,0,0,14,0],[0,14,14,14,14,14,0,0],[0,14,1,14,14,1,14,0],[0,14,14,9,14,14,0,0],
+        [0,14,14,14,14,14,0,0],[0,0,14,14,14,0,0,0],[0,14,0,0,14,14,14,0],[14,0,0,0,0,14,0,0],
+      ]},
+      { name:"Dog", itemType:"sprite", tileType:"walkable", dialog:"Woof! Woof!", blip:{wave:"square",freq:220}, grid:[
+        [0,13,0,0,0,13,0,0],[0,13,13,13,13,13,0,0],[0,13,1,13,1,13,0,0],[0,13,13,1,13,13,0,0],
+        [0,0,13,13,13,0,0,0],[0,0,13,13,13,0,0,0],[0,13,0,0,0,13,0,0],[0,13,0,0,0,13,0,0],
+      ]},
+      { name:"Rabbit", itemType:"sprite", tileType:"walkable", dialog:"*sniff sniff*", blip:{wave:"triangle",freq:880}, grid:[
+        [0,1,0,0,0,1,0,0],[0,1,0,0,0,1,0,0],[0,0,1,1,1,0,0,0],[0,0,1,9,1,0,0,0],
+        [0,0,1,1,1,0,0,0],[0,1,1,1,1,1,0,0],[0,1,0,0,0,1,0,0],[0,1,0,0,0,1,0,0],
+      ]},
+      { name:"Bird", itemType:"sprite", tileType:"walkable", dialog:"Tweet tweet!", blip:{wave:"sine",freq:1320}, grid:[
+        [0,0,0,6,6,0,0,0],[0,0,6,6,6,6,0,0],[0,0,6,1,6,6,0,0],[0,6,6,6,6,6,4,0],
+        [5,5,5,6,6,6,4,0],[0,0,5,6,6,5,0,0],[0,0,14,6,6,14,0,0],[0,0,0,0,0,0,0,0],
+      ]},
+      { name:"Deer", itemType:"sprite", tileType:"walkable", dialog:"...", blip:{wave:"triangle",freq:440}, grid:[
+        [13,0,0,0,0,0,13,0],[0,13,0,0,0,13,0,0],[0,0,10,10,10,0,0,0],[0,0,10,1,10,0,0,0],
+        [0,0,10,10,10,0,0,0],[0,0,13,13,13,0,0,0],[0,13,0,0,0,13,0,0],[0,13,0,0,0,13,0,0],
+      ]},
+      { name:"Meadow", itemType:"tile", tileType:"walkable", grid:[
+        [5,5,5,5,5,5,5,5],[5,4,5,5,5,4,5,5],[5,5,5,12,5,5,5,12],[5,5,12,5,5,5,12,5],
+        [5,5,5,5,5,5,5,5],[5,4,5,5,5,4,5,5],[12,5,5,5,12,5,5,5],[5,5,5,12,5,5,5,5],
+      ]},
+      { name:"Pond", itemType:"tile", tileType:"walkable", grid:[
+        [6,6,11,11,11,11,6,6],[6,11,11,11,11,11,11,6],[11,11,1,11,11,1,11,11],[11,11,11,11,11,11,11,11],
+        [11,11,11,1,11,11,11,11],[11,1,11,11,11,11,11,11],[6,11,11,11,11,11,11,6],[6,6,11,11,11,11,6,6],
+      ]},
+      { name:"Forest Floor", itemType:"tile", tileType:"walkable", grid:[
+        [13,13,12,13,13,12,13,13],[13,12,13,13,12,13,13,12],[12,13,13,12,13,13,12,13],[13,13,12,13,13,12,13,13],
+        [13,12,13,13,12,13,13,12],[12,13,13,12,13,13,12,13],[13,13,12,13,13,12,13,13],[13,12,13,13,12,13,13,12],
       ]},
     ],
   },
@@ -245,27 +319,30 @@ function emptyGrid(w,h) { return Array.from({length:h},()=>Array(w).fill(0)); }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const S = {
-  app:{ fontFamily:"'Inter',system-ui,sans-serif", background:"#1a1a2e", color:"#e0e0e0", minHeight:"100vh", display:"flex", flexDirection:"column" },
-  header:{ background:"#16213e", padding:"10px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"2px solid #0f3460", gap:12 },
-  title:{ fontSize:20, fontWeight:700, color:"#e94560", letterSpacing:1, whiteSpace:"nowrap" },
+  app:{ fontFamily:"'Inter',system-ui,sans-serif", background:"#0f172a", color:"#e2e8f0", minHeight:"100vh", display:"flex", flexDirection:"column" },
+  header:{ background:"#1e293b", padding:"7px 16px", display:"flex", alignItems:"center", gap:10, borderBottom:"1px solid rgba(255,255,255,0.06)", boxShadow:"0 1px 12px rgba(0,0,0,0.5)", flexShrink:0 },
+  title:{ fontSize:15, fontWeight:800, color:"#38bdf8", letterSpacing:"-0.3px", whiteSpace:"nowrap" },
+  modeBar:{ background:"#162032", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", padding:"0 10px", flexShrink:0, gap:2 },
+  modeBtn:(active)=>({ padding:"9px 20px", background:active?"#38bdf8":"transparent", color:active?"#0f172a":"#64748b", border:"none", cursor:"pointer", fontSize:13, fontWeight:700, transition:"all .12s", display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }),
   main:{ display:"flex", flex:1, overflow:"hidden" },
-  sidebar:{ width:256, background:"#16213e", padding:12, overflowY:"auto", borderRight:"2px solid #0f3460", flexShrink:0 },
-  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:16, overflow:"auto" },
-  rightPanel:{ width:290, background:"#16213e", padding:12, overflowY:"auto", borderLeft:"2px solid #0f3460", flexShrink:0 },
-  section:{ marginBottom:14 },
-  sectionTitle:{ fontSize:11, fontWeight:700, textTransform:"uppercase", color:"#e94560", marginBottom:6, letterSpacing:0.5 },
-  btn:(active)=>({ padding:"5px 10px", background:active?"#e94560":"#0f3460", color:active?"#fff":"#e0e0e0", border:active?"1px solid #e94560":"1px solid #1a1a5e", borderRadius:4, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .12s" }),
-  btnGreen:{ padding:"5px 10px", background:"#008751", color:"#fff", border:"1px solid #00e436", borderRadius:4, cursor:"pointer", fontSize:12, fontWeight:600 },
-  input:{ background:"#0d1b3e", border:"1px solid #1a1a5e", color:"#e0e0e0", borderRadius:4, padding:"4px 8px", fontSize:12, width:"100%", boxSizing:"border-box" },
-  select:{ background:"#0d1b3e", border:"1px solid #1a1a5e", color:"#e0e0e0", borderRadius:4, padding:"4px 6px", fontSize:12 },
-  tab:(active)=>({ padding:"7px 14px", background:active?"#e94560":"#0f3460", color:active?"#fff":"#aaa", border:"none", borderRadius:"4px 4px 0 0", cursor:"pointer", fontSize:13, fontWeight:600, marginRight:2 }),
-  modal:{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,.75)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 },
-  modalContent:{ background:"#1a1a2e", border:"2px solid #0f3460", borderRadius:8, padding:24, maxWidth:520, width:"92%", maxHeight:"90vh", overflowY:"auto" },
+  sidebar:{ width:256, background:"#1e293b", padding:"6px", overflowY:"auto", borderRight:"1px solid rgba(255,255,255,0.06)", flexShrink:0 },
+  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:20, overflow:"auto", background:"#0f172a" },
+  rightPanel:{ width:272, background:"#1e293b", padding:"6px", overflowY:"auto", borderLeft:"1px solid rgba(255,255,255,0.06)", flexShrink:0 },
+  section:{ marginBottom:6, background:"rgba(255,255,255,0.025)", borderRadius:8, padding:"9px 10px", border:"1px solid rgba(255,255,255,0.05)" },
+  sectionTitle:{ fontSize:10, fontWeight:700, textTransform:"uppercase", color:"#38bdf8", marginBottom:7, letterSpacing:"0.1em" },
+  btn:(active)=>({ padding:"5px 10px", background:active?"#38bdf8":"rgba(255,255,255,0.05)", color:active?"#0f172a":"#e2e8f0", border:active?"1px solid #38bdf8":"1px solid rgba(255,255,255,0.08)", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .1s", whiteSpace:"nowrap" }),
+  btnPrimary:{ padding:"7px 18px", background:"#38bdf8", color:"#0f172a", border:"none", borderRadius:7, cursor:"pointer", fontSize:13, fontWeight:800, boxShadow:"0 2px 12px rgba(56,189,248,0.3)" },
+  btnGreen:{ padding:"5px 12px", background:"rgba(74,222,128,0.12)", color:"#4ade80", border:"1px solid rgba(74,222,128,0.25)", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:700 },
+  input:{ background:"rgba(0,0,0,0.35)", border:"1px solid rgba(255,255,255,0.08)", color:"#e2e8f0", borderRadius:6, padding:"5px 9px", fontSize:12, width:"100%", boxSizing:"border-box" },
+  select:{ background:"rgba(0,0,0,0.35)", border:"1px solid rgba(255,255,255,0.08)", color:"#e2e8f0", borderRadius:6, padding:"4px 8px", fontSize:12 },
+  toolBtn:(active)=>({ width:"100%", padding:"7px 10px", background:active?"rgba(56,189,248,0.12)":"transparent", color:active?"#38bdf8":"#94a3b8", border:active?"1px solid rgba(56,189,248,0.3)":"1px solid transparent", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:active?700:400, display:"flex", alignItems:"center", gap:8, transition:"all .1s", textAlign:"left", marginBottom:2 }),
+  modal:{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,0.85)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, backdropFilter:"blur(8px)" },
+  modalContent:{ background:"#1e293b", border:"1px solid rgba(255,255,255,0.1)", borderRadius:12, padding:24, maxWidth:520, width:"92%", maxHeight:"90vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(0,0,0,0.8)" },
   row:{ display:"flex", gap:8, alignItems:"center", marginBottom:8, flexWrap:"wrap" },
-  label:{ fontSize:12, color:"#aaa", minWidth:56 },
-  colorSwatch:(color,selected)=>({ width:26, height:26, background:color, border:selected?"3px solid #e94560":"2px solid #333", borderRadius:4, cursor:"pointer", display:"inline-block", margin:2, boxShadow:selected?"0 0 6px #e94560":"none" }),
-  canvas:{ border:"2px solid #0f3460", borderRadius:4, cursor:"crosshair", imageRendering:"pixelated" },
-  frameThumb:(active)=>({ border:active?"2px solid #e94560":"2px solid #444", borderRadius:4, cursor:"pointer", imageRendering:"pixelated", margin:2, background:"#111", display:"block" }),
+  label:{ fontSize:12, color:"#64748b", minWidth:56 },
+  colorSwatch:(color,selected)=>({ width:26, height:26, background:color, border:selected?"2px solid #38bdf8":"2px solid rgba(255,255,255,0.07)", borderRadius:4, cursor:"pointer", display:"inline-block", margin:"2px", boxShadow:selected?"0 0 0 2px rgba(56,189,248,0.35)":"none" }),
+  canvas:{ border:"1px solid rgba(255,255,255,0.07)", borderRadius:6, cursor:"crosshair", imageRendering:"pixelated", boxShadow:"0 0 0 1px rgba(255,255,255,0.02), 0 16px 56px rgba(0,0,0,0.7)" },
+  frameThumb:(active)=>({ border:active?"2px solid #38bdf8":"1px solid rgba(255,255,255,0.08)", borderRadius:4, cursor:"pointer", imageRendering:"pixelated", margin:2, background:"#0f172a", display:"block" }),
 };
 
 // ─── Pixel Canvas ─────────────────────────────────────────────────────────────
@@ -305,7 +382,7 @@ function PixelCanvas({ grid, palette, onDraw, pixelSize=20, showGrid:showG=true 
     }
     onDraw(x,y); lastPos.current={x,y};
   };
-  const maxD=460, sc=Math.min(maxD/cw,maxD/ch,1);
+  const maxD=520, sc=Math.min(maxD/cw,maxD/ch,1);
   const dw=Math.floor(cw*(cw>maxD||ch>maxD?sc:1)), dh=Math.floor(ch*(cw>maxD||ch>maxD?sc:1));
   return <canvas ref={ref} width={cw} height={ch} style={{...S.canvas,width:dw,height:dh}}
     onMouseDown={e=>{drawing.current=true;lastPos.current=null;handle(e,true);}}
@@ -327,10 +404,11 @@ function MiniCanvas({ grid, palette, size=48 }) {
 }
 
 // ─── Room Canvas ──────────────────────────────────────────────────────────────
-function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH, onPlace, roomTool, selectedTileId, selectedSpriteId }) {
+function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH, onPlace, roomTool, selectedTileId, selectedSpriteId, avatarStart }) {
   const ref = useRef(null);
   const dragging = useRef(false);
-  const ps = Math.max(2, Math.floor(440/Math.max(roomW*tileW,roomH*tileH)));
+  const lastCell = useRef(null);
+  const ps = Math.max(2, Math.floor(580/Math.max(roomW*tileW,roomH*tileH)));
 
   const drawRoom = useCallback((ctx) => {
     const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
@@ -364,11 +442,32 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
       const cx=(exit.x+0.5)*tileW*ps, cy=(exit.y+0.5)*tileH*ps, sz=tileW*ps*0.35;
       ctx.beginPath();ctx.moveTo(cx+sz,cy);ctx.lineTo(cx-sz*0.5,cy-sz*0.8);ctx.lineTo(cx-sz*0.5,cy+sz*0.8);ctx.closePath();ctx.fill();
     });
+    // Draw avatar start position marker
+    if(avatarStart){
+      const ax=avatarStart.x, ay=avatarStart.y;
+      ctx.fillStyle="rgba(0,255,120,0.25)";
+      ctx.fillRect(ax*tileW*ps,ay*tileH*ps,tileW*ps,tileH*ps);
+      // Draw avatar sprite if it exists
+      const avSpr=sprites[0];
+      if(avSpr){
+        const frame=avSpr.frames[0]||emptyGrid(tileW,tileH);
+        for(let py=0;py<Math.min(tileH,frame.length);py++) for(let px=0;px<Math.min(tileW,(frame[0]||[]).length);px++){
+          if(frame[py][px]===0)continue;
+          ctx.fillStyle=palette[frame[py][px]]||palette[1]||"#fff";
+          ctx.fillRect((ax*tileW+px)*ps,(ay*tileH+py)*ps,ps,ps);
+        }
+      }
+      // Border marker
+      ctx.strokeStyle="#00ff78";
+      ctx.lineWidth=Math.max(1,ps*0.5);
+      ctx.strokeRect(ax*tileW*ps+1,ay*tileH*ps+1,tileW*ps-2,tileH*ps-2);
+      ctx.lineWidth=1;
+    }
     // Grid
     ctx.strokeStyle="rgba(255,255,255,0.08)";
     for(let rx=0;rx<=roomW;rx++){ctx.beginPath();ctx.moveTo(rx*tileW*ps,0);ctx.lineTo(rx*tileW*ps,ch);ctx.stroke();}
     for(let ry=0;ry<=roomH;ry++){ctx.beginPath();ctx.moveTo(0,ry*tileH*ps);ctx.lineTo(cw,ry*tileH*ps);ctx.stroke();}
-  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps]);
+  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps,avatarStart]);
 
   useEffect(()=>{
     const ctx=ref.current?.getContext("2d"); if(!ctx)return;
@@ -384,13 +483,40 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
   const handle=(e,force)=>{
     if(!dragging.current&&!force)return;
     const{rx,ry}=getCell(e);
-    if(rx>=0&&rx<roomW&&ry>=0&&ry<roomH) onPlace(rx,ry);
+    if(rx<0||rx>=roomW||ry<0||ry>=roomH)return;
+    if(force){
+      // First cell on mousedown
+      lastCell.current={rx,ry};
+      onPlace(rx,ry,true); // isFirst=true
+      return;
+    }
+    // Bresenham interpolation from lastCell to current cell
+    if(lastCell.current){
+      let x0=lastCell.current.rx, y0=lastCell.current.ry;
+      const x1=rx, y1=ry;
+      if(x0===x1&&y0===y1)return; // same cell, nothing new
+      let dx=Math.abs(x1-x0), dy=Math.abs(y1-y0);
+      let sx=x0<x1?1:-1, sy=y0<y1?1:-1, err=dx-dy, first=true;
+      while(true){
+        if(!first&&x0>=0&&x0<roomW&&y0>=0&&y0<roomH) onPlace(x0,y0,false);
+        first=false;
+        if(x0===x1&&y0===y1)break;
+        const e2=2*err;
+        if(e2>-dy){err-=dy;x0+=sx;}
+        if(e2<dx){err+=dx;y0+=sy;}
+      }
+    } else {
+      onPlace(rx,ry,false);
+    }
+    lastCell.current={rx,ry};
   };
   const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
-  const maxD=500, sc=Math.min(maxD/cw,maxD/ch,1);
+  const maxD=640, sc=Math.min(maxD/cw,maxD/ch,1);
   return <canvas ref={ref} style={{...S.canvas,width:cw*sc,height:ch*sc,cursor:"pointer"}}
-    onMouseDown={e=>{dragging.current=true;handle(e,true);}} onMouseMove={e=>handle(e)}
-    onMouseUp={()=>dragging.current=false} onMouseLeave={()=>dragging.current=false} />;
+    onMouseDown={e=>{dragging.current=true;lastCell.current=null;handle(e,true);}}
+    onMouseMove={e=>handle(e)}
+    onMouseUp={()=>{dragging.current=false;lastCell.current=null;}}
+    onMouseLeave={()=>{dragging.current=false;lastCell.current=null;}} />;
 }
 
 // ─── PNG Import Modal ─────────────────────────────────────────────────────────
@@ -412,6 +538,7 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
 
   const doImport=()=>{
     if(!preview)return;
+    try{
     const canvas=document.createElement("canvas"); canvas.width=targetW; canvas.height=targetH;
     const ctx=canvas.getContext("2d"); ctx.imageSmoothingEnabled=false;
     ctx.drawImage(preview,0,0,targetW,targetH);
@@ -440,6 +567,7 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
       }
     }
     onImport({grid,palette:usePalette,mode:importMode});
+    }catch(err){alert("Import failed: "+err.message);}
   };
 
   return (
@@ -482,27 +610,31 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
 function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
   const firstOther = rooms.findIndex((_,i)=>i!==currentRoom);
   const [destRoom, setDestRoom] = useState(firstOther>=0?firstOther:0);
-  const [destX, setDestX] = useState(4);
-  const [destY, setDestY] = useState(4);
+  const [twoWay, setTwoWay] = useState(false);
+  const destRoomObj = rooms[destRoom];
+  const arrivalDesc = destRoomObj?.avatarStart
+    ? `(${destRoomObj.avatarStart.x}, ${destRoomObj.avatarStart.y}) — that room's start marker`
+    : "(1, 1) — set a start marker in that room to change this";
   return (
     <div style={S.modal} onClick={onClose}>
-      <div style={{...S.modalContent,maxWidth:340}} onClick={e=>e.stopPropagation()}>
+      <div style={{...S.modalContent,maxWidth:360}} onClick={e=>e.stopPropagation()}>
         <h3 style={{margin:"0 0 12px",color:"#e94560"}}>🚪 Configure Exit</h3>
-        <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Exit at ({position.x},{position.y}) teleports player to:</p>
+        <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Portal at ({position.x},{position.y}) sends player to:</p>
         <div style={S.row}>
-          <span style={S.label}>Destination:</span>
+          <span style={S.label}>Room:</span>
           <select style={S.select} value={destRoom} onChange={e=>setDestRoom(+e.target.value)}>
-            {rooms.map((r,i)=><option key={i} value={i}>{i}: {r.name}{i===currentRoom?" (same)":""}</option>)}
+            {rooms.map((r,i)=><option key={i} value={i}>{r.name}{i===currentRoom?" (this room)":""}</option>)}
           </select>
         </div>
-        <div style={S.row}>
-          <span style={S.label}>Arrive X:</span>
-          <input type="number" min={0} max={31} value={destX} onChange={e=>setDestX(+e.target.value||0)} style={{...S.input,width:54}} />
-          <span style={S.label}>Y:</span>
-          <input type="number" min={0} max={31} value={destY} onChange={e=>setDestY(+e.target.value||0)} style={{...S.input,width:54}} />
+        <div style={{fontSize:11,color:"#58a6ff",background:"#082040",borderRadius:4,padding:"6px 8px",marginBottom:8}}>
+          Player arrives at {arrivalDesc}
         </div>
-        <div style={{display:"flex",gap:8,marginTop:14}}>
-          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({x:position.x,y:position.y,destRoom,destX,destY})}>✓ Add Exit</button>
+        <label style={{display:"flex",alignItems:"center",gap:8,fontSize:12,cursor:"pointer",marginBottom:12}}>
+          <input type="checkbox" checked={twoWay} onChange={e=>setTwoWay(e.target.checked)} />
+          <span><b>Two-way</b> — automatically creates a return portal in the destination room</span>
+        </label>
+        <div style={{display:"flex",gap:8,marginTop:4}}>
+          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({x:position.x,y:position.y,destRoom,twoWay})}>✓ Add Exit</button>
           <button style={{...S.btn(false),flex:1}} onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -511,45 +643,59 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
 }
 
 // ─── Tune Editor ──────────────────────────────────────────────────────────────
-function TuneEditor({ tune, onChange }) {
+function TuneEditor({ tune, onChange, volume, onVolumeChange, savedTunes, onSaveTune, onLoadTune }) {
   const [playing, setPlaying] = useState(false);
   const [bpm, setBpm] = useState(160);
   const [activeStep, setActiveStep] = useState(-1);
-  const ivRef = useRef(null);
+  const [tuneName, setTuneName] = useState("My Tune");
+  const toRef = useRef(null);
   const stepRef = useRef(0);
+  const bpmRef = useRef(160);
+  const volRef = useRef(volume);
+  const tuneRef = useRef(tune);
+  const playingRef = useRef(false);
 
-  const toggle = (si, semi) => {
-    onChange(tune.map((s,i)=> i===si ? (s.active&&s.semi===semi?{semi:0,active:false}:{semi,active:true}) : s));
-  };
+  // Keep refs in sync so live changes take effect immediately
+  useEffect(()=>{ bpmRef.current=bpm; },[bpm]);
+  useEffect(()=>{ volRef.current=volume; },[volume]);
+  useEffect(()=>{ tuneRef.current=tune; },[tune]);
 
-  const startPlay = () => {
-    setPlaying(true); stepRef.current=0;
-    ivRef.current = setInterval(()=>{
-      const s=stepRef.current;
-      const note=tune[s];
-      if(note?.active) playBlip("square",noteFreq(note.semi),0.08,0.25);
-      setActiveStep(s);
-      stepRef.current=(s+1)%TUNE_STEPS;
-    }, Math.round(60000/bpm/4));
+  const tick = useCallback(()=>{
+    if(!playingRef.current)return;
+    const s=stepRef.current;
+    const note=tuneRef.current[s];
+    if(note?.active) playBlip("square",noteFreq(note.semi),0.08,volRef.current);
+    setActiveStep(s);
+    stepRef.current=(s+1)%TUNE_STEPS;
+    toRef.current=setTimeout(tick,Math.round(60000/bpmRef.current/4));
+  },[]);
+
+  const startPlay=()=>{ playingRef.current=true; setPlaying(true); stepRef.current=0; tick(); };
+  const stopPlay=()=>{ playingRef.current=false; setPlaying(false); setActiveStep(-1); clearTimeout(toRef.current); };
+  useEffect(()=>()=>{ playingRef.current=false; clearTimeout(toRef.current); },[]);
+
+  const toggle=(si,semi)=>{
+    onChange(tune.map((s,i)=>i===si?(s.active&&s.semi===semi?{semi:0,active:false}:{semi,active:true}):s));
   };
-  const stopPlay = ()=>{ setPlaying(false); setActiveStep(-1); clearInterval(ivRef.current); };
-  useEffect(()=>()=>clearInterval(ivRef.current),[]);
 
   // Show 2 octaves (C4–B5), top = high
-  const ROWS = 24;
+  const ROWS=24;
   return (
     <div>
       <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8,flexWrap:"wrap"}}>
         <button style={S.btn(playing)} onClick={playing?stopPlay:startPlay}>{playing?"⏹ Stop":"▶ Play"}</button>
         <span style={{fontSize:11,color:"#aaa"}}>BPM:</span>
         <input type="range" min={60} max={240} value={bpm} onChange={e=>setBpm(+e.target.value)} style={{width:70}} />
-        <span style={{fontSize:11}}>{bpm}</span>
+        <span style={{fontSize:11,minWidth:28}}>{bpm}</span>
+        <span style={{fontSize:11,color:"#aaa",marginLeft:4}}>Vol:</span>
+        <input type="range" min={0} max={1} step={0.05} value={volume} onChange={e=>onVolumeChange(+e.target.value)} style={{width:60}} />
+        <span style={{fontSize:11,minWidth:28}}>{Math.round(volume*100)}%</span>
         <button style={{...S.btn(false),fontSize:10,marginLeft:"auto"}} onClick={()=>onChange(tune.map(()=>({semi:0,active:false})))}>Clear</button>
       </div>
       <div style={{overflowX:"auto",overflowY:"auto",maxHeight:220,border:"1px solid #0f3460",borderRadius:4}}>
         <div style={{display:"grid",gridTemplateColumns:`40px repeat(${TUNE_STEPS},1fr)`,gap:1,minWidth:440}}>
           {Array.from({length:ROWS},(_,ri)=>{
-            const semi=ROWS-1-ri+12; // C4(12 semitones above C3) to B5
+            const semi=ROWS-1-ri+12;
             const oct=Math.floor(semi/12)+3;
             const name=NOTE_NAMES[semi%12];
             const natural=!name.includes("#");
@@ -565,15 +711,33 @@ function TuneEditor({ tune, onChange }) {
           }).flat()}
         </div>
       </div>
-      <div style={{fontSize:10,color:"#555",marginTop:5}}>Click cells to place notes · Each column = one 16th note step</div>
+
+      {/* Save / Load */}
+      <div style={{marginTop:10,display:"flex",gap:6,alignItems:"center"}}>
+        <input value={tuneName} onChange={e=>setTuneName(e.target.value)} placeholder="Tune name…" style={{...S.input,flex:1,fontSize:11}} />
+        <button style={S.btnGreen} onClick={()=>onSaveTune({id:`tune_${Date.now()}`,name:tuneName||"Tune",steps:[...tune]})}>💾 Save</button>
+      </div>
+      {savedTunes.length>0&&(
+        <div style={{marginTop:6,background:"#0d1b3e",borderRadius:4,padding:"6px 8px"}}>
+          <div style={{fontSize:10,color:"#58a6ff",marginBottom:4,fontWeight:700}}>Saved Tunes</div>
+          {savedTunes.map((st,i)=>(
+            <div key={st.id} style={{display:"flex",gap:4,alignItems:"center",marginBottom:3}}>
+              <span style={{flex:1,fontSize:11,color:"#c9d1d9",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{st.name}</span>
+              <button style={{...S.btn(false),fontSize:10,padding:"2px 8px"}} onClick={()=>onLoadTune(i)}>Load</button>
+            </div>
+          ))}
+        </div>
+      )}
+      <div style={{fontSize:10,color:"#555",marginTop:5}}>Click cells to place notes · BPM and note changes apply immediately during playback</div>
     </div>
   );
 }
 
 // ─── Playtest Modal ───────────────────────────────────────────────────────────
-function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, onClose }) {
+function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, savedTunes, tuneVolume, onClose }) {
   const findStart = (r) => {
     if(!r)return{x:1,y:1};
+    if(r.avatarStart)return{x:r.avatarStart.x,y:r.avatarStart.y};
     for(let y=0;y<roomH;y++) for(let x=0;x<roomW;x++){
       const tid=r.tiles[y]?.[x];
       const tile=tiles.find(t=>t.id===tid);
@@ -585,29 +749,51 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
   const room=rooms[roomIdx]||{tiles:[],npcs:[],exits:[]};
   const [pos,setPos]=useState(()=>findStart(rooms[startRoom]));
   const [collected,setCollected]=useState([]);
-  const [dialog,setDialog]=useState(null); // {pages,pageIdx,name}
+  const [dialog,setDialog]=useState(null);
   const [won,setWon]=useState(false);
-  const [removedItems,setRemovedItems]=useState([]); // "roomIdx,x,y"
+  const [removedItems,setRemovedItems]=useState([]);
   const [showInv,setShowInv]=useState(false);
+  const [muted,setMuted]=useState(false);
+  const mutedRef=useRef(false);
+  useEffect(()=>{mutedRef.current=muted;},[muted]);
+  const safeBlip=(w,f,d,v)=>{ if(!mutedRef.current) playBlip(w,f,d,v); };
   const canvasRef=useRef(null);
   const tuneRef=useRef(null);
   const tuneStep=useRef(0);
   const ps=Math.max(3,Math.floor(400/Math.max(roomW*tileW,roomH*tileH)));
   const playerSpr=sprites[0];
 
-  // Background tune playback
+  // Per-room background tune: resolve which steps to play for the current room
+  const getRoomTune=useCallback((ri)=>{
+    const room=rooms[ri];
+    if(!room)return null;
+    if(room.tuneId&&savedTunes){
+      const st=savedTunes.find(t=>t.id===room.tuneId);
+      if(st&&st.steps.some(s=>s.active))return st.steps;
+    }
+    // Fallback to global tune
+    if(tune&&tune.some(s=>s.active))return tune;
+    return null;
+  },[rooms,savedTunes,tune]);
+
+  // Background tune playback — restarts when room or mute changes
   useEffect(()=>{
-    if(!tune)return;
-    const active=tune.filter(s=>s.active);
-    if(!active.length)return;
+    clearTimeout(tuneRef.current);
+    if(muted)return;
+    const steps=getRoomTune(roomIdx);
+    if(!steps)return;
     let s=0;
-    tuneRef.current=setInterval(()=>{
-      const note=tune[s];
-      if(note?.active) playBlip("sine",noteFreq(note.semi),0.12,0.08);
+    const vol=tuneVolume??0.1;
+    const tick=()=>{
+      if(mutedRef.current){return;}
+      const note=steps[s];
+      if(note?.active) playBlip("sine",noteFreq(note.semi),0.12,vol);
       s=(s+1)%TUNE_STEPS;
-    },170);
-    return()=>clearInterval(tuneRef.current);
-  },[tune]);
+      tuneRef.current=setTimeout(tick,170);
+    };
+    tuneRef.current=setTimeout(tick,0);
+    return()=>clearTimeout(tuneRef.current);
+  },[roomIdx,getRoomTune,tuneVolume,muted]);
 
   const drawAll=useCallback(()=>{
     const ctx=canvasRef.current?.getContext("2d"); if(!ctx)return;
@@ -676,9 +862,11 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       // Check exits
       const exit=(room.exits||[]).find(ex=>ex.x===nx&&ex.y===ny);
       if(exit){
+        const destRoomObj=rooms[exit.destRoom];
+        const arrivalPos=destRoomObj?.avatarStart||{x:1,y:1};
         setRoomIdx(exit.destRoom);
-        setPos({x:exit.destX,y:exit.destY});
-        playBlip("sine",660,0.18,0.2);
+        setPos(arrivalPos);
+        safeBlip("sine",660,0.18,0.2);
         return;
       }
       // Check NPC
@@ -689,7 +877,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
           const pages=spr.dialog.split(/\n?---\n?/).map(p=>p.trim()).filter(Boolean);
           setDialog({pages:pages.length?pages:[spr.dialog],pageIdx:0,name:spr.name});
           const w=spr.blip?.wave||"square", f=spr.blip?.freq||440;
-          playBlip(w,f,0.1,0.2);
+          safeBlip(w,f,0.1,0.2);
         }
         return;
       }
@@ -703,7 +891,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
         if(!removedItems.includes(key)){
           setRemovedItems(p=>[...p,key]);
           setCollected(p=>[...p,{name:tile.name||"item"}]);
-          playBlip("triangle",880,0.2,0.3);
+          safeBlip("triangle",880,0.2,0.3);
         }
       }
       if(tt==="end")setWon(true);
@@ -718,55 +906,65 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
 
   return (
     <div style={S.modal}>
-      <div style={{...S.modalContent,maxWidth:560}}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-          <h3 style={{margin:0,color:"#e94560"}}>▶ Playtest</h3>
-          <div style={{display:"flex",gap:6,alignItems:"center"}}>
-            <span style={{fontSize:11,color:"#888",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{rooms[roomIdx]?.name}</span>
-            <button style={{...S.btn(showInv),fontSize:11}} onClick={()=>setShowInv(v=>!v)}>🎒 {collected.length}</button>
-            <button style={S.btn(false)} onClick={onClose}>✕</button>
-          </div>
+      <div style={{...S.modalContent,maxWidth:520}}>
+        {/* HUD bar */}
+        <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10,background:"rgba(0,0,0,0.25)",borderRadius:7,padding:"6px 10px"}}>
+          <span style={{fontSize:12,fontWeight:700,color:"#38bdf8",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>▶ {rooms[roomIdx]?.name||"Playtest"}</span>
+          <span style={{fontSize:11,color:"#64748b"}}>Room {roomIdx+1}/{rooms.length}</span>
+          <button style={{...S.btn(showInv),fontSize:11,padding:"3px 8px"}} onClick={()=>setShowInv(v=>!v)}>🎒 {collected.length}</button>
+          <button style={{...S.btn(muted),fontSize:11,padding:"3px 8px"}} onClick={()=>setMuted(v=>!v)} title="Mute">{muted?"🔇":"🔊"}</button>
+          <button style={{...S.btn(false),padding:"3px 8px",fontSize:11}} onClick={()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setDialog(null);setShowInv(false); }}>↺</button>
+          <button style={{...S.btn(false),padding:"3px 8px"}} onClick={onClose}>✕</button>
         </div>
         {won ? (
           <div style={{textAlign:"center",padding:32}}>
             <div style={{fontSize:40,marginBottom:12}}>🎉</div>
-            <div style={{fontSize:22,color:"#ffec27",fontWeight:700,marginBottom:8}}>You Win!</div>
-            <div style={{color:"#aaa",marginBottom:16}}>Items collected: {collected.length}</div>
+            <div style={{fontSize:22,color:"#fbbf24",fontWeight:700,marginBottom:8}}>You Win!</div>
+            <div style={{color:"#64748b",marginBottom:16}}>Items: {collected.length}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button style={S.btn(true)} onClick={restart}>↺ Play Again</button>
+              <button style={S.btnPrimary} onClick={()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setDialog(null);setShowInv(false); }}>↺ Play Again</button>
               <button style={S.btn(false)} onClick={onClose}>Back to Editor</button>
             </div>
           </div>
         ) : (
           <>
-            <canvas ref={canvasRef} style={{...S.canvas,display:"block",margin:"0 auto",width:cw*sc,height:ch*sc}} />
-            {dialog && (
-              <div style={{background:"#0f3460",border:"1px solid #e94560",borderRadius:6,padding:12,marginTop:10}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                  <div style={{color:"#e94560",fontSize:11,fontWeight:700}}>{dialog.name}</div>
-                  {dialog.pages.length>1&&<div style={{fontSize:10,color:"#888"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
-                </div>
-                <div style={{fontSize:14,lineHeight:1.5,whiteSpace:"pre-wrap"}}>{dialog.pages[dialog.pageIdx]}</div>
-                <div style={{fontSize:11,color:"#555",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / ↵ to continue →":"Space / ↵ to close"}</div>
-              </div>
-            )}
-            {showInv&&(
-              <div style={{background:"#0d1b3e",border:"1px solid #0f3460",borderRadius:6,padding:10,marginTop:8}}>
-                <div style={{fontSize:11,fontWeight:700,color:"#ffec27",marginBottom:5}}>🎒 Inventory</div>
-                {collected.length===0?<div style={{fontSize:11,color:"#555"}}>Nothing yet.</div>:(
-                  <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-                    {collected.map((it,i)=><span key={i} style={{background:"#1a1a2e",border:"1px solid #333",borderRadius:4,padding:"2px 8px",fontSize:12,color:"#ffec27"}}>{it.name}</span>)}
+            <div style={{position:"relative",minHeight:ch*sc+10}}>
+              <canvas ref={canvasRef} style={{...S.canvas,display:"block",margin:"0 auto",width:cw*sc,height:ch*sc}} />
+              {dialog && (
+                <div style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(15,23,42,0.96)",border:"1px solid rgba(56,189,248,0.35)",borderRadius:6,padding:12}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                    <div style={{color:"#38bdf8",fontSize:11,fontWeight:700}}>{dialog.name}</div>
+                    {dialog.pages.length>1&&<div style={{fontSize:10,color:"#475569"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
                   </div>
-                )}
-              </div>
-            )}
-            <div style={{display:"flex",justifyContent:"space-between",marginTop:10,fontSize:11,color:"#555",flexWrap:"wrap",gap:4}}>
-              <span>Arrow keys to move · NPCs talk · 🌸 = exit portal</span>
-              <span>Rooms: {roomIdx+1}/{rooms.length}</span>
+                  <div style={{fontSize:14,lineHeight:1.5,whiteSpace:"pre-wrap",color:"#e2e8f0"}}>{dialog.pages[dialog.pageIdx]}</div>
+                  <div style={{fontSize:11,color:"#475569",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / ↵ →":"Space / ↵ to close"}</div>
+                </div>
+              )}
             </div>
-            <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:8}}>
-              <button style={S.btn(false)} onClick={restart}>↺ Restart</button>
-            </div>
+            {showInv&&(()=>{
+              const grouped=collected.reduce((acc,it)=>{const f=acc.find(g=>g.name===it.name);if(f)f.count++;else acc.push({...it,count:1});return acc;},[]);
+              const itemTiles=tiles.filter(t=>t.tileType==="item");
+              return(
+                <div style={{background:"rgba(251,191,36,0.06)",border:"1px solid rgba(251,191,36,0.2)",borderRadius:6,padding:10,marginTop:8}}>
+                  <div style={{fontSize:11,fontWeight:700,color:"#fbbf24",marginBottom:6}}>🎒 Inventory</div>
+                  {grouped.length===0?<div style={{fontSize:11,color:"#475569"}}>Empty.</div>:(
+                    <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                      {grouped.map((it,i)=>{
+                        const t=itemTiles.find(t=>t.name===it.name);
+                        return(
+                          <div key={i} style={{display:"flex",alignItems:"center",gap:4,background:"rgba(0,0,0,0.3)",border:"1px solid rgba(251,191,36,0.2)",borderRadius:4,padding:"3px 8px"}}>
+                            {t&&<MiniCanvas grid={t.frames[0]} palette={palette} size={16} />}
+                            <span style={{fontSize:12,color:"#fbbf24"}}>{it.name}</span>
+                            {it.count>1&&<span style={{fontSize:11,color:"#94a3b8"}}>×{it.count}</span>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
+            <div style={{marginTop:8,fontSize:11,color:"#334155",textAlign:"center"}}>↑↓←→ move · Space dismiss dialog · 🌸 exit portal</div>
           </>
         )}
       </div>
@@ -801,7 +999,8 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
       }).join(",") + "\n";
     });
     (room.exits||[]).forEach(ex=>{
-      out += `EXT ${ex.x},${ex.y} ROOM ${ex.destRoom} AT ${ex.destX},${ex.destY}\n`;
+      const destArrival=rooms[ex.destRoom]?.avatarStart||{x:1,y:1};
+      out += `EXT ${ex.x},${ex.y} ROOM ${ex.destRoom} AT ${destArrival.x},${destArrival.y}\n`;
     });
     if (room.name) out += `NAME ${room.name}\n`;
     out += `PAL 0\n\n`;
@@ -834,11 +1033,18 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
     out += `COL ${[...new Set(spr.frames[0].flat().map(safePixel))].join(",")}\n`;
     // Dialog ref uses a plain integer (not a named string) per Bitsy spec
     if (i > 0 && spr.dialog) { out += `DLG ${dlgIndex}\n`; dlgIndex++; }
-    // Find actual room placement from npcs array; fall back to a safe default
+    // Find actual room placement — for avatar check avatarStart; for NPCs check npcs array
     let posRoom = 0, posX = i === 0 ? 4 : (i * 2) % 14, posY = i === 0 ? 4 : 2;
-    for (let ri = 0; ri < rooms.length; ri++) {
-      const placed = (rooms[ri].npcs || []).find(n => n.spriteId === spr.id);
-      if (placed) { posRoom = ri; posX = placed.x; posY = placed.y; break; }
+    if (i === 0) {
+      // Avatar: use explicit avatarStart if set on any room
+      for (let ri = 0; ri < rooms.length; ri++) {
+        if (rooms[ri].avatarStart) { posRoom = ri; posX = rooms[ri].avatarStart.x; posY = rooms[ri].avatarStart.y; break; }
+      }
+    } else {
+      for (let ri = 0; ri < rooms.length; ri++) {
+        const placed = (rooms[ri].npcs || []).find(n => n.spriteId === spr.id);
+        if (placed) { posRoom = ri; posX = placed.x; posY = placed.y; break; }
+      }
     }
     out += `POS ${posRoom} ${posX},${posY}\n\n`;
   });
@@ -863,6 +1069,30 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
   }
 
   return out;
+}
+
+// ─── Help Modal ───────────────────────────────────────────────────────────────
+function HelpModal({ onClose }) {
+  const shortcuts=[["B","Draw / Pencil"],["E","Erase"],["F","Fill"],["I","Pick Color"],["G","Toggle Grid"],["1–9","Select Color"],["?","This Help"],["↑↓←→","Move (Playtest)"],["Space / ↵","Next Dialog (Playtest)"]];
+  return (
+    <div style={S.modal} onClick={onClose}>
+      <div style={{...S.modalContent,maxWidth:380}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
+          <h3 style={{margin:0,color:"#38bdf8"}}>⌨️ Keyboard Shortcuts</h3>
+          <button style={S.btn(false)} onClick={onClose}>✕</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"max-content 1fr",gap:"8px 16px",alignItems:"center"}}>
+          {shortcuts.map(([key,desc])=>[
+            <kbd key={key} style={{background:"#0f172a",border:"1px solid rgba(255,255,255,0.12)",borderRadius:4,padding:"2px 8px",color:"#38bdf8",fontFamily:"monospace",fontSize:12,textAlign:"center",display:"block"}}>{key}</kbd>,
+            <span key={desc} style={{fontSize:13,color:"#e2e8f0"}}>{desc}</span>
+          ])}
+        </div>
+        <div style={{marginTop:14,padding:"10px 12px",background:"rgba(56,189,248,0.05)",borderRadius:6,border:"1px solid rgba(56,189,248,0.1)",fontSize:11,color:"#64748b",lineHeight:1.7}}>
+          <b style={{color:"#94a3b8"}}>Quick start:</b> Draw tiles → place in room → add NPCs → ▶ Play
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── Export Modal ─────────────────────────────────────────────────────────────
@@ -948,8 +1178,13 @@ export default function App() {
   const [gameTitle,setGameTitle]=useState("My Multicolor Bitsy Game");
   const [activePack,setActivePack]=useState(null);
   const [exitModal,setExitModal]=useState(null); // {x,y} being configured
+  const npcDragModeRef=useRef("place"); // "place"|"remove" — set on mousedown, held for drag
   const [findQuery,setFindQuery]=useState("");
+  const [zoom,setZoom]=useState(1);
+  const [showHelp,setShowHelp]=useState(false);
   const [tune,setTune]=useState(Array.from({length:TUNE_STEPS},()=>({semi:12,active:false})));
+  const [tuneVolume,setTuneVolume]=useState(0.15);
+  const [savedTunes,setSavedTunes]=useState([]);
 
   // Grid config
   const [spriteW,setSpriteW]=useState(8); const [spriteH,setSpriteH]=useState(8);
@@ -962,9 +1197,9 @@ export default function App() {
   const [selectedTile,setSelectedTile]=useState(0);
   const [selectedFrame,setSelectedFrame]=useState(0);
 
-  const [rooms,setRooms]=useState([{id:uid(),name:"room 0",tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[]}]);
+  const [rooms,setRooms]=useState([{id:uid(),name:"room 0",tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[],avatarStart:null,tuneId:null,rules:[]}]);
   const [selectedRoom,setSelectedRoom]=useState(0);
-  const [roomTool,setRoomTool]=useState("place"); // place | erase | fill | npc
+  const [roomTool,setRoomTool]=useState("place"); // place | erase | fill | npc | avatarStart
 
   const [animFrame,setAnimFrame]=useState(0);
   const [playing,setPlaying]=useState(false);
@@ -976,8 +1211,10 @@ export default function App() {
     const h=(e)=>{
       if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT"||e.target.tagName==="TEXTAREA")return;
       switch(e.key.toLowerCase()){
-        case"d":setTool("draw");break; case"e":setTool("erase");break;
-        case"f":setTool("fill");break; case"g":setShowGrid(v=>!v);break;
+        case"b":setTool("draw");break; case"d":setTool("draw");break;
+        case"e":setTool("erase");break; case"f":setTool("fill");break;
+        case"i":setTool("pick");break; case"g":setShowGrid(v=>!v);break;
+        case"?":setShowHelp(v=>!v);break;
         default: if(e.key>="1"&&e.key<="9"){const i=parseInt(e.key)-1;if(i<palette.length)setSelectedColor(i);}
       }
     };
@@ -1007,6 +1244,12 @@ export default function App() {
   },[]);
 
   const handleDraw=useCallback((x,y)=>{
+    if(tool==="pick"){
+      const colorIdx=currentFrameRef.current[y]?.[x];
+      if(colorIdx!==undefined)setSelectedColor(colorIdx);
+      setTool("draw");
+      return;
+    }
     const setItems=tab==="sprite"?setSprites:setTiles;
     const idx=tab==="sprite"?selectedSprite:selectedTile;
     setItems(prev=>{
@@ -1083,8 +1326,8 @@ export default function App() {
   const handleImport=({grid,palette:newPalette,mode})=>{
     if(newPalette)setPalette(newPalette.slice(0,MAX_COLORS));
     if(mode==="sprite"){
-      const n={id:uid(),name:"imported",frames:[grid],tileType:"walkable",dialog:""};
-      setSprites(p=>{setSelectedSprite(p.length);return[...p,n];});
+      const n={id:uid(),name:"imported",frames:[grid],tileType:"walkable",dialog:"",blip:{wave:"square",freq:440}};
+      setSprites(p=>{const next=[...p,n];setSelectedSprite(next.length-1);return next;});
       setSpriteW(grid[0].length);setSpriteH(grid.length);setTab("sprite");
     } else {
       const n={id:uid(),name:"imported_tile",frames:[grid],tileType:"walkable"};
@@ -1126,7 +1369,7 @@ export default function App() {
         setSpriteW(grid[0].length);setSpriteH(grid.length);
         setSelectedFrame(0);
       } else {
-        const n={id:uid(),name:asset.name,frames:[grid],tileType:asset.tileType||"walkable",dialog:asset.dialog||""};
+        const n={id:uid(),name:asset.name,frames:[grid],tileType:asset.tileType||"walkable",dialog:asset.dialog||"",blip:asset.blip||{wave:"square",freq:440}};
         setSprites(p=>{setSelectedSprite(p.length);return[...p,n];});
         setSpriteW(grid[0].length);setSpriteH(grid.length);setTab("sprite");
         setSelectedFrame(0);
@@ -1187,8 +1430,8 @@ export default function App() {
     }catch(err){alert("Export failed: "+err.message);}
   };
 
-  // Room handling
-  const handleRoomPlace=(rx,ry)=>{
+  // Room handling — isFirst=true on mousedown, false on drag
+  const handleRoomPlace=(rx,ry,isFirst=false)=>{
     setRooms(prev=>{
       const rs=[...prev];
       const room={...rs[selectedRoom],tiles:rs[selectedRoom].tiles.map(r=>[...r]),npcs:[...(rs[selectedRoom].npcs||[])]};
@@ -1197,14 +1440,13 @@ export default function App() {
         room.npcs=room.npcs.filter(n=>!(n.x===rx&&n.y===ry));
         room.exits=(room.exits||[]).filter(e=>!(e.x===rx&&e.y===ry));
       } else if(roomTool==="exit"){
-        // Toggle: clicking existing exit removes it; clicking empty opens config modal
+        if(!isFirst)return prev; // only act on initial click, not drag
         const existing=(room.exits||[]).find(e=>e.x===rx&&e.y===ry);
         if(existing){ room.exits=(room.exits||[]).filter(e=>!(e.x===rx&&e.y===ry)); rs[selectedRoom]=room; return rs; }
-        // Open config modal — we can't do async from here, so set exitModal and bail
         setExitModal({x:rx,y:ry});
-        return prev; // don't mutate yet; confirmed in ExitConfigModal callback
+        return prev;
       } else if(roomTool==="fill"){
-        // Flood fill tiles
+        if(!isFirst)return prev; // fill only on click, not drag
         const old=room.tiles[ry][rx];
         const newId=tiles[selectedTile]?.id||null;
         if(old===newId)return prev;
@@ -1216,31 +1458,57 @@ export default function App() {
           stack.push([cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]);
         }
       } else if(roomTool==="npc"){
-        // Toggle: clicking an NPC's cell removes it; clicking empty places it
-        const alreadyHere=room.npcs.find(n=>n.x===rx&&n.y===ry&&n.spriteId===sprites[selectedSprite]?.id);
+        if(isFirst){
+          // On first click: decide whether this drag places or removes
+          const alreadyHere=room.npcs.find(n=>n.x===rx&&n.y===ry&&n.spriteId===sprites[selectedSprite]?.id);
+          npcDragModeRef.current=alreadyHere?"remove":"place";
+        }
         room.npcs=room.npcs.filter(n=>!(n.x===rx&&n.y===ry));
-        if(!alreadyHere&&sprites[selectedSprite]&&selectedSprite>0){
+        if(npcDragModeRef.current==="place"&&sprites[selectedSprite]&&selectedSprite>0){
           room.npcs.push({spriteId:sprites[selectedSprite].id,x:rx,y:ry});
         }
+      } else if(roomTool==="avatarStart"){
+        if(!isFirst)return prev; // avatar start only on initial click
+        const same=room.avatarStart&&room.avatarStart.x===rx&&room.avatarStart.y===ry;
+        room.avatarStart=same?null:{x:rx,y:ry};
       } else {
-        // Toggle: clicking a cell that already has the selected tile clears it
+        // Place tile — always place (no toggle during drag); erase tool handles removal
         const selectedId=tiles[selectedTile]?.id||null;
-        room.tiles[ry][rx]=room.tiles[ry][rx]===selectedId ? null : selectedId;
+        room.tiles[ry][rx]=selectedId;
       }
       rs[selectedRoom]=room;
       return rs;
     });
   };
   const addRoom=()=>{
-    const n={id:uid(),name:`room ${rooms.length}`,tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[]};
+    const n={id:uid(),name:`room ${rooms.length}`,tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[],avatarStart:null,tuneId:null,rules:[]};
     setRooms(p=>[...p,n]);setSelectedRoom(rooms.length);
   };
+  const moveRoom=(i,delta)=>{
+    const ni=i+delta;
+    if(ni<0||ni>=rooms.length)return;
+    setRooms(prev=>{const rs=[...prev];[rs[i],rs[ni]]=[rs[ni],rs[i]];return rs;});
+    setSelectedRoom(ni);
+  };
+
+  // Tune save/load
+  const saveTune=(st)=>setSavedTunes(p=>[...p.filter(t=>t.name!==st.name),st]);
+  const loadTune=(i)=>{const st=savedTunes[i];if(st)setTune([...st.steps]);};
 
   const confirmExit=(exitData)=>{
     setRooms(prev=>{
       const rs=[...prev];
+      // Add forward exit to current room
       const room={...rs[selectedRoom],exits:[...(rs[selectedRoom].exits||[]).filter(e=>!(e.x===exitData.x&&e.y===exitData.y)),exitData]};
-      rs[selectedRoom]=room; return rs;
+      rs[selectedRoom]=room;
+      // If two-way, add reverse exit to destination room pointing back here
+      if(exitData.twoWay){
+        const destRoomObj=rs[exitData.destRoom];
+        const arrivalInDest=destRoomObj?.avatarStart||{x:1,y:1};
+        const reverseExit={x:arrivalInDest.x,y:arrivalInDest.y,destRoom:selectedRoom,twoWay:true};
+        rs[exitData.destRoom]={...destRoomObj,exits:[...(destRoomObj.exits||[]).filter(e=>!(e.x===reverseExit.x&&e.y===reverseExit.y)),reverseExit]};
+      }
+      return rs;
     });
     setExitModal(null);
   };
@@ -1255,31 +1523,37 @@ export default function App() {
     setTiles(p=>p.map(t=>({...t,frames:t.frames.map(f=>{const g=emptyGrid(nw,nh);for(let y=0;y<Math.min(f.length,nh);y++)for(let x=0;x<Math.min(f[0].length,nw);x++)g[y][x]=f[y][x];return g;})})));
   };
 
-  const pixelSize=Math.max(8,Math.floor(380/Math.max(itemW,itemH)));
+  const basePixelSize=Math.max(4,Math.floor(340/Math.max(itemW,itemH)));
+  const pixelSize=Math.max(1,Math.round(basePixelSize*zoom));
+  const currentFrameRef=useRef(currentFrame);
+  useEffect(()=>{currentFrameRef.current=currentFrame;},[currentFrame]);
   const previewFrame=currentItem?currentItem.frames[animFrame%currentItem.frames.length]:emptyGrid(8,8);
   const currentTileType=currentItem?.tileType||"walkable";
 
   return (
     <div style={S.app}>
-      {/* Header */}
+      {/* ── Header ─────────────────────────────────────────────────────────── */}
       <div style={S.header}>
         <span style={S.title}>🎮 Multicolor Bitsy</span>
+        <div style={{width:1,height:20,background:"rgba(255,255,255,0.08)",flexShrink:0}} />
         <input value={gameTitle} onChange={e=>setGameTitle(e.target.value)}
-          style={{...S.input,width:200,fontSize:13}} placeholder="Game title..." />
-        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-          <button style={S.btnGreen} onClick={()=>setShowImport(true)}>Import Image</button>
-          <button style={S.btn(false)} onClick={()=>setShowPlaytest(true)}>▶ Test Game</button>
+          style={{...S.input,width:180,fontSize:12,flex:"0 0 auto"}} placeholder="Game title…" />
+        <div style={{flex:1}} />
+        <div style={{display:"flex",gap:6,alignItems:"center"}}>
+          <button style={S.btnPrimary} onClick={()=>setShowPlaytest(true)}>▶ Play</button>
+          <button style={S.btn(false)} onClick={()=>setShowImport(true)}>⬆ Import</button>
           <button style={S.btn(false)} onClick={exportPng}>PNG</button>
           {currentItem?.frames.length>1&&<button style={S.btn(false)} onClick={exportSpritesheet}>Sheet</button>}
-          <button style={S.btn(false)} onClick={exportGameData}>Export .bitsy</button>
+          <button style={{...S.btn(false),color:"#fb923c",borderColor:"rgba(251,146,60,0.3)"}} onClick={exportGameData}>Export .bitsy</button>
+          <button style={{...S.btn(false),fontWeight:700,fontSize:13,padding:"4px 9px"}} onClick={()=>setShowHelp(true)} title="Keyboard shortcuts">?</button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div style={{background:"#16213e",padding:"0 20px",display:"flex"}}>
-        {["sprite","tile","room","tune"].map(t=>(
-          <button key={t} style={S.tab(tab===t)} onClick={()=>{setTab(t);setSelectedFrame(0);}}>
-            {t==="sprite"?"🧑 Sprites":t==="tile"?"🟦 Tiles":t==="room"?"🗺 Rooms":"🎵 Tune"}
+      {/* ── Mode Bar ───────────────────────────────────────────────────────── */}
+      <div style={S.modeBar}>
+        {[["sprite","🎨","Sprites"],["tile","🧱","Tiles"],["room","🗺","Rooms"],["tune","🎵","Audio"]].map(([t,emoji,label])=>(
+          <button key={t} style={S.modeBtn(tab===t)} onClick={()=>{setTab(t);setSelectedFrame(0);}}>
+            {emoji} {label}
           </button>
         ))}
       </div>
@@ -1301,17 +1575,21 @@ export default function App() {
             </div>
           </div>
 
-          {/* Tools */}
-          {tab!=="room"&&(
+          {/* Tool Palette */}
+          {tab!=="room"&&tab!=="tune"&&(
             <div style={S.section}>
               <div style={S.sectionTitle}>Tools</div>
-              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                {[["draw","✏️"],["erase","🧹"],["fill","🪣"]].map(([t,emoji])=>(
-                  <button key={t} style={S.btn(tool===t)} onClick={()=>setTool(t)}>{emoji} {t}</button>
-                ))}
-              </div>
-              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:11,marginTop:6,cursor:"pointer"}}>
-                <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} /> Show grid
+              {[["draw","✏️","Pencil","B"],["erase","🧹","Eraser","E"],["fill","🪣","Fill","F"],["pick","💧","Pick Color","I"]].map(([t,emoji,label,key])=>(
+                <button key={t} style={S.toolBtn(tool===t)} onClick={()=>setTool(t)}>
+                  <span style={{fontSize:15}}>{emoji}</span>
+                  <span style={{flex:1}}>{label}</span>
+                  <kbd style={{fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>{key}</kbd>
+                </button>
+              ))}
+              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:11,cursor:"pointer",color:"#94a3b8",padding:"4px 10px",marginTop:2}}>
+                <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} />
+                <span>Show grid</span>
+                <kbd style={{marginLeft:"auto",fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>G</kbd>
               </label>
             </div>
           )}
@@ -1337,18 +1615,35 @@ export default function App() {
           {/* Room tools */}
           {tab==="room"&&(
             <div style={S.section}>
-              <div style={S.sectionTitle}>Room Tools</div>
-              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                {[["place","🟦 Place"],["erase","🧹 Erase"],["fill","🪣 Fill"],["npc","🧑 NPC"],["exit","🚪 Exit"]].map(([t,label])=>(
-                  <button key={t} style={S.btn(roomTool===t)} onClick={()=>setRoomTool(t)}>{label}</button>
-                ))}
+              <div style={S.sectionTitle}>Tools</div>
+              <div style={{fontSize:10,color:"#475569",marginBottom:4,textTransform:"uppercase",letterSpacing:"0.05em"}}>Tile</div>
+              {[["place","🟦","Paint","T"],["erase","🧹","Erase","E"],["fill","🪣","Fill","F"]].map(([t,emoji,label,key])=>(
+                <button key={t} style={S.toolBtn(roomTool===t)} onClick={()=>setRoomTool(t)}>
+                  <span style={{fontSize:14}}>{emoji}</span>
+                  <span style={{flex:1}}>{label}</span>
+                  <kbd style={{fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>{key}</kbd>
+                </button>
+              ))}
+              <div style={{fontSize:10,color:"#475569",marginBottom:4,marginTop:8,textTransform:"uppercase",letterSpacing:"0.05em"}}>Objects</div>
+              {[["npc","👥","NPC","N"],["exit","🚪","Exit","X"],["avatarStart","🧍","Start","S"]].map(([t,emoji,label,key])=>(
+                <button key={t} style={S.toolBtn(roomTool===t)} onClick={()=>setRoomTool(t)}>
+                  <span style={{fontSize:14}}>{emoji}</span>
+                  <span style={{flex:1}}>{label}</span>
+                  <kbd style={{fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>{key}</kbd>
+                </button>
+              ))}
+              <div style={{marginTop:8,padding:"6px 8px",background:"rgba(0,0,0,0.25)",borderRadius:5,fontSize:11,minHeight:28,color:"#64748b",lineHeight:1.4,border:"1px solid rgba(255,255,255,0.04)"}}>
+                {roomTool==="place"&&<><span style={{color:"#38bdf8"}}>●</span> {`Painting: ${tiles[selectedTile]?.name||"none"}`}</>}
+                {roomTool==="erase"&&<><span style={{color:"#f87171"}}>●</span> {" Erasing tiles, NPCs & exits"}</>}
+                {roomTool==="fill"&&<><span style={{color:"#38bdf8"}}>●</span> {` Flood-fill: ${tiles[selectedTile]?.name||"none"}`}</>}
+                {roomTool==="npc"&&<><span style={{color:"#fbbf24"}}>●</span> {` Placing: ${sprites[selectedSprite]?.name||"none"}`}</>}
+                {roomTool==="exit"&&<><span style={{color:"#a78bfa"}}>●</span> {" Click cell to place exit"}</>}
+                {roomTool==="avatarStart"&&<><span style={{color:"#4ade80"}}>●</span> {" Click cell for avatar start"}</>}
               </div>
-              {roomTool==="npc"&&<div style={{fontSize:11,color:"#888",marginTop:6}}>Select a sprite below (not avatar) and click room to place</div>}
-              {roomTool==="exit"&&<div style={{fontSize:11,color:"#ff44ee",marginTop:6}}>Click a cell to place an exit portal (pink ▶). Click again to remove.</div>}
               <div style={{marginTop:8,display:"flex",gap:4,alignItems:"center"}}>
-                <span style={{fontSize:11,color:"#aaa"}}>Room:</span>
+                <span style={{fontSize:11,color:"#64748b"}}>Room size:</span>
                 <select style={S.select} value={roomW} onChange={e=>setRoomW(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
-                <span style={{color:"#888"}}>×</span>
+                <span style={{color:"#475569"}}>×</span>
                 <select style={S.select} value={roomH} onChange={e=>setRoomH(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
               </div>
             </div>
@@ -1368,8 +1663,12 @@ export default function App() {
               <>
                 {rooms.map((room,i)=>(
                   <div key={room.id} onClick={()=>setSelectedRoom(i)}
-                    style={{padding:"5px 8px",background:i===selectedRoom?"#0f3460":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid #e94560":"1px solid transparent"}}>
-                    {room.name}
+                    style={{padding:"3px 5px",background:i===selectedRoom?"#0f3460":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid #e94560":"1px solid transparent",display:"flex",alignItems:"center",gap:4}}>
+                    <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{room.name}</span>
+                    <div style={{display:"flex",flexDirection:"column",gap:1,flexShrink:0}} onClick={e=>e.stopPropagation()}>
+                      <button style={{background:"none",border:"none",color:i>0?"#8b949e":"#333",cursor:i>0?"pointer":"default",fontSize:9,padding:"0 2px",lineHeight:1}} onClick={()=>moveRoom(i,-1)} disabled={i===0} title="Move up">▲</button>
+                      <button style={{background:"none",border:"none",color:i<rooms.length-1?"#8b949e":"#333",cursor:i<rooms.length-1?"pointer":"default",fontSize:9,padding:"0 2px",lineHeight:1}} onClick={()=>moveRoom(i,1)} disabled={i===rooms.length-1} title="Move down">▼</button>
+                    </div>
                   </div>
                 ))}
                 <button style={{...S.btn(false),marginTop:4,width:"100%",fontSize:11}} onClick={addRoom}>+ Add Room</button>
@@ -1395,15 +1694,21 @@ export default function App() {
             )}
           </div>
 
-          {/* Tile selector for room mode */}
+          {/* Tile + Sprite selectors for room mode */}
           {tab==="room"&&(
             <>
               <div style={S.section}>
-                <div style={S.sectionTitle}>Tiles</div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+                  <div style={S.sectionTitle}>Tiles</div>
+                  <span style={{fontSize:10,color:["place","erase","fill"].includes(roomTool)?"#e94560":"#444",fontWeight:600}}>
+                    {["place","erase","fill"].includes(roomTool)?"▶ active":"click to select"}
+                  </span>
+                </div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
                   {tiles.map((tile,i)=>(
-                    <div key={tile.id} onClick={()=>setSelectedTile(i)}
-                      style={{border:i===selectedTile?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative"}}>
+                    <div key={tile.id} onClick={()=>{setSelectedTile(i);setRoomTool("place");}}
+                      style={{border:i===selectedTile&&["place","fill"].includes(roomTool)?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative"}}
+                      title={tile.name+(tile.tileType&&tile.tileType!=="walkable"?" ("+tile.tileType+")":"")}>
                       <MiniCanvas grid={tile.frames[0]} palette={palette} size={28} />
                       {tile.tileType&&tile.tileType!=="walkable"&&<div style={{position:"absolute",bottom:0,right:0,fontSize:7,background:TILE_TYPE_COLORS[tile.tileType],color:"#000",padding:"0 2px",fontWeight:700,borderRadius:"2px 0 0 0"}}>{tile.tileType[0]}</div>}
                     </div>
@@ -1411,16 +1716,23 @@ export default function App() {
                 </div>
               </div>
               <div style={S.section}>
-                <div style={S.sectionTitle}>Sprites (NPCs)</div>
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
+                  <div style={S.sectionTitle}>NPCs</div>
+                  <span style={{fontSize:10,color:["npc","avatarStart"].includes(roomTool)?"#e94560":"#444",fontWeight:600}}>
+                    {["npc","avatarStart"].includes(roomTool)?"▶ active":"click to select"}
+                  </span>
+                </div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
                   {sprites.map((spr,i)=>(
-                    <div key={spr.id} onClick={()=>setSelectedSprite(i)}
-                      style={{border:i===selectedSprite?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",opacity:i===0?0.5:1}}>
+                    <div key={spr.id}
+                      onClick={()=>{setSelectedSprite(i);setRoomTool(i===0?"avatarStart":"npc");}}
+                      style={{border:(i===selectedSprite&&["npc","avatarStart"].includes(roomTool))?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative"}}
+                      title={i===0?"Avatar — click room to set start position":spr.name+" (NPC)"}>
                       <MiniCanvas grid={spr.frames[0]} palette={palette} size={28} />
+                      {i===0&&<div style={{position:"absolute",bottom:0,right:0,fontSize:7,background:"#00ff78",color:"#000",padding:"0 2px",fontWeight:700,borderRadius:"2px 0 0 0"}}>A</div>}
                     </div>
                   ))}
                 </div>
-                <div style={{fontSize:10,color:"#666",marginTop:4}}>Sprite 0 (avatar) is the player.</div>
               </div>
             </>
           )}
@@ -1463,28 +1775,112 @@ export default function App() {
           {tab==="tune"?(
             <div style={{width:"100%",maxWidth:640,padding:8}}>
               <div style={{fontWeight:700,color:"#e94560",marginBottom:12,fontSize:14}}>🎵 Background Tune</div>
-              <TuneEditor tune={tune} onChange={setTune} />
+              <TuneEditor tune={tune} onChange={setTune} volume={tuneVolume} onVolumeChange={setTuneVolume} savedTunes={savedTunes} onSaveTune={saveTune} onLoadTune={loadTune} />
               <div style={{marginTop:16,fontSize:11,color:"#555",lineHeight:1.8}}>
-                The tune loops in the background while your game is playing.<br/>
-                Separate dialog pages with <code style={{color:"#ffec27"}}>---</code> on its own line for multi-page speech.
+                The tune loops in the background while your game is playing. Save a tune and assign it to rooms in the <b style={{color:"#58a6ff"}}>🗺 Rooms</b> tab right panel.
               </div>
             </div>
           ):tab==="room"?(
+            <>
             <RoomCanvas room={rooms[selectedRoom]||{tiles:[],npcs:[]}} tiles={tiles} sprites={sprites}
               palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH}
               onPlace={handleRoomPlace} roomTool={roomTool}
-              selectedTileId={tiles[selectedTile]?.id} selectedSpriteId={sprites[selectedSprite]?.id} />
+              selectedTileId={tiles[selectedTile]?.id} selectedSpriteId={sprites[selectedSprite]?.id}
+              avatarStart={rooms[selectedRoom]?.avatarStart} />
+            <div style={{marginTop:8,fontSize:11,color:"#484f58",background:"rgba(255,255,255,0.03)",borderRadius:4,padding:"3px 10px",border:"1px solid rgba(255,255,255,0.05)"}}>
+              {rooms[selectedRoom]?.name||"room"} &nbsp;·&nbsp; {roomW}×{roomH} tiles &nbsp;·&nbsp; {tileW}×{tileH}px each
+            </div>
+            </>
           ):(tab!=="tune"&&(
             <>
               <PixelCanvas grid={currentFrame} palette={palette} onDraw={handleDraw} pixelSize={pixelSize} showGrid={showGrid} />
-              {currentItem&&<div style={{marginTop:6,fontSize:11,color:"#888"}}>{currentItem.name} · Frame {selectedFrame+1}/{currentItem.frames.length} · {itemW}×{itemH}</div>}
+              <div style={{display:"flex",alignItems:"center",gap:6,marginTop:6}}>
+                <button onClick={()=>setZoom(z=>Math.max(0.5,+(z-0.25).toFixed(2)))}
+                  style={{...S.btn(false),padding:"2px 9px",fontSize:14,lineHeight:1,minWidth:28}}>−</button>
+                <span style={{fontSize:11,color:"#64748b",minWidth:32,textAlign:"center"}}>{zoom}×</span>
+                <button onClick={()=>setZoom(z=>Math.min(4,+(z+0.25).toFixed(2)))}
+                  style={{...S.btn(false),padding:"2px 9px",fontSize:14,lineHeight:1,minWidth:28}}>+</button>
+                <button onClick={()=>setZoom(1)} style={{...S.btn(false),padding:"2px 7px",fontSize:10,color:"#475569",marginLeft:2}}>reset</button>
+                {currentItem&&<span style={{marginLeft:"auto",fontSize:11,color:"#475569"}}>{currentItem.name} · {itemW}×{itemH}px</span>}
+              </div>
             </>
           ))}
         </div>
 
         {/* Right Panel */}
         <div style={S.rightPanel}>
-          {tab!=="room"&&currentItem&&(
+          {tab==="room"&&rooms[selectedRoom]&&(
+            <>
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Room Name</div>
+                <input value={rooms[selectedRoom].name} onChange={e=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],name:e.target.value};return rs;})} style={S.input} />
+              </div>
+
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Exits</div>
+                {(rooms[selectedRoom].exits||[]).length===0?(
+                  <div style={{fontSize:11,color:"#555",lineHeight:1.6}}>No exits yet. Use the 🚪 Exit tool, click a cell to add a portal.</div>
+                ):(
+                  <div style={{display:"flex",flexDirection:"column",gap:4}}>
+                    {(rooms[selectedRoom].exits||[]).map((ex,i)=>{
+                      const destName=rooms[ex.destRoom]?.name||`room ${ex.destRoom}`;
+                      const arr=rooms[ex.destRoom]?.avatarStart||{x:1,y:1};
+                      return(
+                        <div key={i} style={{background:"#0d1b3e",borderRadius:4,padding:"5px 8px",fontSize:11,border:"1px solid rgba(255,68,238,0.25)"}}>
+                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                            <span style={{color:"#ff44ee",fontWeight:700}}>🚪 ({ex.x},{ex.y}){ex.twoWay?" ↔":"→"}</span>
+                            <button style={{...S.btn(false),fontSize:9,padding:"1px 6px",color:"#e94560",borderColor:"rgba(233,69,96,0.3)"}}
+                              onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:(rs[selectedRoom].exits||[]).filter((_,j)=>j!==i)};return rs;})}>✕</button>
+                          </div>
+                          <div style={{color:"#8b949e",marginTop:2}}>{destName} at ({arr.x},{arr.y})</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Background Tune</div>
+                {savedTunes.length===0?(
+                  <div style={{fontSize:11,color:"#555",lineHeight:1.6}}>No saved tunes yet.<br/>Go to the 🎵 Tune tab, compose a tune and click <b style={{color:"#7ee787"}}>💾 Save</b>.</div>
+                ):(
+                  <>
+                    <select style={{...S.select,width:"100%",marginBottom:6}}
+                      value={rooms[selectedRoom].tuneId||""}
+                      onChange={e=>{const v=e.target.value;setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],tuneId:v||null};return rs;});}}>
+                      <option value="">None (silent)</option>
+                      {savedTunes.map(st=><option key={st.id} value={st.id}>{st.name}</option>)}
+                    </select>
+                    <div style={{fontSize:10,color:"#555"}}>This tune loops when the player enters this room.</div>
+                  </>
+                )}
+              </div>
+
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Legend</div>
+                <div style={{fontSize:11,color:"#aaa",lineHeight:1.8}}>
+                  {TILE_TYPES.map(t=>(
+                    <div key={t} style={{color:TILE_TYPE_COLORS[t]||"#aaa"}}>
+                      {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
+                      {t==="wall"?" — blocks":t==="item"?" — collectible":t==="end"?" — win!":""}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Actions</div>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>{
+                    setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[]};return rs;});
+                  }}>Clear Room</button>
+                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>exportRoomPng(rooms[selectedRoom])}>Export PNG</button>
+                </div>
+              </div>
+            </>
+          )}
+          {tab!=="room"&&tab!=="tune"&&currentItem&&(
             <>
               <div style={S.section}>
                 <div style={S.sectionTitle}>Name</div>
@@ -1610,49 +2006,6 @@ export default function App() {
             </>
           )}
 
-          {/* Room right panel */}
-          {tab==="room"&&rooms[selectedRoom]&&(
-            <>
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Room Name</div>
-                <input value={rooms[selectedRoom].name}
-                  onChange={e=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],name:e.target.value};return rs;})}
-                  style={S.input} />
-              </div>
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Legend</div>
-                <div style={{fontSize:11,color:"#aaa",lineHeight:1.8}}>
-                  {TILE_TYPES.map(t=>(
-                    <div key={t} style={{color:TILE_TYPE_COLORS[t]||"#aaa"}}>
-                      {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
-                      {t==="wall"?" — blocks player":t==="item"?" — collected on touch":t==="end"?" — triggers win":""}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              {(rooms[selectedRoom]?.exits||[]).length>0&&(
-                <div style={S.section}>
-                  <div style={S.sectionTitle}>Exits ({rooms[selectedRoom].exits.length})</div>
-                  {rooms[selectedRoom].exits.map((ex,i)=>(
-                    <div key={i} style={{fontSize:11,color:"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#0d1b3e",borderRadius:3,padding:"3px 6px"}}>
-                      <span>({ex.x},{ex.y}) → Room {ex.destRoom} @ ({ex.destX},{ex.destY})</span>
-                      <button style={{background:"none",border:"none",color:"#e94560",cursor:"pointer",fontSize:12,padding:"0 2px"}}
-                        onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:rs[selectedRoom].exits.filter((_,j)=>j!==i)};return rs;})}>✕</button>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Actions</div>
-                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>{
-                    setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[]};return rs;});
-                  }}>Clear Room</button>
-                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>exportRoomPng(rooms[selectedRoom])}>Export Room PNG</button>
-                </div>
-              </div>
-            </>
-          )}
 
           {/* Shortcuts */}
           <div style={{...S.section,marginTop:12}}>
@@ -1665,10 +2018,12 @@ export default function App() {
       </div>
 
       {showImport&&<PngImportModal onImport={handleImport} onClose={()=>setShowImport(false)} palette={palette} maxColors={MAX_COLORS} />}
-      {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={selectedRoom} tiles={tiles} sprites={sprites}
-        palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune} onClose={()=>setShowPlaytest(false)} />}
+      {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={0} tiles={tiles} sprites={sprites}
+        palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune}
+        savedTunes={savedTunes} tuneVolume={tuneVolume} onClose={()=>setShowPlaytest(false)} />}
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
       {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} />}
+      {showHelp&&<HelpModal onClose={()=>setShowHelp(false)} />}
     </div>
   );
 }
