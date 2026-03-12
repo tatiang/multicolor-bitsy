@@ -563,6 +563,75 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
     onMouseLeave={()=>{dragging.current=false;lastCell.current=null;}} />;
 }
 
+// ─── Bitsy Import Modal ───────────────────────────────────────────────────────
+function BitsyImportModal({ onImport, onClose, gameTitle, palette, sprites, tiles, rooms, tune }) {
+  const [file, setFile] = useState(null);
+  const [rawText, setRawText] = useState(null);
+  const [error, setError] = useState(null);
+  const [saved, setSaved] = useState(false);
+
+  const handleFile = (e) => {
+    const f = e.target.files[0]; if(!f) return;
+    setFile(f); setError(null);
+    const reader = new FileReader();
+    reader.onload = ev => setRawText(ev.target.result);
+    reader.readAsText(f);
+  };
+
+  const handleBackup = () => {
+    try {
+      const data = exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune);
+      const blob = new Blob([data], {type:'text/plain'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `${gameTitle||'game'}.bitsy`; a.click();
+      URL.revokeObjectURL(url);
+      setSaved(true);
+    } catch(e) { setError('Backup failed: '+e.message); }
+  };
+
+  const handleImport = () => {
+    if (!rawText) return;
+    try { onImport(parseBitsyData(rawText)); }
+    catch(e) { setError('Could not parse file: '+e.message); }
+  };
+
+  return (
+    <div style={S.modal} onClick={onClose}>
+      <div style={{...S.modalContent, maxWidth:420}} onClick={e=>e.stopPropagation()}>
+        <h3 style={{margin:"0 0 16px", color:"#38bdf8"}}>📂 Import .bitsy File</h3>
+
+        {/* Save prompt */}
+        <div style={{padding:"12px 14px", background:"rgba(251,191,36,0.07)", border:"1px solid rgba(251,191,36,0.2)", borderRadius:8, marginBottom:16}}>
+          <div style={{fontSize:12, color:"#fbbf24", fontWeight:700, marginBottom:6}}>⚠️ Your current game will be replaced</div>
+          <p style={{fontSize:11, color:"#94a3b8", margin:"0 0 10px", lineHeight:1.5}}>Download a backup of <em style={{color:"#e2e8f0"}}>{gameTitle||'your current game'}</em> before importing.</p>
+          <button style={{...S.btnGreen, display:"flex", alignItems:"center", gap:6}} onClick={handleBackup}>
+            📥 Download backup {saved && <span style={{color:"#4ade80"}}>✓ saved</span>}
+          </button>
+        </div>
+
+        {/* File picker */}
+        <div style={{marginBottom:16}}>
+          <div style={S.sectionTitle}>Choose .bitsy file</div>
+          <label style={{display:"block", padding:"22px 16px", border:`2px dashed ${file?"rgba(74,222,128,0.4)":"rgba(255,255,255,0.1)"}`, borderRadius:8, cursor:"pointer", textAlign:"center", background:"rgba(255,255,255,0.02)", transition:"border .15s"}}>
+            <input type="file" accept=".bitsy,.txt" style={{display:"none"}} onChange={handleFile} />
+            {file
+              ? <span style={{fontSize:12, color:"#4ade80", fontWeight:700}}>✓ {file.name}</span>
+              : <span style={{fontSize:12, color:"#475569"}}>Click to browse or drop a .bitsy file here</span>}
+          </label>
+        </div>
+
+        {error && <div style={{color:"#f87171", fontSize:11, marginBottom:12, padding:"8px 10px", background:"rgba(248,113,113,0.08)", borderRadius:6}}>⚠️ {error}</div>}
+
+        <div style={{display:"flex", gap:8, justifyContent:"flex-end"}}>
+          <button style={S.btn(false)} onClick={onClose}>Cancel</button>
+          <button style={file ? S.btnPrimary : S.btn(false)} disabled={!file} onClick={handleImport}>Import →</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── PNG Import Modal ─────────────────────────────────────────────────────────
 function PngImportModal({ onImport, onClose, palette, maxColors }) {
   const [preview,setPreview]=useState(null);
@@ -1021,6 +1090,184 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
 // undefined that can appear in imported-JPEG grids due to quantization edge cases.
 const safePixel = v => (Number.isFinite(v) ? Math.max(0, Math.min(35, Math.round(v))) : 0);
 
+// ─── Bitsy Import Parser ───────────────────────────────────────────────────────
+function parseBitsyData(rawText) {
+  const lines = rawText.replace(/\r\n/g,'\n').split('\n');
+  let gameTitle='Imported Game';
+  const rawTiles=[]; // [{bitsyId, name, frames, isWall}]
+  const rawSprites=[]; // [{bitsyId, name, frames, dlgRef, posRoom, posX, posY}]
+  const rawItems=[]; // [{bitsyId, name, frames, dlgRef}]
+  const rawRooms=[]; // [{bitsyId, name, tileGrid, itemPlacements, exits}]
+  const dialogs={}; // id→text
+  const palettes={}; // id→[{r,g,b}]
+
+  // Grab title from first non-directive line
+  for(const l of lines){
+    const t=l.trim();
+    if(t&&!t.startsWith('#')&&!t.startsWith('!')&&!/^(PAL|ROOM|TIL|SPR|ITM|DLG|TUNE|BLIP|END|VAR|NAME|WAL|COL|EXT|POS)\b/.test(t)){
+      gameTitle=t; break;
+    }
+  }
+
+  const parsePixels=(rows)=>{
+    const frames=[]; let cur=[];
+    for(const r of rows){
+      if(r==='>'){if(cur.length)frames.push(cur);cur=[];}
+      else cur.push(r.split('').map(c=>Math.min(15,parseInt(c,16)||0)));
+    }
+    if(cur.length)frames.push(cur);
+    return frames.length?frames:[emptyGrid(8,8)];
+  };
+
+  let i=0;
+  while(i<lines.length){
+    const l=lines[i].trim();
+    if(l.startsWith('PAL ')){
+      const id=l.slice(4).trim(); const colors=[]; i++;
+      while(i<lines.length&&lines[i].trim()&&!lines[i].trim().match(/^(PAL|ROOM|TIL|SPR|ITM|DLG|TUNE|BLIP|END|VAR)\s/)){
+        const m=lines[i].trim().match(/^(\d+),(\d+),(\d+)$/);
+        if(m)colors.push({r:+m[1],g:+m[2],b:+m[3]});
+        i++;
+      }
+      palettes[id]=colors;
+    } else if(l.startsWith('ROOM ')){
+      const id=l.slice(5).trim(); let name=`room ${id}`;
+      const tileGrid=[],itemPlacements=[],exits=[]; i++;
+      while(i<lines.length){
+        const r=lines[i].trim();
+        if(!r){i++;break;}
+        if(r.startsWith('NAME '))name=r.slice(5);
+        else if(r.startsWith('EXT ')){
+          const m=r.match(/EXT (\d+),(\d+)\s+(?:ROOM\s+)?(\d+)\s+(?:AT\s+)?(\d+),(\d+)/);
+          if(m)exits.push({x:+m[1],y:+m[2],destRoom:+m[3],arrX:+m[4],arrY:+m[5]});
+        } else if(r.startsWith('ITM ')){
+          const m=r.match(/ITM (\w+) (\d+),(\d+)/);
+          if(m)itemPlacements.push({bitsyId:m[1],x:+m[2],y:+m[3]});
+        } else if(/^[a-z0-9,]+$/.test(r)&&r.includes(','))tileGrid.push(r.split(','));
+        i++;
+      }
+      rawRooms.push({bitsyId:id,name,tileGrid,itemPlacements,exits});
+    } else if(l.startsWith('TIL ')){
+      const id=l.slice(4).trim(); let name=`tile_${id}`,isWall=false;
+      const pixRows=[]; i++;
+      while(i<lines.length){
+        const r=lines[i].trim();
+        if(!r){i++;break;}
+        if(r.startsWith('NAME '))name=r.slice(5);
+        else if(r==='WAL true')isWall=true;
+        else if(/^[0-9a-f>]+$/i.test(r)&&(r.length>=4||r==='>'))pixRows.push(r);
+        i++;
+      }
+      rawTiles.push({bitsyId:id,name,frames:parsePixels(pixRows),isWall});
+    } else if(l.startsWith('SPR ')){
+      const id=l.slice(4).trim(); let name=id==='A'?'avatar':`sprite_${id}`;
+      let dlgRef=null,posRoom=0,posX=1,posY=1;
+      const pixRows=[]; i++;
+      while(i<lines.length){
+        const r=lines[i].trim();
+        if(!r){i++;break;}
+        if(r.startsWith('NAME '))name=r.slice(5);
+        else if(r.startsWith('DLG '))dlgRef=r.slice(4).trim().split(/\s/)[0];
+        else if(r.startsWith('POS ')){const m=r.match(/POS (\d+) (\d+),(\d+)/);if(m){posRoom=+m[1];posX=+m[2];posY=+m[3];}}
+        else if(/^[01>]+$/.test(r)&&(r.length>=4||r==='>'))pixRows.push(r);
+        i++;
+      }
+      rawSprites.push({bitsyId:id,name,frames:parsePixels(pixRows),dlgRef,posRoom,posX,posY});
+    } else if(l.startsWith('ITM ')){
+      const id=l.slice(4).trim(); let name=`item_${id}`,dlgRef=null;
+      const pixRows=[]; i++;
+      let hasPixels=false;
+      while(i<lines.length){
+        const r=lines[i].trim();
+        if(!r){i++;break;}
+        if(r.startsWith('NAME '))name=r.slice(5);
+        else if(r.startsWith('DLG '))dlgRef=r.slice(4).trim().split(/\s/)[0];
+        else if(/^[01>]+$/.test(r)&&(r.length>=4||r==='>')){{pixRows.push(r);hasPixels=true;}}
+        i++;
+      }
+      if(hasPixels)rawItems.push({bitsyId:id,name,frames:parsePixels(pixRows),dlgRef});
+    } else if(l.startsWith('DLG ')){
+      const id=l.slice(4).trim().split(/\s/)[0]; i++;
+      const textLines=[];
+      while(i<lines.length){
+        const r=lines[i];
+        if(!r.trim()){i++;break;}
+        if(!r.trim().startsWith('NAME ')&&r.trim()!=='END')textLines.push(r);
+        i++;
+      }
+      while(textLines.length&&!textLines[textLines.length-1].trim())textLines.pop();
+      dialogs[id]=textLines.join('\n');
+    } else { i++; }
+  }
+
+  // Build palette from PAL 0
+  const toHex=({r,g,b})=>'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+  const newPalette=[...DEFAULT_PALETTE];
+  if(palettes['0']?.length>=1)newPalette[0]=toHex(palettes['0'][0]);
+  if(palettes['0']?.length>=2)newPalette[1]=toHex(palettes['0'][1]);
+  if(palettes['0']?.length>=3)newPalette[2]=toHex(palettes['0'][2]);
+
+  // Tile id map: bitsyId letter → our uid
+  const tileIdMap={};
+  const newTiles=rawTiles.map(t=>{
+    const id=uid(); tileIdMap[t.bitsyId]=id;
+    return {id,name:t.name,frames:t.frames,tileType:t.isWall?'wall':'walkable'};
+  });
+
+  // Item sprites
+  const itemIdMap={};
+  const itemSprites=rawItems.map(it=>{
+    const id=uid(); itemIdMap[it.bitsyId]=id;
+    return {id,name:it.name,frames:it.frames,tileType:'item',
+      dialog:it.dlgRef!=null?(dialogs[it.dlgRef]||''):'',blip:{wave:'square',freq:440}};
+  });
+
+  // Sprites: A=avatar first
+  const spriteIdMap={};
+  const avatarRaw=rawSprites.find(s=>s.bitsyId==='A');
+  const npcRaws=rawSprites.filter(s=>s.bitsyId!=='A');
+  const avatarSpr={
+    id:uid(), name:avatarRaw?.name||'avatar',
+    frames:avatarRaw?.frames||[emptyGrid(8,8)],
+    tileType:'walkable',dialog:'',blip:{wave:'square',freq:440},
+    _pr:avatarRaw?.posRoom??0,_px:avatarRaw?.posX??1,_py:avatarRaw?.posY??1,
+  };
+  if(avatarRaw)spriteIdMap['A']=avatarSpr.id;
+  const npcSprs=npcRaws.map(s=>{
+    const id=uid(); spriteIdMap[s.bitsyId]=id;
+    return {id,name:s.name,frames:s.frames,tileType:'walkable',
+      dialog:s.dlgRef!=null?(dialogs[s.dlgRef]||''):'',blip:{wave:'square',freq:440},
+      _pr:s.posRoom,_px:s.posX,_py:s.posY};
+  });
+  const allSprites=[avatarSpr,...npcSprs,...itemSprites];
+
+  // Rooms
+  const newRooms=rawRooms.map(room=>{
+    const id=uid();
+    const tileGrid=room.tileGrid.map(row=>row.map(cell=>
+      (cell==='0'||!cell)?null:(tileIdMap[cell]||null)
+    ));
+    while(tileGrid.length<16)tileGrid.push(Array(16).fill(null));
+    tileGrid.forEach(row=>{while(row.length<16)row.push(null);});
+    const roomIdxNum=+room.bitsyId;
+    // NPCs from sprite POS
+    const npcs=[...npcSprs,...itemSprites]
+      .filter(s=>s._pr===roomIdxNum)
+      .map(s=>({spriteId:s.id,x:s._px,y:s._py}));
+    // Item placements from room ITM lines
+    room.itemPlacements.forEach(({bitsyId:bid,x,y})=>{
+      const sid=itemIdMap[bid]; if(sid&&!npcs.find(n=>n.spriteId===sid))npcs.push({spriteId:sid,x,y});
+    });
+    const avatarStart=(avatarSpr._pr===roomIdxNum)?{x:avatarSpr._px,y:avatarSpr._py}:null;
+    const exits=room.exits.map(ex=>({x:ex.x,y:ex.y,destRoom:ex.destRoom}));
+    return {id,name:room.name,tiles:tileGrid,npcs,exits,avatarStart,tuneId:null,rules:[]};
+  });
+
+  // Clean up internal _pr/_px/_py
+  const cleanSprites=allSprites.map(({_pr,_px,_py,...s})=>s);
+  return {gameTitle,palette:newPalette,sprites:cleanSprites,tiles:newTiles,rooms:newRooms};
+}
+
 function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
   let out = `${gameTitle || "My Game"}\n\n`;
 
@@ -1357,6 +1604,7 @@ export default function App() {
   const [showHelp,setShowHelp]=useState(false);
   const [showWizard,setShowWizard]=useState(true);
   const [showPrePlay,setShowPrePlay]=useState(false);
+  const [showBitsyImport,setShowBitsyImport]=useState(false);
   const [tune,setTune]=useState(Array.from({length:TUNE_STEPS},()=>({semi:12,active:false})));
   const [tuneVolume,setTuneVolume]=useState(0.15);
   const [savedTunes,setSavedTunes]=useState([]);
@@ -1698,6 +1946,18 @@ export default function App() {
     setShowWizard(false);
   };
 
+  const handleBitsyImport=({gameTitle:gt,palette:pal,sprites:sprs,tiles:tils,rooms:rms})=>{
+    setGameTitle(gt);
+    setPalette(pal.slice(0,MAX_COLORS));
+    setSprites(sprs.length?sprs:[{id:uid(),name:"avatar",frames:[emptyGrid(8,8)],dialog:"",tileType:"walkable",blip:{wave:"square",freq:440}}]);
+    setTiles(tils.length?tils:[{id:uid(),name:"wall",frames:[emptyGrid(8,8)],tileType:"wall"}]);
+    setRooms(rms.length?rms:[{id:uid(),name:"room 0",tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[],avatarStart:null,tuneId:null,rules:[]}]);
+    setSelectedRoom(0); setSelectedSprite(0); setSelectedTile(0); setSelectedFrame(0);
+    setTab("sprite");
+    setShowBitsyImport(false);
+    setShowWizard(false);
+  };
+
   // Tune save/load
   const saveTune=(st)=>setSavedTunes(p=>[...p.filter(t=>t.name!==st.name),st]);
   const loadTune=(i)=>{const st=savedTunes[i];if(st)setTune([...st.steps]);};
@@ -1748,7 +2008,8 @@ export default function App() {
         <div style={{flex:1}} />
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
           <button style={S.btnPrimary} onClick={()=>setShowPrePlay(true)}>▶ Play</button>
-          <button style={S.btn(false)} onClick={()=>setShowImport(true)}>⬆ Import</button>
+          <button style={S.btn(false)} onClick={()=>setShowImport(true)}>⬆ PNG</button>
+          <button style={S.btn(false)} onClick={()=>setShowBitsyImport(true)}>📂 .bitsy</button>
           <button style={S.btn(false)} onClick={exportPng}>PNG</button>
           {currentItem?.frames.length>1&&<button style={S.btn(false)} onClick={exportSpritesheet}>Sheet</button>}
           <button style={{...S.btn(false),color:"#fb923c",borderColor:"rgba(251,146,60,0.3)"}} onClick={exportGameData}>Export .bitsy</button>
@@ -2233,6 +2494,8 @@ export default function App() {
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
       {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} />}
       {showHelp&&<HelpModal onClose={()=>setShowHelp(false)} />}
+      {showBitsyImport&&<BitsyImportModal onImport={handleBitsyImport} onClose={()=>setShowBitsyImport(false)}
+        gameTitle={gameTitle} palette={palette} sprites={sprites} tiles={tiles} rooms={rooms} tune={tune} />}
       {showWizard&&<WizardModal palette={palette} onComplete={handleWizardComplete} onSkip={()=>setShowWizard(false)} />}
       {showPrePlay&&<PrePlayModal sprites={sprites} tiles={tiles} rooms={rooms}
         onPlay={()=>{setShowPrePlay(false);setShowPlaytest(true);}}
