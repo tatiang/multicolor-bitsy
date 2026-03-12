@@ -2024,6 +2024,10 @@ export default function App() {
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
       {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} />}
       {showHelp&&<HelpModal onClose={()=>setShowHelp(false)} />}
+      {/* Build timestamp footer */}
+      <div style={{position:"fixed",bottom:6,left:10,fontSize:10,color:"rgba(100,116,139,0.6)",pointerEvents:"none",userSelect:"none",zIndex:1}}>
+        {(()=>{try{const d=new Date(__BUILD_TIME__);return"Updated "+d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});}catch{return "";}})()}
+      </div>
     </div>
   );
 }
