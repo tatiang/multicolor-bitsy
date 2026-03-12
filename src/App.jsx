@@ -352,7 +352,7 @@ const S = {
   modeBtn:(active)=>({ padding:"9px 20px", background:active?"#38bdf8":"transparent", color:active?"#0f172a":"#64748b", border:"none", cursor:"pointer", fontSize:13, fontWeight:700, transition:"all .12s", display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }),
   main:{ display:"flex", flex:1, overflow:"hidden" },
   sidebar:{ width:256, background:"#1e293b", padding:"6px", overflowY:"auto", borderRight:"1px solid rgba(255,255,255,0.06)", flexShrink:0 },
-  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:20, overflow:"auto", background:"#0f172a" },
+  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", paddingTop:16, paddingBottom:20, paddingLeft:20, paddingRight:20, overflow:"auto", background:"#0f172a" },
   rightPanel:{ width:272, background:"#1e293b", padding:"6px", overflowY:"auto", borderLeft:"1px solid rgba(255,255,255,0.06)", flexShrink:0 },
   section:{ marginBottom:6, background:"rgba(255,255,255,0.025)", borderRadius:8, padding:"9px 10px", border:"1px solid rgba(255,255,255,0.05)" },
   sectionTitle:{ fontSize:10, fontWeight:700, textTransform:"uppercase", color:"#38bdf8", marginBottom:7, letterSpacing:"0.1em" },
@@ -720,34 +720,88 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
 }
 
 // ─── Exit Config Modal ────────────────────────────────────────────────────────
-function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
+function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, tiles, palette, roomW, roomH }) {
   const firstOther = rooms.findIndex((_,i)=>i!==currentRoom);
   const [destRoom, setDestRoom] = useState(firstOther>=0?firstOther:0);
   const [twoWay, setTwoWay] = useState(false);
+  const [isEnding, setIsEnding] = useState(false);
   const destRoomObj = rooms[destRoom];
-  const arrivalDesc = destRoomObj?.avatarStart
-    ? `(${destRoomObj.avatarStart.x}, ${destRoomObj.avatarStart.y}) — that room's start marker`
-    : "(1, 1) — set a start marker in that room to change this";
+  const defaultArr = destRoomObj?.avatarStart||{x:1,y:1};
+  const [arrX, setArrX] = useState(defaultArr.x);
+  const [arrY, setArrY] = useState(defaultArr.y);
+  useEffect(()=>{
+    const r=rooms[destRoom]; const a=r?.avatarStart||{x:1,y:1};
+    setArrX(a.x); setArrY(a.y);
+  },[destRoom,rooms]);
+  const cs=Math.max(4,Math.min(9,Math.floor(160/Math.max(roomW,roomH))));
+  const TILE_BG={wall:"#475569",item:"#fbbf24",end:"#60a5fa",walkable:"#1e293b"};
   return (
     <div style={S.modal} onClick={onClose}>
-      <div style={{...S.modalContent,maxWidth:360}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 12px",color:"#e94560"}}>🚪 Configure Exit</h3>
-        <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Portal at ({position.x},{position.y}) sends player to:</p>
-        <div style={S.row}>
-          <span style={S.label}>Room:</span>
-          <select style={S.select} value={destRoom} onChange={e=>setDestRoom(+e.target.value)}>
-            {rooms.map((r,i)=><option key={i} value={i}>{r.name}{i===currentRoom?" (this room)":""}</option>)}
-          </select>
-        </div>
-        <div style={{fontSize:11,color:"#58a6ff",background:"#082040",borderRadius:4,padding:"6px 8px",marginBottom:8}}>
-          Player arrives at {arrivalDesc}
-        </div>
-        <label style={{display:"flex",alignItems:"center",gap:8,fontSize:12,cursor:"pointer",marginBottom:12}}>
-          <input type="checkbox" checked={twoWay} onChange={e=>setTwoWay(e.target.checked)} />
-          <span><b>Two-way</b> — automatically creates a return portal in the destination room</span>
+      <div style={{...S.modalContent,maxWidth:440}} onClick={e=>e.stopPropagation()}>
+        <h3 style={{margin:"0 0 10px",color:"#e94560"}}>🚪 Configure Exit</h3>
+        <p style={{fontSize:12,color:"#aaa",margin:"0 0 10px"}}>Portal at ({position.x},{position.y})</p>
+
+        {/* Ending toggle */}
+        <label style={{display:"flex",alignItems:"center",gap:8,fontSize:13,cursor:"pointer",
+          background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",
+          borderRadius:6,padding:"8px 10px",marginBottom:10}}>
+          <input type="checkbox" checked={isEnding} onChange={e=>setIsEnding(e.target.checked)} />
+          <span>🏁 <b>Game ending</b> — stepping here shows the win screen</span>
         </label>
+
+        {!isEnding&&(<>
+          {/* Destination room */}
+          <div style={{...S.row,marginBottom:8}}>
+            <span style={{...S.label,flexShrink:0}}>Destination:</span>
+            <select style={S.select} value={destRoom} onChange={e=>setDestRoom(+e.target.value)}>
+              {rooms.map((r,i)=><option key={i} value={i}>{r.name}{i===currentRoom?" (this room)":""}</option>)}
+            </select>
+          </div>
+
+          {/* Mini room grid for arrival position */}
+          <div style={{fontSize:11,color:"#94a3b8",marginBottom:4}}>
+            Click a cell to set where the player arrives:
+          </div>
+          <div style={{display:"inline-grid",gridTemplateColumns:`repeat(${roomW},${cs}px)`,gap:0,
+            background:"#0f172a",border:"1px solid rgba(255,255,255,0.12)",borderRadius:4,
+            padding:3,marginBottom:6,cursor:"crosshair",userSelect:"none"}}>
+            {Array.from({length:roomH},(_,ry)=>Array.from({length:roomW},(_,rx)=>{
+              const tid=destRoomObj?.tiles[ry]?.[rx];
+              const tile=tiles.find(t=>t.id===tid);
+              const tt=tile?.tileType||"walkable";
+              const isArr=rx===arrX&&ry===arrY;
+              return(
+                <div key={`${rx},${ry}`} onClick={()=>{setArrX(rx);setArrY(ry);}}
+                  style={{width:cs,height:cs,boxSizing:"border-box",
+                    background:isArr?"#38bdf8":TILE_BG[tt]||"#1e293b",
+                    border:isArr?"1px solid #fff":"1px solid transparent",
+                    borderRadius:isArr?2:0}}
+                />
+              );
+            }))}
+          </div>
+          <div style={{fontSize:11,color:"#38bdf8",marginBottom:10}}>
+            Arrival: ({arrX}, {arrY})
+            {destRoomObj?.avatarStart&&destRoomObj.avatarStart.x===arrX&&destRoomObj.avatarStart.y===arrY
+              &&<span style={{color:"#64748b"}}> — room start marker</span>}
+          </div>
+
+          {/* Two-way toggle */}
+          <label style={{display:"flex",alignItems:"center",gap:8,fontSize:12,cursor:"pointer",marginBottom:12}}>
+            <input type="checkbox" checked={twoWay} onChange={e=>setTwoWay(e.target.checked)} />
+            <span>↔ <b>Two-way</b> — also creates a return portal in the destination room</span>
+          </label>
+        </>)}
+
         <div style={{display:"flex",gap:8,marginTop:4}}>
-          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({x:position.x,y:position.y,destRoom,twoWay})}>✓ Add Exit</button>
+          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({
+            x:position.x,y:position.y,
+            destRoom:isEnding?null:destRoom,
+            twoWay:!isEnding&&twoWay,
+            isEnding,
+            arrX:isEnding?undefined:arrX,
+            arrY:isEnding?undefined:arrY,
+          })}>✓ {isEnding?"Add Ending":"Add Exit"}</button>
           <button style={{...S.btn(false),flex:1}} onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -847,7 +901,7 @@ function TuneEditor({ tune, onChange, volume, onVolumeChange, savedTunes, onSave
 }
 
 // ─── Playtest Modal ───────────────────────────────────────────────────────────
-function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, savedTunes, tuneVolume, onClose }) {
+function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, savedTunes, tuneVolume, winConditions, onClose }) {
   const findStart = (r) => {
     if(!r)return{x:1,y:1};
     if(r.avatarStart)return{x:r.avatarStart.x,y:r.avatarStart.y};
@@ -861,10 +915,12 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
   const [roomIdx,setRoomIdx]=useState(startRoom);
   const room=rooms[roomIdx]||{tiles:[],npcs:[],exits:[]};
   const [pos,setPos]=useState(()=>findStart(rooms[startRoom]));
-  const [collected,setCollected]=useState([]);
+  const [collected,setCollected]=useState([]); // [{name,spriteId?}]
   const [dialog,setDialog]=useState(null);
   const [won,setWon]=useState(false);
-  const [removedItems,setRemovedItems]=useState([]);
+  const [wonMsg,setWonMsg]=useState("");
+  const [removedItems,setRemovedItems]=useState([]); // tile-based: `${roomIdx},${x},${y}`
+  const [removedNpcs,setRemovedNpcs]=useState([]); // sprite-based: `${roomIdx},${x},${y}`
   const [showInv,setShowInv]=useState(false);
   const [muted,setMuted]=useState(false);
   const mutedRef=useRef(false);
@@ -928,8 +984,9 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       ctx.fillStyle="rgba(255,0,200,0.2)";
       ctx.fillRect(ex.x*tileW*ps,ex.y*tileH*ps,tileW*ps,tileH*ps);
     });
-    // NPCs
+    // NPCs (skip removed sprite items)
     (room.npcs||[]).forEach(npc=>{
+      if(removedNpcs.includes(`${roomIdx},${npc.x},${npc.y}`))return;
       const spr=sprites.find(s=>s.id===npc.spriteId); if(!spr)return;
       const frame=spr.frames[0]||emptyGrid(tileW,tileH);
       for(let py=0;py<Math.min(tileH,frame.length);py++) for(let px=0;px<Math.min(tileW,frame[0].length);px++){
@@ -951,7 +1008,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       ctx.fillStyle="#fff";
       ctx.fillRect(pos.x*tileW*ps+ps,pos.y*tileH*ps+ps,(tileW-2)*ps,(tileH-2)*ps);
     }
-  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps,pos,playerSpr,removedItems]);
+  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps,pos,playerSpr,removedItems,removedNpcs,roomIdx]);
 
   useEffect(()=>{ const c=canvasRef.current; if(c){c.width=roomW*tileW*ps;c.height=roomH*tileH*ps;} drawAll(); },[drawAll,roomW,roomH,tileW,tileH,ps]);
 
@@ -972,20 +1029,40 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       e.preventDefault();
       const nx=pos.x+d[0], ny=pos.y+d[1];
       if(nx<0||nx>=roomW||ny<0||ny>=roomH)return;
-      // Check exits
+      // Check exits (including isEnding exits)
       const exit=(room.exits||[]).find(ex=>ex.x===nx&&ex.y===ny);
       if(exit){
-        const destRoomObj=rooms[exit.destRoom];
-        const arrivalPos=destRoomObj?.avatarStart||{x:1,y:1};
+        if(exit.isEnding){ setWonMsg(""); setWon(true); return; }
+        const ax=exit.arrX??rooms[exit.destRoom]?.avatarStart?.x??1;
+        const ay=exit.arrY??rooms[exit.destRoom]?.avatarStart?.y??1;
         setRoomIdx(exit.destRoom);
-        setPos(arrivalPos);
+        setPos({x:ax,y:ay});
         safeBlip("sine",660,0.18,0.2);
         return;
       }
-      // Check NPC
-      const npc=(room.npcs||[]).find(n=>n.x===nx&&n.y===ny);
+      // Check NPC — item sprites get collected, others show dialog
+      const npcKey=`${roomIdx},${nx},${ny}`;
+      const npc=(room.npcs||[]).find(n=>n.x===nx&&n.y===ny&&!removedNpcs.includes(`${roomIdx},${n.x},${n.y}`));
       if(npc){
         const spr=sprites.find(s=>s.id===npc.spriteId);
+        if(spr?.tileType==="item"){
+          // Collectible sprite — walk onto it to collect
+          if(!removedNpcs.includes(npcKey)){
+            const newRemNpcs=[...removedNpcs,npcKey];
+            const newCollected=[...collected,{name:spr.name||"item",spriteId:spr.id}];
+            setRemovedNpcs(newRemNpcs);
+            setCollected(newCollected);
+            setPos({x:nx,y:ny});
+            safeBlip("triangle",880,0.2,0.3);
+            // Check win conditions
+            if(winConditions){
+              const cnt=newCollected.filter(c=>c.spriteId===spr.id).length;
+              const target=winConditions[spr.id];
+              if(target>0&&cnt>=target){ setWonMsg(`You collected all ${spr.name||"items"}!`); setWon(true); }
+            }
+          }
+          return;
+        }
         if(spr?.dialog){
           const pages=spr.dialog.split(/\n?---\n?/).map(p=>p.trim()).filter(Boolean);
           setDialog({pages:pages.length?pages:[spr.dialog],pageIdx:0,name:spr.name});
@@ -1007,15 +1084,15 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
           safeBlip("triangle",880,0.2,0.3);
         }
       }
-      if(tt==="end")setWon(true);
+      if(tt==="end"){ setWonMsg(""); setWon(true); }
     };
     window.addEventListener("keydown",handler);
     return()=>window.removeEventListener("keydown",handler);
-  },[pos,dialog,won,room,roomIdx,tiles,sprites,roomW,roomH,removedItems]);
+  },[pos,dialog,won,room,roomIdx,tiles,sprites,roomW,roomH,removedItems,removedNpcs,collected,winConditions]);
 
   const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
   const maxD=400, sc=Math.min(maxD/cw,maxD/ch,1);
-  const restart=()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setDialog(null);setShowInv(false); };
+  const restart=()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setRemovedNpcs([]);setWon(false);setWonMsg("");setDialog(null);setShowInv(false); };
 
   return (
     <div style={S.modal}>
@@ -1026,16 +1103,17 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
           <span style={{fontSize:11,color:"#64748b"}}>Room {roomIdx+1}/{rooms.length}</span>
           <button style={{...S.btn(showInv),fontSize:11,padding:"3px 8px"}} onClick={()=>setShowInv(v=>!v)}>🎒 {collected.length}</button>
           <button style={{...S.btn(muted),fontSize:11,padding:"3px 8px"}} onClick={()=>setMuted(v=>!v)} title="Mute">{muted?"🔇":"🔊"}</button>
-          <button style={{...S.btn(false),padding:"3px 8px",fontSize:11}} onClick={()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setDialog(null);setShowInv(false); }}>↺</button>
+          <button style={{...S.btn(false),padding:"3px 8px",fontSize:11}} onClick={restart}>↺</button>
           <button style={{...S.btn(false),padding:"3px 8px"}} onClick={onClose}>✕</button>
         </div>
         {won ? (
           <div style={{textAlign:"center",padding:32}}>
             <div style={{fontSize:40,marginBottom:12}}>🎉</div>
             <div style={{fontSize:22,color:"#fbbf24",fontWeight:700,marginBottom:8}}>You Win!</div>
-            <div style={{color:"#64748b",marginBottom:16}}>Items: {collected.length}</div>
+            {wonMsg&&<div style={{color:"#38bdf8",marginBottom:6,fontSize:14}}>{wonMsg}</div>}
+            <div style={{color:"#64748b",marginBottom:16}}>Items collected: {collected.length}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button style={S.btnPrimary} onClick={()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setDialog(null);setShowInv(false); }}>↺ Play Again</button>
+              <button style={S.btnPrimary} onClick={restart}>↺ Play Again</button>
               <button style={S.btn(false)} onClick={onClose}>Back to Editor</button>
             </div>
           </div>
@@ -1290,8 +1368,10 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
       }).join(",") + "\n";
     });
     (room.exits||[]).forEach(ex=>{
-      const destArrival=rooms[ex.destRoom]?.avatarStart||{x:1,y:1};
-      out += `EXT ${ex.x},${ex.y} ROOM ${ex.destRoom} AT ${destArrival.x},${destArrival.y}\n`;
+      if(ex.isEnding) return; // Endings are handled via tileType:"end" tiles, not EXT lines
+      const ax=ex.arrX??rooms[ex.destRoom]?.avatarStart?.x??1;
+      const ay=ex.arrY??rooms[ex.destRoom]?.avatarStart?.y??1;
+      out += `EXT ${ex.x},${ex.y} ROOM ${ex.destRoom} AT ${ax},${ay}\n`;
     });
     if (room.name) out += `NAME ${room.name}\n`;
     out += `PAL 0\n\n`;
@@ -1553,11 +1633,15 @@ function ExportModal({ data, onClose }) {
               onFocus={e => e.target.select()}
             />
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+              <button style={{ ...S.btnPrimary, flex: 1 }} onClick={()=>{
+                const blob=new Blob([data.content],{type:"text/plain"});
+                const url=URL.createObjectURL(blob);
+                const a=document.createElement("a");
+                a.href=url; a.download=(data.title||"game").replace(/\.bitsy$/i,"")+".bitsy"; a.click();
+                URL.revokeObjectURL(url);
+              }}>📥 Download .bitsy</button>
               <button style={{ ...S.btn(copied), flex: 1 }} onClick={copy}>
-                {copied ? "✓ Copied!" : "📋 Copy All to Clipboard"}
-              </button>
-              <button style={{ ...S.btn(false), flex: 1 }} onClick={() => { textRef.current?.select(); }}>
-                Select All
+                {copied ? "✓ Copied!" : "📋 Copy"}
               </button>
             </div>
           </>
@@ -1605,6 +1689,7 @@ export default function App() {
   const [showWizard,setShowWizard]=useState(true);
   const [showPrePlay,setShowPrePlay]=useState(false);
   const [showBitsyImport,setShowBitsyImport]=useState(false);
+  const [winConditions,setWinConditions]=useState({}); // {spriteId: targetCount}
   const [tune,setTune]=useState(Array.from({length:TUNE_STEPS},()=>({semi:12,active:false})));
   const [tuneVolume,setTuneVolume]=useState(0.15);
   const [savedTunes,setSavedTunes]=useState([]);
@@ -1968,11 +2053,11 @@ export default function App() {
       // Add forward exit to current room
       const room={...rs[selectedRoom],exits:[...(rs[selectedRoom].exits||[]).filter(e=>!(e.x===exitData.x&&e.y===exitData.y)),exitData]};
       rs[selectedRoom]=room;
-      // If two-way, add reverse exit to destination room pointing back here
-      if(exitData.twoWay){
+      // If two-way and not an ending, add reverse exit in destination room pointing back here
+      if(exitData.twoWay&&!exitData.isEnding&&exitData.destRoom!=null){
         const destRoomObj=rs[exitData.destRoom];
-        const arrivalInDest=destRoomObj?.avatarStart||{x:1,y:1};
-        const reverseExit={x:arrivalInDest.x,y:arrivalInDest.y,destRoom:selectedRoom,twoWay:true};
+        // Reverse: placed at arrival pos in dest room, returns player to the source tile in this room
+        const reverseExit={x:exitData.arrX??1,y:exitData.arrY??1,destRoom:selectedRoom,arrX:exitData.x,arrY:exitData.y,twoWay:true};
         rs[exitData.destRoom]={...destRoomObj,exits:[...(destRoomObj.exits||[]).filter(e=>!(e.x===reverseExit.x&&e.y===reverseExit.y)),reverseExit]};
       }
       return rs;
@@ -2310,6 +2395,38 @@ export default function App() {
                 )}
               </div>
 
+              {/* Inventory */}
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Collectibles & Inventory</div>
+                {sprites.filter(s=>s.tileType==="item").length===0?(
+                  <div style={{fontSize:11,color:"#475569",lineHeight:1.6}}>No collectibles yet. In the Sprites tab, select a sprite and apply the <b style={{color:"#fbbf24"}}>⭐ Collectible</b> template or set its behavior to <b>item</b>.</div>
+                ):(
+                  sprites.filter(s=>s.tileType==="item").map(spr=>{
+                    const placed=rooms.reduce((n,r)=>n+(r.npcs||[]).filter(nn=>nn.spriteId===spr.id).length,0);
+                    const target=winConditions[spr.id]||0;
+                    return(
+                      <div key={spr.id} style={{background:"rgba(251,191,36,0.06)",border:"1px solid rgba(251,191,36,0.15)",borderRadius:7,padding:"8px 10px",marginBottom:6}}>
+                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                          <MiniCanvas grid={spr.frames[0]} palette={palette} size={20}/>
+                          <span style={{fontSize:12,color:"#fbbf24",fontWeight:700,flex:1}}>{spr.name}</span>
+                          <span style={{fontSize:11,color:"#64748b"}}>{placed} placed</span>
+                        </div>
+                        <div style={{display:"flex",alignItems:"center",gap:6}}>
+                          <span style={{fontSize:11,color:"#94a3b8",whiteSpace:"nowrap"}}>Win when</span>
+                          <input type="number" min={0} max={99} value={target}
+                            onChange={e=>setWinConditions(prev=>({...prev,[spr.id]:Math.max(0,+e.target.value)}))}
+                            style={{...S.input,width:44,padding:"2px 6px",textAlign:"center",fontSize:12}}/>
+                          <span style={{fontSize:11,color:"#64748b",whiteSpace:"nowrap"}}>{target===1?"collected":"collected"}</span>
+                        </div>
+                        {target>0&&placed<target&&<div style={{fontSize:10,color:"#f87171",marginTop:4}}>⚠ Only {placed}/{target} placed in rooms</div>}
+                        {target>0&&placed>=target&&<div style={{fontSize:10,color:"#4ade80",marginTop:4}}>✓ Enough placed ({placed}/{target})</div>}
+                        {target===0&&<div style={{fontSize:10,color:"#475569",marginTop:4}}>Set to 0 = no win requirement</div>}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
               <div style={S.section}>
                 <div style={S.sectionTitle}>Background Tune</div>
                 {savedTunes.length===0?(
@@ -2365,13 +2482,43 @@ export default function App() {
                 </div>
               )}
               {tab==="sprite"&&selectedSprite>0&&(
-                <div style={{marginBottom:12}}>
-                  <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#082040",borderColor:"#29adff",color:"#29adff"}}
-                    onClick={()=>setAsAvatar(selectedSprite)}>
-                    👤 Set as Avatar (replace player appearance)
-                  </button>
-                  <div style={{fontSize:10,color:"#555",marginTop:3}}>Copies this sprite's pixels into sprites[0], which is the playable character.</div>
-                </div>
+                <>
+                  <div style={{marginBottom:8}}>
+                    <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#082040",borderColor:"#29adff",color:"#29adff"}}
+                      onClick={()=>setAsAvatar(selectedSprite)}>
+                      👤 Set as Avatar (replace player appearance)
+                    </button>
+                  </div>
+                  {/* Quick-start templates */}
+                  <div style={S.section}>
+                    <div style={S.sectionTitle}>Quick Templates</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                      {[
+                        {emoji:"💬",label:"NPC",     tileType:"walkable", dialog:"Hello there!\n---\nNice to meet you!",          name:"npc"},
+                        {emoji:"⭐",label:"Collectible",tileType:"item",   dialog:"You picked it up!",                            name:"gem"},
+                        {emoji:"🪧",label:"Sign",     tileType:"walkable", dialog:"→ This way",                                   name:"sign"},
+                        {emoji:"🚪",label:"Ending",   tileType:"end",      dialog:"You did it! The adventure is complete.",       name:"door"},
+                      ].map(({emoji,label,tileType,dialog,name})=>(
+                        <button key={label} style={{...S.toolBtn(currentItem.tileType===tileType&&label!=="NPC"&&label!=="Sign"), justifyContent:"flex-start"}}
+                          onClick={()=>{
+                            setSprites(prev=>{
+                              const ss=[...prev];
+                              const cur=ss[selectedSprite];
+                              ss[selectedSprite]={...cur, tileType,
+                                dialog: cur.dialog?.trim() ? cur.dialog : dialog,
+                                name: (cur.name==="avatar"||cur.name.startsWith("sprite_")||cur.name==="npc"||cur.name==="gem"||cur.name==="sign"||cur.name==="door") ? name : cur.name,
+                              };
+                              return ss;
+                            });
+                          }}>
+                          <span style={{fontSize:13}}>{emoji}</span>
+                          <span style={{flex:1,fontSize:11}}>{label}</span>
+                        </button>
+                      ))}
+                    </div>
+                    <div style={{fontSize:10,color:"#475569",marginTop:5}}>Sets behavior + starter dialog in one click</div>
+                  </div>
+                </>
               )}
 
               {/* Tile type (shown for both sprites and tiles) */}
@@ -2490,9 +2637,9 @@ export default function App() {
       {showImport&&<PngImportModal onImport={handleImport} onClose={()=>setShowImport(false)} palette={palette} maxColors={MAX_COLORS} />}
       {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={0} tiles={tiles} sprites={sprites}
         palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune}
-        savedTunes={savedTunes} tuneVolume={tuneVolume} onClose={()=>setShowPlaytest(false)} />}
+        savedTunes={savedTunes} tuneVolume={tuneVolume} winConditions={winConditions} onClose={()=>setShowPlaytest(false)} />}
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
-      {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} />}
+      {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} tiles={tiles} palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} />}
       {showHelp&&<HelpModal onClose={()=>setShowHelp(false)} />}
       {showBitsyImport&&<BitsyImportModal onImport={handleBitsyImport} onClose={()=>setShowBitsyImport(false)}
         gameTitle={gameTitle} palette={palette} sprites={sprites} tiles={tiles} rooms={rooms} tune={tune} />}
