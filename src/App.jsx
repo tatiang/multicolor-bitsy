@@ -260,6 +260,32 @@ const ASSET_PACKS = [
   },
 ];
 
+// ─── Wizard Presets ───────────────────────────────────────────────────────────
+const WIZARD_CHARS = [
+  { name:"Robot",   grid:[[0,0,15,15,15,15,0,0],[0,15,1,15,15,1,15,0],[15,15,15,15,15,15,15,15],[15,8,0,15,15,0,8,15],[15,15,15,15,15,15,15,15],[0,0,15,8,8,15,0,0],[0,15,15,0,0,15,15,0],[0,15,0,0,0,0,15,0]] },
+  { name:"Cat",     grid:[[3,0,0,0,0,0,0,3],[3,3,0,0,0,0,3,3],[0,3,3,3,3,3,3,0],[0,3,6,3,3,6,3,0],[0,3,3,3,3,3,3,0],[0,3,3,2,3,3,3,0],[0,3,3,3,3,3,3,0],[0,0,3,0,0,3,0,0]] },
+  { name:"Alien",   grid:[[0,0,5,5,5,5,0,0],[0,5,5,5,5,5,5,0],[5,4,5,5,5,5,4,5],[5,5,5,5,5,5,5,5],[0,5,5,5,5,5,5,0],[0,0,5,1,1,5,0,0],[0,5,5,5,5,5,5,0],[0,0,5,0,0,5,0,0]] },
+  { name:"Ghost",   grid:[[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,6,1,1,6,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[0,0,0,0,0,0,0,0]] },
+  { name:"Wizard",  grid:[[0,0,0,4,4,0,0,0],[0,0,4,4,4,4,0,0],[0,7,7,7,7,7,7,0],[7,7,10,7,7,10,7,7],[7,7,7,7,7,7,7,7],[0,7,7,7,7,7,7,0],[0,0,7,7,7,7,0,0],[0,7,7,0,0,7,7,0]] },
+  { name:"Knight",  grid:[[0,15,15,15,15,15,15,0],[15,15,15,15,15,15,15,15],[15,8,1,15,15,1,8,15],[0,15,15,15,15,15,15,0],[0,15,15,15,15,15,15,0],[0,15,8,15,15,8,15,0],[0,0,15,15,15,15,0,0],[0,0,15,0,0,15,0,0]] },
+  { name:"Fox",     grid:[[3,0,0,0,0,0,0,3],[3,3,0,0,0,0,3,3],[0,3,3,3,3,3,3,0],[0,3,1,3,3,1,3,0],[0,3,3,1,1,3,3,0],[1,3,3,3,3,3,3,1],[0,3,3,3,3,3,3,0],[0,0,3,0,0,3,0,0]] },
+  { name:"Hero",    grid:[[0,0,10,10,10,10,0,0],[0,10,10,10,10,10,10,0],[0,10,1,10,10,1,10,0],[0,6,6,6,6,6,6,0],[6,6,6,6,6,6,6,6],[0,6,6,6,6,6,6,0],[0,0,10,0,0,10,0,0],[0,0,10,0,0,10,0,0]] },
+];
+const WIZARD_WORLDS = [
+  { name:"🌲 Forest", floorName:"Grass", wallName:"Tree",
+    floor:[[5,12,5,5,5,12,5,5],[5,5,5,12,5,5,5,12],[12,5,5,5,5,5,12,5],[5,5,12,5,12,5,5,5],[5,12,5,5,5,5,12,5],[5,5,5,12,5,12,5,5],[12,5,5,5,5,5,5,12],[5,5,12,5,5,12,5,5]],
+    wall:[[0,0,12,12,12,12,0,0],[0,12,12,5,12,12,12,0],[12,12,5,12,5,12,12,12],[12,5,12,12,12,5,12,12],[0,12,12,12,12,12,12,0],[0,0,13,13,0,0,0,0],[0,0,13,13,0,0,0,0],[0,13,13,13,13,0,0,0]] },
+  { name:"🏰 Dungeon", floorName:"Stone Floor", wallName:"Brick Wall",
+    floor:[[14,14,14,14,15,14,14,14],[14,8,14,14,14,8,14,14],[14,14,14,14,14,14,14,14],[15,14,14,8,14,14,14,15],[14,14,14,14,14,14,14,14],[14,8,14,14,14,8,14,14],[14,14,14,14,14,14,14,14],[14,14,14,15,14,14,14,14]],
+    wall:[[11,11,11,11,11,11,11,11],[11,8,8,11,11,8,8,11],[11,8,8,11,11,8,8,11],[11,11,11,11,11,11,11,11],[11,8,11,11,11,11,8,11],[11,8,11,11,11,11,8,11],[11,11,11,11,11,11,11,11],[11,8,8,11,11,8,8,11]] },
+  { name:"🚀 Space", floorName:"Star Field", wallName:"Asteroid",
+    floor:[[11,11,11,4,11,11,11,11],[11,11,11,11,11,1,11,11],[11,4,11,11,11,11,11,11],[11,11,11,11,11,11,4,11],[11,11,11,1,11,11,11,11],[11,11,11,11,11,4,11,11],[11,1,11,11,11,11,11,11],[11,11,11,11,11,11,1,11]],
+    wall:[[0,0,14,14,14,14,0,0],[0,14,14,8,8,14,14,0],[14,14,8,14,14,8,14,14],[14,8,14,14,14,14,8,14],[14,14,14,8,8,14,14,14],[14,8,14,14,14,14,8,14],[0,14,14,14,14,14,14,0],[0,0,14,14,14,14,0,0]] },
+  { name:"🏙️ City", floorName:"Sidewalk", wallName:"Building",
+    floor:[[15,15,15,15,15,15,15,15],[15,8,15,15,15,15,8,15],[15,15,15,15,15,15,15,15],[15,15,15,8,8,15,15,15],[15,15,15,8,8,15,15,15],[15,15,15,15,15,15,15,15],[15,8,15,15,15,15,8,15],[15,15,15,15,15,15,15,15]],
+    wall:[[11,6,6,11,11,6,6,11],[11,6,4,11,11,4,6,11],[11,6,6,11,11,6,6,11],[11,11,11,11,11,11,11,11],[11,6,6,11,11,6,6,11],[11,4,6,11,11,6,4,11],[11,6,6,11,11,6,6,11],[11,11,11,11,11,11,11,11]] },
+];
+
 // ─── Utility ──────────────────────────────────────────────────────────────────
 function quantizeColors(pixels, maxColors) {
   const colorMap = new Map();
@@ -463,6 +489,24 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
       ctx.strokeRect(ax*tileW*ps+1,ay*tileH*ps+1,tileW*ps-2,tileH*ps-2);
       ctx.lineWidth=1;
     }
+    // Behavior icon overlays on tiles
+    const iconSz=Math.max(8,Math.min(tileW*ps*0.55,18));
+    ctx.font=`${iconSz}px serif`;
+    ctx.textAlign="right"; ctx.textBaseline="bottom";
+    for(let ry=0;ry<roomH;ry++) for(let rx=0;rx<roomW;rx++){
+      const tid=room.tiles[ry]?.[rx];
+      const tile=tiles.find(t=>t.id===tid);
+      if(!tile||tile.tileType==="walkable")continue;
+      const icon=tile.tileType==="wall"?"🧱":tile.tileType==="item"?"⭐":tile.tileType==="end"?"🚪":"";
+      if(icon) ctx.fillText(icon,(rx+1)*tileW*ps-1,(ry+1)*tileH*ps-1);
+    }
+    // Dialog badge on NPCs
+    ctx.font=`${Math.max(7,iconSz*0.7)}px serif`;
+    ctx.textAlign="right"; ctx.textBaseline="top";
+    (room.npcs||[]).forEach(npc=>{
+      const spr=sprites.find(s=>s.id===npc.spriteId);
+      if(spr?.dialog?.trim()) ctx.fillText("💬",(npc.x+1)*tileW*ps-1,npc.y*tileH*ps+1);
+    });
     // Grid
     ctx.strokeStyle="rgba(255,255,255,0.08)";
     for(let rx=0;rx<=roomW;rx++){ctx.beginPath();ctx.moveTo(rx*tileW*ps,0);ctx.lineTo(rx*tileW*ps,ch);ctx.stroke();}
@@ -1095,6 +1139,135 @@ function HelpModal({ onClose }) {
   );
 }
 
+// ─── New Game Wizard ──────────────────────────────────────────────────────────
+function WizardModal({ palette, onComplete, onSkip }) {
+  const [step, setStep] = useState(0);
+  const [chosenChar, setChosenChar] = useState(null);
+  const [chosenWorld, setChosenWorld] = useState(null);
+
+  const stepTitles = ["Choose your character", "Choose your world"];
+  const stepEmojis = ["🧑", "🌍"];
+
+  return (
+    <div style={S.modal}>
+      <div style={{...S.modalContent, maxWidth:540}}>
+        {/* Header */}
+        <div style={{textAlign:"center",marginBottom:20}}>
+          <div style={{fontSize:28,marginBottom:6}}>{stepEmojis[step]}</div>
+          <h2 style={{margin:0,color:"#38bdf8",fontSize:18}}>{stepTitles[step]}</h2>
+          <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:10}}>
+            {[0,1].map(i=><div key={i} style={{width:8,height:8,borderRadius:"50%",background:i<=step?"#38bdf8":"rgba(255,255,255,0.1)"}} />)}
+          </div>
+        </div>
+
+        {step===0&&(
+          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
+            {WIZARD_CHARS.map((ch,i)=>(
+              <button key={i} onClick={()=>setChosenChar(i)}
+                style={{background:chosenChar===i?"rgba(56,189,248,0.15)":"rgba(255,255,255,0.03)",border:chosenChar===i?"2px solid #38bdf8":"2px solid rgba(255,255,255,0.08)",borderRadius:10,padding:"12px 8px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,transition:"all .15s"}}>
+                <MiniCanvas grid={ch.grid} palette={palette} size={48} />
+                <span style={{fontSize:11,color:chosenChar===i?"#38bdf8":"#94a3b8",fontWeight:chosenChar===i?700:400}}>{ch.name}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {step===1&&(
+          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:20}}>
+            {WIZARD_WORLDS.map((w,i)=>(
+              <button key={i} onClick={()=>setChosenWorld(i)}
+                style={{background:chosenWorld===i?"rgba(56,189,248,0.15)":"rgba(255,255,255,0.03)",border:chosenWorld===i?"2px solid #38bdf8":"2px solid rgba(255,255,255,0.08)",borderRadius:10,padding:"14px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,transition:"all .15s"}}>
+                <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                  <MiniCanvas grid={w.floor} palette={palette} size={28} />
+                  <MiniCanvas grid={w.wall} palette={palette} size={28} />
+                </div>
+                <div style={{textAlign:"left"}}>
+                  <div style={{fontSize:13,color:chosenWorld===i?"#38bdf8":"#e2e8f0",fontWeight:700}}>{w.name}</div>
+                  <div style={{fontSize:10,color:"#64748b",marginTop:2}}>{w.floorName} + {w.wallName}</div>
+                </div>
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <button style={{...S.btn(false),color:"#475569",fontSize:11}} onClick={onSkip}>Skip →</button>
+          <div style={{display:"flex",gap:8}}>
+            {step>0&&<button style={S.btn(false)} onClick={()=>setStep(s=>s-1)}>← Back</button>}
+            {step===0&&<button style={chosenChar===null?S.btn(false):S.btnPrimary} disabled={chosenChar===null} onClick={()=>setStep(1)}>Next →</button>}
+            {step===1&&<button style={chosenWorld===null?S.btn(false):S.btnPrimary} disabled={chosenWorld===null}
+              onClick={()=>onComplete(chosenChar,chosenWorld)}>🎮 Start Creating!</button>}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Game Progress Checklist ──────────────────────────────────────────────────
+function ProgressChecklist({ sprites, tiles, rooms }) {
+  const avatar = sprites[0];
+  const checks = [
+    { label:"Draw your player",   done: avatar?.frames[0].flat().some(v=>v!==0) },
+    { label:"Design a tile",      done: tiles.some(t=>t.frames[0].flat().some(v=>v!==0)) },
+    { label:"Build a room",       done: rooms.some(r=>r.tiles.flat().some(v=>v!==null)) },
+    { label:"Add a collectible",  done: sprites.some(s=>s.tileType==="item") },
+    { label:"Give someone dialog",done: sprites.some(s=>s.dialog?.trim()) },
+    { label:"Add an exit",        done: rooms.some(r=>r.exits?.length>0) },
+  ];
+  const doneCount = checks.filter(c=>c.done).length;
+  const pct = Math.round(doneCount/checks.length*100);
+
+  return (
+    <div style={{...S.section,marginBottom:0}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
+        <div style={S.sectionTitle}>Game Checklist</div>
+        <span style={{fontSize:10,color:pct===100?"#4ade80":"#64748b",fontWeight:700}}>{doneCount}/{checks.length}</span>
+      </div>
+      <div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2,marginBottom:8,overflow:"hidden"}}>
+        <div style={{height:"100%",width:`${pct}%`,background:pct===100?"#4ade80":"#38bdf8",borderRadius:2,transition:"width .4s"}} />
+      </div>
+      {checks.map(({label,done},i)=>(
+        <div key={i} style={{display:"flex",alignItems:"center",gap:7,marginBottom:4,fontSize:11,color:done?"#e2e8f0":"#475569",transition:"color .3s"}}>
+          <span style={{fontSize:13,transition:"transform .3s",transform:done?"scale(1.1)":"scale(1)"}}>{done?"✅":"⬜"}</span>
+          <span style={{textDecoration:done?"line-through":"none",opacity:done?0.6:1}}>{label}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ─── Pre-Play Hints Modal ─────────────────────────────────────────────────────
+function PrePlayModal({ sprites, tiles, rooms, onPlay, onClose }) {
+  const hints = [];
+  const avatar = sprites[0];
+  const hasAvatarPixels = avatar?.frames[0].flat().some(v=>v!==0);
+  const hasRoomTiles = rooms.some(r=>r.tiles.flat().some(v=>v!==null));
+  const hasExit = rooms.some(r=>r.exits?.length>0);
+  if(!hasAvatarPixels) hints.push({emoji:"🧑",text:"Your player has no pixels yet — draw something in the Sprites tab!"});
+  if(!hasRoomTiles) hints.push({emoji:"🗺️",text:"Your room is empty — place some tiles in the Rooms tab first!"});
+  if(!hasExit) hints.push({emoji:"🚪",text:"No exit yet — players will be stuck! Use the Exit tool to add a door."});
+  if(hints.length===0){ onPlay(); return null; }
+  return (
+    <div style={S.modal} onClick={onClose}>
+      <div style={{...S.modalContent,maxWidth:400}} onClick={e=>e.stopPropagation()}>
+        <h3 style={{margin:"0 0 4px",color:"#fbbf24"}}>⚠️ Before you play…</h3>
+        <p style={{fontSize:12,color:"#64748b",marginBottom:16}}>Your game will work, but here's what's missing:</p>
+        {hints.map(({emoji,text},i)=>(
+          <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",marginBottom:12,padding:"10px 12px",background:"rgba(251,191,36,0.07)",borderRadius:8,border:"1px solid rgba(251,191,36,0.15)"}}>
+            <span style={{fontSize:18}}>{emoji}</span>
+            <span style={{fontSize:12,color:"#e2e8f0",lineHeight:1.5}}>{text}</span>
+          </div>
+        ))}
+        <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:4}}>
+          <button style={S.btn(false)} onClick={onClose}>Fix it first</button>
+          <button style={S.btnPrimary} onClick={onPlay}>▶ Play anyway</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Export Modal ─────────────────────────────────────────────────────────────
 function ExportModal({ data, onClose }) {
   const [copied, setCopied] = useState(false);
@@ -1182,6 +1355,8 @@ export default function App() {
   const [findQuery,setFindQuery]=useState("");
   const [zoom,setZoom]=useState(1);
   const [showHelp,setShowHelp]=useState(false);
+  const [showWizard,setShowWizard]=useState(true);
+  const [showPrePlay,setShowPrePlay]=useState(false);
   const [tune,setTune]=useState(Array.from({length:TUNE_STEPS},()=>({semi:12,active:false})));
   const [tuneVolume,setTuneVolume]=useState(0.15);
   const [savedTunes,setSavedTunes]=useState([]);
@@ -1215,6 +1390,7 @@ export default function App() {
         case"e":setTool("erase");break; case"f":setTool("fill");break;
         case"i":setTool("pick");break; case"g":setShowGrid(v=>!v);break;
         case"?":setShowHelp(v=>!v);break;
+        case" ":e.preventDefault();setShowPrePlay(true);break;
         default: if(e.key>="1"&&e.key<="9"){const i=parseInt(e.key)-1;if(i<palette.length)setSelectedColor(i);}
       }
     };
@@ -1491,6 +1667,37 @@ export default function App() {
     setSelectedRoom(ni);
   };
 
+  const handleWizardComplete=(charIdx,worldIdx)=>{
+    const ch=WIZARD_CHARS[charIdx];
+    const wo=WIZARD_WORLDS[worldIdx];
+    // Set avatar pixels
+    setSprites(prev=>{
+      const s=[...prev];
+      s[0]={...s[0],frames:[ch.grid.map(r=>[...r])]};
+      return s;
+    });
+    // Create floor + wall tiles
+    const floorId=uid(), wallId=uid();
+    const floorTile={id:floorId,name:wo.floorName,frames:[wo.floor.map(r=>[...r])],tileType:"walkable"};
+    const wallTile={id:wallId,name:wo.wallName,frames:[wo.wall.map(r=>[...r])],tileType:"wall"};
+    setTiles([floorTile,wallTile]);
+    // Generate starter room: border=wall, interior=floor, exit at bottom-right
+    const W=roomW, H=roomH;
+    const grid=Array.from({length:H},(_,ry)=>Array.from({length:W},(_,rx)=>{
+      if(rx===0||ry===0||rx===W-1||ry===H-1) return wallId;
+      return floorId;
+    }));
+    const exitX=W-2, exitY=H-2;
+    setRooms(prev=>{
+      const rs=[...prev];
+      rs[0]={...rs[0],tiles:grid,avatarStart:{x:1,y:1},exits:[{x:exitX,y:exitY,destRoom:0}]};
+      return rs;
+    });
+    setSelectedRoom(0);
+    setTab("room");
+    setShowWizard(false);
+  };
+
   // Tune save/load
   const saveTune=(st)=>setSavedTunes(p=>[...p.filter(t=>t.name!==st.name),st]);
   const loadTune=(i)=>{const st=savedTunes[i];if(st)setTune([...st.steps]);};
@@ -1540,7 +1747,7 @@ export default function App() {
           style={{...S.input,width:180,fontSize:12,flex:"0 0 auto"}} placeholder="Game title…" />
         <div style={{flex:1}} />
         <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <button style={S.btnPrimary} onClick={()=>setShowPlaytest(true)}>▶ Play</button>
+          <button style={S.btnPrimary} onClick={()=>setShowPrePlay(true)}>▶ Play</button>
           <button style={S.btn(false)} onClick={()=>setShowImport(true)}>⬆ Import</button>
           <button style={S.btn(false)} onClick={exportPng}>PNG</button>
           {currentItem?.frames.length>1&&<button style={S.btn(false)} onClick={exportSpritesheet}>Sheet</button>}
@@ -1561,6 +1768,8 @@ export default function App() {
       <div style={S.main}>
         {/* Left Sidebar */}
         <div style={S.sidebar}>
+          {/* Progress Checklist */}
+          <ProgressChecklist sprites={sprites} tiles={tiles} rooms={rooms} />
           {/* Palette */}
           <div style={S.section}>
             <div style={S.sectionTitle}>Palette</div>
@@ -2024,6 +2233,10 @@ export default function App() {
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
       {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} />}
       {showHelp&&<HelpModal onClose={()=>setShowHelp(false)} />}
+      {showWizard&&<WizardModal palette={palette} onComplete={handleWizardComplete} onSkip={()=>setShowWizard(false)} />}
+      {showPrePlay&&<PrePlayModal sprites={sprites} tiles={tiles} rooms={rooms}
+        onPlay={()=>{setShowPrePlay(false);setShowPlaytest(true);}}
+        onClose={()=>setShowPrePlay(false)} />}
       {/* Build timestamp footer */}
       <div style={{position:"fixed",bottom:6,left:10,fontSize:10,color:"rgba(100,116,139,0.6)",pointerEvents:"none",userSelect:"none",zIndex:1}}>
         {(()=>{try{const d=new Date(__BUILD_TIME__);return"Updated "+d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});}catch{return "";}})()}
