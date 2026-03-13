@@ -2200,6 +2200,7 @@ export default function App() {
             </>
           ))}
         </div>
+        )}
 
         {/* Right Panel */}
         <div style={S.rightPanel}>
