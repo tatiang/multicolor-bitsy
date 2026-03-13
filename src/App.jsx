@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from "react";
+import { FIREBASE_READY, signInWithGoogle, signOutUser, watchAuthState, saveGame, loadAllGames, deleteGame } from "./firebase";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const DEFAULT_PALETTE = [
@@ -11,7 +12,7 @@ const GRID_OPTIONS = [8, 16, 32];
 const MAX_FRAMES = 8;
 const MAX_COLORS = 16;
 const TILE_TYPES = ["walkable","wall","item","end"];
-const TILE_TYPE_COLORS = { walkable:"#4ade80", wall:"#f87171", item:"#fbbf24", end:"#60a5fa" };
+const TILE_TYPE_COLORS = { walkable:"#00e436", wall:"#ff004d", item:"#ffec27", end:"#29adff" };
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const TUNE_STEPS = 16;
 
@@ -167,8 +168,8 @@ const ASSET_PACKS = [
         [13,13,13,13,13,13,13,0],[13,13,13,13,13,13,13,0],[0,13,0,0,0,13,0,0],[0,13,0,0,0,13,0,0],
       ]},
       { name:"Student", itemType:"sprite", tileType:"walkable", dialog:"Did you finish homework?", grid:[
-        [0,0,13,13,13,0,0,0],[0,13,10,10,10,0,0,0],[0,0,10,0,0,10,0,0],[0,0,10,10,10,0,0,0],
-        [0,6,6,6,6,6,0,0],[0,3,6,6,6,3,0,0],[0,0,11,0,11,0,0,0],[0,0,14,0,14,0,0,0],
+        [0,0,10,10,10,0,0,0],[0,0,10,10,10,0,0,0],[0,0,10,10,10,0,0,0],[0,0,6,6,6,0,0,0],
+        [0,6,6,6,6,6,0,0],[0,0,6,6,6,0,0,0],[0,10,0,0,0,10,0,0],[0,10,0,0,0,10,0,0],
       ]},
       { name:"Book", itemType:"sprite", tileType:"item", dialog:"", grid:[
         [0,0,0,0,0,0,0,0],[0,2,2,2,2,2,0,0],[0,2,1,1,1,2,0,0],[0,2,1,14,1,2,0,0],
@@ -184,106 +185,6 @@ const ASSET_PACKS = [
       ]},
     ],
   },
-  {
-    name: "⚽ Sports Pack", color: "#ffec27",
-    assets: [
-      { name:"Soccer Ball", itemType:"sprite", tileType:"item", dialog:"", grid:[
-        [0,0,1,1,1,1,0,0],[0,1,1,14,1,1,1,0],[1,1,14,1,1,14,1,0],[1,14,1,1,14,1,1,0],
-        [1,1,14,1,1,1,1,0],[1,14,1,14,1,1,1,0],[0,1,1,1,14,1,1,0],[0,0,1,1,1,1,0,0],
-      ]},
-      { name:"Basketball", itemType:"sprite", tileType:"item", dialog:"", grid:[
-        [0,0,3,3,3,3,0,0],[0,3,3,13,3,3,3,0],[3,3,13,3,3,3,3,0],[3,3,3,13,3,3,3,0],
-        [3,3,3,3,13,3,3,0],[3,13,3,3,3,13,3,0],[0,3,3,3,3,3,3,0],[0,0,3,3,3,3,0,0],
-      ]},
-      { name:"Trophy", itemType:"sprite", tileType:"item", dialog:"You win!", grid:[
-        [0,4,0,0,0,0,4,0],[4,4,4,4,4,4,4,0],[4,4,4,4,4,4,4,0],[0,4,4,4,4,4,0,0],
-        [0,0,4,4,4,0,0,0],[0,0,4,4,4,0,0,0],[0,4,4,4,4,4,0,0],[4,4,4,4,4,4,4,0],
-      ]},
-      { name:"Goal Post", itemType:"sprite", tileType:"wall", dialog:"", grid:[
-        [1,0,0,0,0,0,0,1],[1,1,1,1,1,1,1,1],[1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],
-        [1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],[1,0,0,0,0,0,0,1],
-      ]},
-      { name:"Coach", itemType:"sprite", tileType:"walkable", dialog:"Great hustle out there!", blip:{wave:"square",freq:330}, grid:[
-        [0,0,14,14,14,0,0,0],[0,0,10,10,10,0,0,0],[0,0,10,0,10,0,0,0],[0,0,10,10,10,0,0,0],
-        [0,2,2,2,2,2,0,0],[0,0,2,2,2,0,0,0],[0,0,14,0,14,0,0,0],[0,0,14,0,14,0,0,0],
-      ]},
-      { name:"Track Lane", itemType:"tile", tileType:"walkable", grid:[
-        [3,3,3,3,3,3,3,3],[3,3,3,3,3,3,3,3],[1,1,1,1,1,1,1,1],[3,3,3,3,3,3,3,3],
-        [3,3,3,3,3,3,3,3],[1,1,1,1,1,1,1,1],[3,3,3,3,3,3,3,3],[3,3,3,3,3,3,3,3],
-      ]},
-      { name:"Gym Floor", itemType:"tile", tileType:"walkable", grid:[
-        [13,13,13,13,13,13,13,13],[3,3,3,3,3,3,3,3],[13,13,13,13,13,13,13,13],[13,13,13,13,13,13,13,13],
-        [3,3,3,3,3,3,3,3],[13,13,13,13,13,13,13,13],[13,13,13,13,13,13,13,13],[3,3,3,3,3,3,3,3],
-      ]},
-      { name:"Scoreboard", itemType:"sprite", tileType:"wall", dialog:"The game is on!", grid:[
-        [14,14,14,14,14,14,0,0],[14,1,1,14,1,1,14,0],[14,1,1,14,1,1,14,0],[14,14,14,14,14,14,0,0],
-        [14,2,2,14,5,5,14,0],[14,2,2,14,5,5,14,0],[14,14,14,14,14,14,0,0],[0,14,14,14,14,0,0,0],
-      ]},
-    ],
-  },
-  {
-    name: "🐾 Animal Pack", color: "#ab5236",
-    assets: [
-      { name:"Cat", itemType:"sprite", tileType:"walkable", dialog:"Meow~", blip:{wave:"sine",freq:660}, grid:[
-        [14,0,0,0,0,0,14,0],[0,14,14,14,14,14,0,0],[0,14,1,14,14,1,14,0],[0,14,14,9,14,14,0,0],
-        [0,14,14,14,14,14,0,0],[0,0,14,14,14,0,0,0],[0,14,0,0,14,14,14,0],[14,0,0,0,0,14,0,0],
-      ]},
-      { name:"Dog", itemType:"sprite", tileType:"walkable", dialog:"Woof! Woof!", blip:{wave:"square",freq:220}, grid:[
-        [0,13,0,0,0,13,0,0],[0,13,13,13,13,13,0,0],[0,13,1,13,1,13,0,0],[0,13,13,1,13,13,0,0],
-        [0,0,13,13,13,0,0,0],[0,0,13,13,13,0,0,0],[0,13,0,0,0,13,0,0],[0,13,0,0,0,13,0,0],
-      ]},
-      { name:"Rabbit", itemType:"sprite", tileType:"walkable", dialog:"*sniff sniff*", blip:{wave:"triangle",freq:880}, grid:[
-        [0,1,0,0,0,1,0,0],[0,1,0,0,0,1,0,0],[0,0,1,1,1,0,0,0],[0,0,1,9,1,0,0,0],
-        [0,0,1,1,1,0,0,0],[0,1,1,1,1,1,0,0],[0,1,0,0,0,1,0,0],[0,1,0,0,0,1,0,0],
-      ]},
-      { name:"Bird", itemType:"sprite", tileType:"walkable", dialog:"Tweet tweet!", blip:{wave:"sine",freq:1320}, grid:[
-        [0,0,0,6,6,0,0,0],[0,0,6,6,6,6,0,0],[0,0,6,1,6,6,0,0],[0,6,6,6,6,6,4,0],
-        [5,5,5,6,6,6,4,0],[0,0,5,6,6,5,0,0],[0,0,14,6,6,14,0,0],[0,0,0,0,0,0,0,0],
-      ]},
-      { name:"Deer", itemType:"sprite", tileType:"walkable", dialog:"...", blip:{wave:"triangle",freq:440}, grid:[
-        [13,0,0,0,0,0,13,0],[0,13,0,0,0,13,0,0],[0,0,10,10,10,0,0,0],[0,0,10,1,10,0,0,0],
-        [0,0,10,10,10,0,0,0],[0,0,13,13,13,0,0,0],[0,13,0,0,0,13,0,0],[0,13,0,0,0,13,0,0],
-      ]},
-      { name:"Meadow", itemType:"tile", tileType:"walkable", grid:[
-        [5,5,5,5,5,5,5,5],[5,4,5,5,5,4,5,5],[5,5,5,12,5,5,5,12],[5,5,12,5,5,5,12,5],
-        [5,5,5,5,5,5,5,5],[5,4,5,5,5,4,5,5],[12,5,5,5,12,5,5,5],[5,5,5,12,5,5,5,5],
-      ]},
-      { name:"Pond", itemType:"tile", tileType:"walkable", grid:[
-        [6,6,11,11,11,11,6,6],[6,11,11,11,11,11,11,6],[11,11,1,11,11,1,11,11],[11,11,11,11,11,11,11,11],
-        [11,11,11,1,11,11,11,11],[11,1,11,11,11,11,11,11],[6,11,11,11,11,11,11,6],[6,6,11,11,11,11,6,6],
-      ]},
-      { name:"Forest Floor", itemType:"tile", tileType:"walkable", grid:[
-        [13,13,12,13,13,12,13,13],[13,12,13,13,12,13,13,12],[12,13,13,12,13,13,12,13],[13,13,12,13,13,12,13,13],
-        [13,12,13,13,12,13,13,12],[12,13,13,12,13,13,12,13],[13,13,12,13,13,12,13,13],[13,12,13,13,12,13,13,12],
-      ]},
-    ],
-  },
-];
-
-// ─── Wizard Presets ───────────────────────────────────────────────────────────
-const WIZARD_CHARS = [
-  { name:"Robot",   grid:[[0,0,15,15,15,15,0,0],[0,15,1,15,15,1,15,0],[15,15,15,15,15,15,15,15],[15,8,0,15,15,0,8,15],[15,15,15,15,15,15,15,15],[0,0,15,8,8,15,0,0],[0,15,15,0,0,15,15,0],[0,15,0,0,0,0,15,0]] },
-  { name:"Cat",     grid:[[3,0,0,0,0,0,0,3],[3,3,0,0,0,0,3,3],[0,3,3,3,3,3,3,0],[0,3,6,3,3,6,3,0],[0,3,3,3,3,3,3,0],[0,3,3,2,3,3,3,0],[0,3,3,3,3,3,3,0],[0,0,3,0,0,3,0,0]] },
-  { name:"Alien",   grid:[[0,0,5,5,5,5,0,0],[0,5,5,5,5,5,5,0],[5,4,5,5,5,5,4,5],[5,5,5,5,5,5,5,5],[0,5,5,5,5,5,5,0],[0,0,5,1,1,5,0,0],[0,5,5,5,5,5,5,0],[0,0,5,0,0,5,0,0]] },
-  { name:"Ghost",   grid:[[0,0,1,1,1,1,0,0],[0,1,1,1,1,1,1,0],[1,1,6,1,1,6,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,1,1,1,1,1,1,1],[1,0,1,0,0,1,0,1],[0,0,0,0,0,0,0,0]] },
-  { name:"Wizard",  grid:[[0,0,0,4,4,0,0,0],[0,0,4,4,4,4,0,0],[0,7,7,7,7,7,7,0],[7,7,10,7,7,10,7,7],[7,7,7,7,7,7,7,7],[0,7,7,7,7,7,7,0],[0,0,7,7,7,7,0,0],[0,7,7,0,0,7,7,0]] },
-  { name:"Knight",  grid:[[0,15,15,15,15,15,15,0],[15,15,15,15,15,15,15,15],[15,8,1,15,15,1,8,15],[0,15,15,15,15,15,15,0],[0,15,15,15,15,15,15,0],[0,15,8,15,15,8,15,0],[0,0,15,15,15,15,0,0],[0,0,15,0,0,15,0,0]] },
-  { name:"Fox",     grid:[[3,0,0,0,0,0,0,3],[3,3,0,0,0,0,3,3],[0,3,3,3,3,3,3,0],[0,3,1,3,3,1,3,0],[0,3,3,1,1,3,3,0],[1,3,3,3,3,3,3,1],[0,3,3,3,3,3,3,0],[0,0,3,0,0,3,0,0]] },
-  { name:"Hero",    grid:[[0,0,10,10,10,10,0,0],[0,10,10,10,10,10,10,0],[0,10,1,10,10,1,10,0],[0,6,6,6,6,6,6,0],[6,6,6,6,6,6,6,6],[0,6,6,6,6,6,6,0],[0,0,10,0,0,10,0,0],[0,0,10,0,0,10,0,0]] },
-];
-const WIZARD_WORLDS = [
-  { name:"🌲 Forest", floorName:"Grass", wallName:"Tree",
-    floor:[[5,12,5,5,5,12,5,5],[5,5,5,12,5,5,5,12],[12,5,5,5,5,5,12,5],[5,5,12,5,12,5,5,5],[5,12,5,5,5,5,12,5],[5,5,5,12,5,12,5,5],[12,5,5,5,5,5,5,12],[5,5,12,5,5,12,5,5]],
-    wall:[[0,0,12,12,12,12,0,0],[0,12,12,5,12,12,12,0],[12,12,5,12,5,12,12,12],[12,5,12,12,12,5,12,12],[0,12,12,12,12,12,12,0],[0,0,13,13,0,0,0,0],[0,0,13,13,0,0,0,0],[0,13,13,13,13,0,0,0]] },
-  { name:"🏰 Dungeon", floorName:"Stone Floor", wallName:"Brick Wall",
-    floor:[[14,14,14,14,15,14,14,14],[14,8,14,14,14,8,14,14],[14,14,14,14,14,14,14,14],[15,14,14,8,14,14,14,15],[14,14,14,14,14,14,14,14],[14,8,14,14,14,8,14,14],[14,14,14,14,14,14,14,14],[14,14,14,15,14,14,14,14]],
-    wall:[[11,11,11,11,11,11,11,11],[11,8,8,11,11,8,8,11],[11,8,8,11,11,8,8,11],[11,11,11,11,11,11,11,11],[11,8,11,11,11,11,8,11],[11,8,11,11,11,11,8,11],[11,11,11,11,11,11,11,11],[11,8,8,11,11,8,8,11]] },
-  { name:"🚀 Space", floorName:"Star Field", wallName:"Asteroid",
-    floor:[[11,11,11,4,11,11,11,11],[11,11,11,11,11,1,11,11],[11,4,11,11,11,11,11,11],[11,11,11,11,11,11,4,11],[11,11,11,1,11,11,11,11],[11,11,11,11,11,4,11,11],[11,1,11,11,11,11,11,11],[11,11,11,11,11,11,1,11]],
-    wall:[[0,0,14,14,14,14,0,0],[0,14,14,8,8,14,14,0],[14,14,8,14,14,8,14,14],[14,8,14,14,14,14,8,14],[14,14,14,8,8,14,14,14],[14,8,14,14,14,14,8,14],[0,14,14,14,14,14,14,0],[0,0,14,14,14,14,0,0]] },
-  { name:"🏙️ City", floorName:"Sidewalk", wallName:"Building",
-    floor:[[15,15,15,15,15,15,15,15],[15,8,15,15,15,15,8,15],[15,15,15,15,15,15,15,15],[15,15,15,8,8,15,15,15],[15,15,15,8,8,15,15,15],[15,15,15,15,15,15,15,15],[15,8,15,15,15,15,8,15],[15,15,15,15,15,15,15,15]],
-    wall:[[11,6,6,11,11,6,6,11],[11,6,4,11,11,4,6,11],[11,6,6,11,11,6,6,11],[11,11,11,11,11,11,11,11],[11,6,6,11,11,6,6,11],[11,4,6,11,11,6,4,11],[11,6,6,11,11,6,6,11],[11,11,11,11,11,11,11,11]] },
 ];
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
@@ -345,34 +246,32 @@ function emptyGrid(w,h) { return Array.from({length:h},()=>Array(w).fill(0)); }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
 const S = {
-  app:{ fontFamily:"'Inter',system-ui,sans-serif", background:"#0f172a", color:"#e2e8f0", minHeight:"100vh", display:"flex", flexDirection:"column" },
-  header:{ background:"#1e293b", padding:"7px 16px", display:"flex", alignItems:"center", gap:10, borderBottom:"1px solid rgba(255,255,255,0.06)", boxShadow:"0 1px 12px rgba(0,0,0,0.5)", flexShrink:0 },
-  title:{ fontSize:15, fontWeight:800, color:"#38bdf8", letterSpacing:"-0.3px", whiteSpace:"nowrap" },
-  modeBar:{ background:"#162032", borderBottom:"1px solid rgba(255,255,255,0.06)", display:"flex", padding:"0 10px", flexShrink:0, gap:2 },
-  modeBtn:(active)=>({ padding:"9px 20px", background:active?"#38bdf8":"transparent", color:active?"#0f172a":"#64748b", border:"none", cursor:"pointer", fontSize:13, fontWeight:700, transition:"all .12s", display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap" }),
+  app:{ fontFamily:"'Inter',system-ui,sans-serif", background:"#1a1a2e", color:"#e0e0e0", minHeight:"100vh", display:"flex", flexDirection:"column" },
+  header:{ background:"#16213e", padding:"10px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"2px solid #0f3460", gap:12 },
+  title:{ fontSize:20, fontWeight:700, color:"#e94560", letterSpacing:1, whiteSpace:"nowrap" },
   main:{ display:"flex", flex:1, overflow:"hidden" },
-  sidebar:{ width:256, background:"#1e293b", padding:"6px", overflowY:"auto", borderRight:"1px solid rgba(255,255,255,0.06)", flexShrink:0 },
-  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", paddingTop:16, paddingBottom:20, paddingLeft:20, paddingRight:20, overflow:"auto", background:"#0f172a" },
-  rightPanel:{ width:272, background:"#1e293b", padding:"6px", overflowY:"auto", borderLeft:"1px solid rgba(255,255,255,0.06)", flexShrink:0 },
-  section:{ marginBottom:6, background:"rgba(255,255,255,0.025)", borderRadius:8, padding:"9px 10px", border:"1px solid rgba(255,255,255,0.05)" },
-  sectionTitle:{ fontSize:10, fontWeight:700, textTransform:"uppercase", color:"#38bdf8", marginBottom:7, letterSpacing:"0.1em" },
-  btn:(active)=>({ padding:"5px 10px", background:active?"#38bdf8":"rgba(255,255,255,0.05)", color:active?"#0f172a":"#e2e8f0", border:active?"1px solid #38bdf8":"1px solid rgba(255,255,255,0.08)", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .1s", whiteSpace:"nowrap" }),
-  btnPrimary:{ padding:"7px 18px", background:"#38bdf8", color:"#0f172a", border:"none", borderRadius:7, cursor:"pointer", fontSize:13, fontWeight:800, boxShadow:"0 2px 12px rgba(56,189,248,0.3)" },
-  btnGreen:{ padding:"5px 12px", background:"rgba(74,222,128,0.12)", color:"#4ade80", border:"1px solid rgba(74,222,128,0.25)", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:700 },
-  input:{ background:"rgba(0,0,0,0.35)", border:"1px solid rgba(255,255,255,0.08)", color:"#e2e8f0", borderRadius:6, padding:"5px 9px", fontSize:12, width:"100%", boxSizing:"border-box" },
-  select:{ background:"rgba(0,0,0,0.35)", border:"1px solid rgba(255,255,255,0.08)", color:"#e2e8f0", borderRadius:6, padding:"4px 8px", fontSize:12 },
-  toolBtn:(active)=>({ width:"100%", padding:"7px 10px", background:active?"rgba(56,189,248,0.12)":"transparent", color:active?"#38bdf8":"#94a3b8", border:active?"1px solid rgba(56,189,248,0.3)":"1px solid transparent", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:active?700:400, display:"flex", alignItems:"center", gap:8, transition:"all .1s", textAlign:"left", marginBottom:2 }),
-  modal:{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,0.85)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000, backdropFilter:"blur(8px)" },
-  modalContent:{ background:"#1e293b", border:"1px solid rgba(255,255,255,0.1)", borderRadius:12, padding:24, maxWidth:520, width:"92%", maxHeight:"90vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(0,0,0,0.8)" },
+  sidebar:{ width:256, background:"#16213e", padding:12, overflowY:"auto", borderRight:"2px solid #0f3460", flexShrink:0 },
+  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:16, overflow:"auto" },
+  centerRoom:{ flex:1, display:"flex", flexDirection:"column", alignItems:"stretch", justifyContent:"flex-start", overflow:"hidden", minWidth:0 },
+  rightPanel:{ width:290, background:"#16213e", padding:12, overflowY:"auto", borderLeft:"2px solid #0f3460", flexShrink:0 },
+  section:{ marginBottom:14 },
+  sectionTitle:{ fontSize:11, fontWeight:700, textTransform:"uppercase", color:"#e94560", marginBottom:6, letterSpacing:0.5 },
+  btn:(active)=>({ padding:"5px 10px", background:active?"#e94560":"#0f3460", color:active?"#fff":"#e0e0e0", border:active?"1px solid #e94560":"1px solid #1a1a5e", borderRadius:4, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .12s" }),
+  btnGreen:{ padding:"5px 10px", background:"#008751", color:"#fff", border:"1px solid #00e436", borderRadius:4, cursor:"pointer", fontSize:12, fontWeight:600 },
+  input:{ background:"#0d1b3e", border:"1px solid #1a1a5e", color:"#e0e0e0", borderRadius:4, padding:"4px 8px", fontSize:12, width:"100%", boxSizing:"border-box" },
+  select:{ background:"#0d1b3e", border:"1px solid #1a1a5e", color:"#e0e0e0", borderRadius:4, padding:"4px 6px", fontSize:12 },
+  tab:(active)=>({ padding:"7px 14px", background:active?"#e94560":"#0f3460", color:active?"#fff":"#aaa", border:"none", borderRadius:"4px 4px 0 0", cursor:"pointer", fontSize:13, fontWeight:600, marginRight:2 }),
+  modal:{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,.75)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 },
+  modalContent:{ background:"#1a1a2e", border:"2px solid #0f3460", borderRadius:8, padding:24, maxWidth:520, width:"92%", maxHeight:"90vh", overflowY:"auto" },
   row:{ display:"flex", gap:8, alignItems:"center", marginBottom:8, flexWrap:"wrap" },
-  label:{ fontSize:12, color:"#64748b", minWidth:56 },
-  colorSwatch:(color,selected)=>({ width:26, height:26, background:color, border:selected?"2px solid #38bdf8":"2px solid rgba(255,255,255,0.07)", borderRadius:4, cursor:"pointer", display:"inline-block", margin:"2px", boxShadow:selected?"0 0 0 2px rgba(56,189,248,0.35)":"none" }),
-  canvas:{ border:"1px solid rgba(255,255,255,0.07)", borderRadius:6, cursor:"crosshair", imageRendering:"pixelated", boxShadow:"0 0 0 1px rgba(255,255,255,0.02), 0 16px 56px rgba(0,0,0,0.7)" },
-  frameThumb:(active)=>({ border:active?"2px solid #38bdf8":"1px solid rgba(255,255,255,0.08)", borderRadius:4, cursor:"pointer", imageRendering:"pixelated", margin:2, background:"#0f172a", display:"block" }),
+  label:{ fontSize:12, color:"#aaa", minWidth:56 },
+  colorSwatch:(color,selected)=>({ width:26, height:26, background:color, border:selected?"3px solid #e94560":"2px solid #333", borderRadius:4, cursor:"pointer", display:"inline-block", margin:2, boxShadow:selected?"0 0 6px #e94560":"none" }),
+  canvas:{ border:"2px solid #0f3460", borderRadius:4, cursor:"crosshair", imageRendering:"pixelated" },
+  frameThumb:(active)=>({ border:active?"2px solid #e94560":"2px solid #444", borderRadius:4, cursor:"pointer", imageRendering:"pixelated", margin:2, background:"#111", display:"block" }),
 };
 
 // ─── Pixel Canvas ─────────────────────────────────────────────────────────────
-function PixelCanvas({ grid, palette, onDraw, pixelSize=20, showGrid:showG=true }) {
+function PixelCanvas({ grid, palette, onDraw, onStrokeEnd, pixelSize=20, showGrid:showG=true }) {
   const ref = useRef(null);
   const drawing = useRef(false);
   const lastPos = useRef(null);
@@ -408,12 +307,12 @@ function PixelCanvas({ grid, palette, onDraw, pixelSize=20, showGrid:showG=true 
     }
     onDraw(x,y); lastPos.current={x,y};
   };
-  const maxD=520, sc=Math.min(maxD/cw,maxD/ch,1);
+  const maxD=460, sc=Math.min(maxD/cw,maxD/ch,1);
   const dw=Math.floor(cw*(cw>maxD||ch>maxD?sc:1)), dh=Math.floor(ch*(cw>maxD||ch>maxD?sc:1));
+  const endStroke=()=>{ if(drawing.current){drawing.current=false;lastPos.current=null;onStrokeEnd?.();} };
   return <canvas ref={ref} width={cw} height={ch} style={{...S.canvas,width:dw,height:dh}}
     onMouseDown={e=>{drawing.current=true;lastPos.current=null;handle(e,true);}}
-    onMouseMove={e=>handle(e)} onMouseUp={()=>{drawing.current=false;lastPos.current=null;}}
-    onMouseLeave={()=>{drawing.current=false;lastPos.current=null;}} />;
+    onMouseMove={e=>handle(e)} onMouseUp={endStroke} onMouseLeave={endStroke} />;
 }
 
 // ─── Mini Canvas ──────────────────────────────────────────────────────────────
@@ -430,11 +329,11 @@ function MiniCanvas({ grid, palette, size=48 }) {
 }
 
 // ─── Room Canvas ──────────────────────────────────────────────────────────────
-function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH, onPlace, roomTool, selectedTileId, selectedSpriteId, avatarStart }) {
+function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH, onPlace, onStrokeEnd, roomTool, selectedTileId, selectedSpriteId, zoom=1 }) {
   const ref = useRef(null);
   const dragging = useRef(false);
-  const lastCell = useRef(null);
-  const ps = Math.max(2, Math.floor(580/Math.max(roomW*tileW,roomH*tileH)));
+  const basePs = Math.max(2, Math.floor(440/Math.max(roomW*tileW,roomH*tileH)));
+  const ps = Math.max(1, Math.round(basePs * zoom));
 
   const drawRoom = useCallback((ctx) => {
     const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
@@ -468,50 +367,11 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
       const cx=(exit.x+0.5)*tileW*ps, cy=(exit.y+0.5)*tileH*ps, sz=tileW*ps*0.35;
       ctx.beginPath();ctx.moveTo(cx+sz,cy);ctx.lineTo(cx-sz*0.5,cy-sz*0.8);ctx.lineTo(cx-sz*0.5,cy+sz*0.8);ctx.closePath();ctx.fill();
     });
-    // Draw avatar start position marker
-    if(avatarStart){
-      const ax=avatarStart.x, ay=avatarStart.y;
-      ctx.fillStyle="rgba(0,255,120,0.25)";
-      ctx.fillRect(ax*tileW*ps,ay*tileH*ps,tileW*ps,tileH*ps);
-      // Draw avatar sprite if it exists
-      const avSpr=sprites[0];
-      if(avSpr){
-        const frame=avSpr.frames[0]||emptyGrid(tileW,tileH);
-        for(let py=0;py<Math.min(tileH,frame.length);py++) for(let px=0;px<Math.min(tileW,(frame[0]||[]).length);px++){
-          if(frame[py][px]===0)continue;
-          ctx.fillStyle=palette[frame[py][px]]||palette[1]||"#fff";
-          ctx.fillRect((ax*tileW+px)*ps,(ay*tileH+py)*ps,ps,ps);
-        }
-      }
-      // Border marker
-      ctx.strokeStyle="#00ff78";
-      ctx.lineWidth=Math.max(1,ps*0.5);
-      ctx.strokeRect(ax*tileW*ps+1,ay*tileH*ps+1,tileW*ps-2,tileH*ps-2);
-      ctx.lineWidth=1;
-    }
-    // Behavior icon overlays on tiles
-    const iconSz=Math.max(8,Math.min(tileW*ps*0.55,18));
-    ctx.font=`${iconSz}px serif`;
-    ctx.textAlign="right"; ctx.textBaseline="bottom";
-    for(let ry=0;ry<roomH;ry++) for(let rx=0;rx<roomW;rx++){
-      const tid=room.tiles[ry]?.[rx];
-      const tile=tiles.find(t=>t.id===tid);
-      if(!tile||tile.tileType==="walkable")continue;
-      const icon=tile.tileType==="wall"?"🧱":tile.tileType==="item"?"⭐":tile.tileType==="end"?"🚪":"";
-      if(icon) ctx.fillText(icon,(rx+1)*tileW*ps-1,(ry+1)*tileH*ps-1);
-    }
-    // Dialog badge on NPCs
-    ctx.font=`${Math.max(7,iconSz*0.7)}px serif`;
-    ctx.textAlign="right"; ctx.textBaseline="top";
-    (room.npcs||[]).forEach(npc=>{
-      const spr=sprites.find(s=>s.id===npc.spriteId);
-      if(spr?.dialog?.trim()) ctx.fillText("💬",(npc.x+1)*tileW*ps-1,npc.y*tileH*ps+1);
-    });
     // Grid
     ctx.strokeStyle="rgba(255,255,255,0.08)";
     for(let rx=0;rx<=roomW;rx++){ctx.beginPath();ctx.moveTo(rx*tileW*ps,0);ctx.lineTo(rx*tileW*ps,ch);ctx.stroke();}
     for(let ry=0;ry<=roomH;ry++){ctx.beginPath();ctx.moveTo(0,ry*tileH*ps);ctx.lineTo(cw,ry*tileH*ps);ctx.stroke();}
-  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps,avatarStart]);
+  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps]);
 
   useEffect(()=>{
     const ctx=ref.current?.getContext("2d"); if(!ctx)return;
@@ -527,107 +387,15 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
   const handle=(e,force)=>{
     if(!dragging.current&&!force)return;
     const{rx,ry}=getCell(e);
-    if(rx<0||rx>=roomW||ry<0||ry>=roomH)return;
-    if(force){
-      // First cell on mousedown
-      lastCell.current={rx,ry};
-      onPlace(rx,ry,true); // isFirst=true
-      return;
-    }
-    // Bresenham interpolation from lastCell to current cell
-    if(lastCell.current){
-      let x0=lastCell.current.rx, y0=lastCell.current.ry;
-      const x1=rx, y1=ry;
-      if(x0===x1&&y0===y1)return; // same cell, nothing new
-      let dx=Math.abs(x1-x0), dy=Math.abs(y1-y0);
-      let sx=x0<x1?1:-1, sy=y0<y1?1:-1, err=dx-dy, first=true;
-      while(true){
-        if(!first&&x0>=0&&x0<roomW&&y0>=0&&y0<roomH) onPlace(x0,y0,false);
-        first=false;
-        if(x0===x1&&y0===y1)break;
-        const e2=2*err;
-        if(e2>-dy){err-=dy;x0+=sx;}
-        if(e2<dx){err+=dx;y0+=sy;}
-      }
-    } else {
-      onPlace(rx,ry,false);
-    }
-    lastCell.current={rx,ry};
+    if(rx>=0&&rx<roomW&&ry>=0&&ry<roomH) onPlace(rx,ry);
   };
   const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
-  const maxD=640, sc=Math.min(maxD/cw,maxD/ch,1);
-  return <canvas ref={ref} style={{...S.canvas,width:cw*sc,height:ch*sc,cursor:"pointer"}}
-    onMouseDown={e=>{dragging.current=true;lastCell.current=null;handle(e,true);}}
-    onMouseMove={e=>handle(e)}
-    onMouseUp={()=>{dragging.current=false;lastCell.current=null;}}
-    onMouseLeave={()=>{dragging.current=false;lastCell.current=null;}} />;
-}
-
-// ─── Bitsy Import Modal ───────────────────────────────────────────────────────
-function BitsyImportModal({ onImport, onClose, gameTitle, palette, sprites, tiles, rooms, tune }) {
-  const [file, setFile] = useState(null);
-  const [rawText, setRawText] = useState(null);
-  const [error, setError] = useState(null);
-  const [saved, setSaved] = useState(false);
-
-  const handleFile = (e) => {
-    const f = e.target.files[0]; if(!f) return;
-    setFile(f); setError(null);
-    const reader = new FileReader();
-    reader.onload = ev => setRawText(ev.target.result);
-    reader.readAsText(f);
-  };
-
-  const handleBackup = () => {
-    try {
-      const data = exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune);
-      const blob = new Blob([data], {type:'text/plain'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = `${gameTitle||'game'}.bitsy`; a.click();
-      URL.revokeObjectURL(url);
-      setSaved(true);
-    } catch(e) { setError('Backup failed: '+e.message); }
-  };
-
-  const handleImport = () => {
-    if (!rawText) return;
-    try { onImport(parseBitsyData(rawText)); }
-    catch(e) { setError('Could not parse file: '+e.message); }
-  };
-
   return (
-    <div style={S.modal} onClick={onClose}>
-      <div style={{...S.modalContent, maxWidth:420}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 16px", color:"#38bdf8"}}>📂 Import .bitsy File</h3>
-
-        {/* Save prompt */}
-        <div style={{padding:"12px 14px", background:"rgba(251,191,36,0.07)", border:"1px solid rgba(251,191,36,0.2)", borderRadius:8, marginBottom:16}}>
-          <div style={{fontSize:12, color:"#fbbf24", fontWeight:700, marginBottom:6}}>⚠️ Your current game will be replaced</div>
-          <p style={{fontSize:11, color:"#94a3b8", margin:"0 0 10px", lineHeight:1.5}}>Download a backup of <em style={{color:"#e2e8f0"}}>{gameTitle||'your current game'}</em> before importing.</p>
-          <button style={{...S.btnGreen, display:"flex", alignItems:"center", gap:6}} onClick={handleBackup}>
-            📥 Download backup {saved && <span style={{color:"#4ade80"}}>✓ saved</span>}
-          </button>
-        </div>
-
-        {/* File picker */}
-        <div style={{marginBottom:16}}>
-          <div style={S.sectionTitle}>Choose .bitsy file</div>
-          <label style={{display:"block", padding:"22px 16px", border:`2px dashed ${file?"rgba(74,222,128,0.4)":"rgba(255,255,255,0.1)"}`, borderRadius:8, cursor:"pointer", textAlign:"center", background:"rgba(255,255,255,0.02)", transition:"border .15s"}}>
-            <input type="file" accept=".bitsy,.txt" style={{display:"none"}} onChange={handleFile} />
-            {file
-              ? <span style={{fontSize:12, color:"#4ade80", fontWeight:700}}>✓ {file.name}</span>
-              : <span style={{fontSize:12, color:"#475569"}}>Click to browse or drop a .bitsy file here</span>}
-          </label>
-        </div>
-
-        {error && <div style={{color:"#f87171", fontSize:11, marginBottom:12, padding:"8px 10px", background:"rgba(248,113,113,0.08)", borderRadius:6}}>⚠️ {error}</div>}
-
-        <div style={{display:"flex", gap:8, justifyContent:"flex-end"}}>
-          <button style={S.btn(false)} onClick={onClose}>Cancel</button>
-          <button style={file ? S.btnPrimary : S.btn(false)} disabled={!file} onClick={handleImport}>Import →</button>
-        </div>
-      </div>
+    <div style={{ overflow:"auto", maxWidth:"100%", maxHeight:"65vh", border:"2px solid #0f3460", borderRadius:4, background:palette[0]||"#000" }}>
+      <canvas ref={ref} style={{ ...S.canvas, border:"none", borderRadius:0, width:cw, height:ch, cursor:"pointer", display:"block" }}
+        onMouseDown={e=>{dragging.current=true;handle(e,true);}} onMouseMove={e=>handle(e)}
+        onMouseUp={()=>{if(dragging.current){dragging.current=false;onStrokeEnd?.();}}}
+        onMouseLeave={()=>{if(dragging.current){dragging.current=false;onStrokeEnd?.();}}} />
     </div>
   );
 }
@@ -651,7 +419,6 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
 
   const doImport=()=>{
     if(!preview)return;
-    try{
     const canvas=document.createElement("canvas"); canvas.width=targetW; canvas.height=targetH;
     const ctx=canvas.getContext("2d"); ctx.imageSmoothingEnabled=false;
     ctx.drawImage(preview,0,0,targetW,targetH);
@@ -680,7 +447,6 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
       }
     }
     onImport({grid,palette:usePalette,mode:importMode});
-    }catch(err){alert("Import failed: "+err.message);}
   };
 
   return (
@@ -720,88 +486,30 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
 }
 
 // ─── Exit Config Modal ────────────────────────────────────────────────────────
-function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, tiles, palette, roomW, roomH }) {
+function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
   const firstOther = rooms.findIndex((_,i)=>i!==currentRoom);
   const [destRoom, setDestRoom] = useState(firstOther>=0?firstOther:0);
-  const [twoWay, setTwoWay] = useState(false);
-  const [isEnding, setIsEnding] = useState(false);
-  const destRoomObj = rooms[destRoom];
-  const defaultArr = destRoomObj?.avatarStart||{x:1,y:1};
-  const [arrX, setArrX] = useState(defaultArr.x);
-  const [arrY, setArrY] = useState(defaultArr.y);
-  useEffect(()=>{
-    const r=rooms[destRoom]; const a=r?.avatarStart||{x:1,y:1};
-    setArrX(a.x); setArrY(a.y);
-  },[destRoom,rooms]);
-  const cs=Math.max(4,Math.min(9,Math.floor(160/Math.max(roomW,roomH))));
-  const TILE_BG={wall:"#475569",item:"#fbbf24",end:"#60a5fa",walkable:"#1e293b"};
+  const [destX, setDestX] = useState(4);
+  const [destY, setDestY] = useState(4);
   return (
     <div style={S.modal} onClick={onClose}>
-      <div style={{...S.modalContent,maxWidth:440}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 10px",color:"#e94560"}}>🚪 Configure Exit</h3>
-        <p style={{fontSize:12,color:"#aaa",margin:"0 0 10px"}}>Portal at ({position.x},{position.y})</p>
-
-        {/* Ending toggle */}
-        <label style={{display:"flex",alignItems:"center",gap:8,fontSize:13,cursor:"pointer",
-          background:"rgba(96,165,250,0.08)",border:"1px solid rgba(96,165,250,0.2)",
-          borderRadius:6,padding:"8px 10px",marginBottom:10}}>
-          <input type="checkbox" checked={isEnding} onChange={e=>setIsEnding(e.target.checked)} />
-          <span>🏁 <b>Game ending</b> — stepping here shows the win screen</span>
-        </label>
-
-        {!isEnding&&(<>
-          {/* Destination room */}
-          <div style={{...S.row,marginBottom:8}}>
-            <span style={{...S.label,flexShrink:0}}>Destination:</span>
-            <select style={S.select} value={destRoom} onChange={e=>setDestRoom(+e.target.value)}>
-              {rooms.map((r,i)=><option key={i} value={i}>{r.name}{i===currentRoom?" (this room)":""}</option>)}
-            </select>
-          </div>
-
-          {/* Mini room grid for arrival position */}
-          <div style={{fontSize:11,color:"#94a3b8",marginBottom:4}}>
-            Click a cell to set where the player arrives:
-          </div>
-          <div style={{display:"inline-grid",gridTemplateColumns:`repeat(${roomW},${cs}px)`,gap:0,
-            background:"#0f172a",border:"1px solid rgba(255,255,255,0.12)",borderRadius:4,
-            padding:3,marginBottom:6,cursor:"crosshair",userSelect:"none"}}>
-            {Array.from({length:roomH},(_,ry)=>Array.from({length:roomW},(_,rx)=>{
-              const tid=destRoomObj?.tiles[ry]?.[rx];
-              const tile=tiles.find(t=>t.id===tid);
-              const tt=tile?.tileType||"walkable";
-              const isArr=rx===arrX&&ry===arrY;
-              return(
-                <div key={`${rx},${ry}`} onClick={()=>{setArrX(rx);setArrY(ry);}}
-                  style={{width:cs,height:cs,boxSizing:"border-box",
-                    background:isArr?"#38bdf8":TILE_BG[tt]||"#1e293b",
-                    border:isArr?"1px solid #fff":"1px solid transparent",
-                    borderRadius:isArr?2:0}}
-                />
-              );
-            }))}
-          </div>
-          <div style={{fontSize:11,color:"#38bdf8",marginBottom:10}}>
-            Arrival: ({arrX}, {arrY})
-            {destRoomObj?.avatarStart&&destRoomObj.avatarStart.x===arrX&&destRoomObj.avatarStart.y===arrY
-              &&<span style={{color:"#64748b"}}> — room start marker</span>}
-          </div>
-
-          {/* Two-way toggle */}
-          <label style={{display:"flex",alignItems:"center",gap:8,fontSize:12,cursor:"pointer",marginBottom:12}}>
-            <input type="checkbox" checked={twoWay} onChange={e=>setTwoWay(e.target.checked)} />
-            <span>↔ <b>Two-way</b> — also creates a return portal in the destination room</span>
-          </label>
-        </>)}
-
-        <div style={{display:"flex",gap:8,marginTop:4}}>
-          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({
-            x:position.x,y:position.y,
-            destRoom:isEnding?null:destRoom,
-            twoWay:!isEnding&&twoWay,
-            isEnding,
-            arrX:isEnding?undefined:arrX,
-            arrY:isEnding?undefined:arrY,
-          })}>✓ {isEnding?"Add Ending":"Add Exit"}</button>
+      <div style={{...S.modalContent,maxWidth:340}} onClick={e=>e.stopPropagation()}>
+        <h3 style={{margin:"0 0 12px",color:"#e94560"}}>🚪 Configure Exit</h3>
+        <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Exit at ({position.x},{position.y}) teleports player to:</p>
+        <div style={S.row}>
+          <span style={S.label}>Destination:</span>
+          <select style={S.select} value={destRoom} onChange={e=>setDestRoom(+e.target.value)}>
+            {rooms.map((r,i)=><option key={i} value={i}>{i}: {r.name}{i===currentRoom?" (same)":""}</option>)}
+          </select>
+        </div>
+        <div style={S.row}>
+          <span style={S.label}>Arrive X:</span>
+          <input type="number" min={0} max={31} value={destX} onChange={e=>setDestX(+e.target.value||0)} style={{...S.input,width:54}} />
+          <span style={S.label}>Y:</span>
+          <input type="number" min={0} max={31} value={destY} onChange={e=>setDestY(+e.target.value||0)} style={{...S.input,width:54}} />
+        </div>
+        <div style={{display:"flex",gap:8,marginTop:14}}>
+          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({x:position.x,y:position.y,destRoom,destX,destY})}>✓ Add Exit</button>
           <button style={{...S.btn(false),flex:1}} onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -810,59 +518,45 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, til
 }
 
 // ─── Tune Editor ──────────────────────────────────────────────────────────────
-function TuneEditor({ tune, onChange, volume, onVolumeChange, savedTunes, onSaveTune, onLoadTune }) {
+function TuneEditor({ tune, onChange }) {
   const [playing, setPlaying] = useState(false);
   const [bpm, setBpm] = useState(160);
   const [activeStep, setActiveStep] = useState(-1);
-  const [tuneName, setTuneName] = useState("My Tune");
-  const toRef = useRef(null);
+  const ivRef = useRef(null);
   const stepRef = useRef(0);
-  const bpmRef = useRef(160);
-  const volRef = useRef(volume);
-  const tuneRef = useRef(tune);
-  const playingRef = useRef(false);
 
-  // Keep refs in sync so live changes take effect immediately
-  useEffect(()=>{ bpmRef.current=bpm; },[bpm]);
-  useEffect(()=>{ volRef.current=volume; },[volume]);
-  useEffect(()=>{ tuneRef.current=tune; },[tune]);
-
-  const tick = useCallback(()=>{
-    if(!playingRef.current)return;
-    const s=stepRef.current;
-    const note=tuneRef.current[s];
-    if(note?.active) playBlip("square",noteFreq(note.semi),0.08,volRef.current);
-    setActiveStep(s);
-    stepRef.current=(s+1)%TUNE_STEPS;
-    toRef.current=setTimeout(tick,Math.round(60000/bpmRef.current/4));
-  },[]);
-
-  const startPlay=()=>{ playingRef.current=true; setPlaying(true); stepRef.current=0; tick(); };
-  const stopPlay=()=>{ playingRef.current=false; setPlaying(false); setActiveStep(-1); clearTimeout(toRef.current); };
-  useEffect(()=>()=>{ playingRef.current=false; clearTimeout(toRef.current); },[]);
-
-  const toggle=(si,semi)=>{
-    onChange(tune.map((s,i)=>i===si?(s.active&&s.semi===semi?{semi:0,active:false}:{semi,active:true}):s));
+  const toggle = (si, semi) => {
+    onChange(tune.map((s,i)=> i===si ? (s.active&&s.semi===semi?{semi:0,active:false}:{semi,active:true}) : s));
   };
 
+  const startPlay = () => {
+    setPlaying(true); stepRef.current=0;
+    ivRef.current = setInterval(()=>{
+      const s=stepRef.current;
+      const note=tune[s];
+      if(note?.active) playBlip("square",noteFreq(note.semi),0.08,0.25);
+      setActiveStep(s);
+      stepRef.current=(s+1)%TUNE_STEPS;
+    }, Math.round(60000/bpm/4));
+  };
+  const stopPlay = ()=>{ setPlaying(false); setActiveStep(-1); clearInterval(ivRef.current); };
+  useEffect(()=>()=>clearInterval(ivRef.current),[]);
+
   // Show 2 octaves (C4–B5), top = high
-  const ROWS=24;
+  const ROWS = 24;
   return (
     <div>
       <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8,flexWrap:"wrap"}}>
         <button style={S.btn(playing)} onClick={playing?stopPlay:startPlay}>{playing?"⏹ Stop":"▶ Play"}</button>
         <span style={{fontSize:11,color:"#aaa"}}>BPM:</span>
         <input type="range" min={60} max={240} value={bpm} onChange={e=>setBpm(+e.target.value)} style={{width:70}} />
-        <span style={{fontSize:11,minWidth:28}}>{bpm}</span>
-        <span style={{fontSize:11,color:"#aaa",marginLeft:4}}>Vol:</span>
-        <input type="range" min={0} max={1} step={0.05} value={volume} onChange={e=>onVolumeChange(+e.target.value)} style={{width:60}} />
-        <span style={{fontSize:11,minWidth:28}}>{Math.round(volume*100)}%</span>
+        <span style={{fontSize:11}}>{bpm}</span>
         <button style={{...S.btn(false),fontSize:10,marginLeft:"auto"}} onClick={()=>onChange(tune.map(()=>({semi:0,active:false})))}>Clear</button>
       </div>
       <div style={{overflowX:"auto",overflowY:"auto",maxHeight:220,border:"1px solid #0f3460",borderRadius:4}}>
         <div style={{display:"grid",gridTemplateColumns:`40px repeat(${TUNE_STEPS},1fr)`,gap:1,minWidth:440}}>
           {Array.from({length:ROWS},(_,ri)=>{
-            const semi=ROWS-1-ri+12;
+            const semi=ROWS-1-ri+12; // C4(12 semitones above C3) to B5
             const oct=Math.floor(semi/12)+3;
             const name=NOTE_NAMES[semi%12];
             const natural=!name.includes("#");
@@ -878,33 +572,15 @@ function TuneEditor({ tune, onChange, volume, onVolumeChange, savedTunes, onSave
           }).flat()}
         </div>
       </div>
-
-      {/* Save / Load */}
-      <div style={{marginTop:10,display:"flex",gap:6,alignItems:"center"}}>
-        <input value={tuneName} onChange={e=>setTuneName(e.target.value)} placeholder="Tune name…" style={{...S.input,flex:1,fontSize:11}} />
-        <button style={S.btnGreen} onClick={()=>onSaveTune({id:`tune_${Date.now()}`,name:tuneName||"Tune",steps:[...tune]})}>💾 Save</button>
-      </div>
-      {savedTunes.length>0&&(
-        <div style={{marginTop:6,background:"#0d1b3e",borderRadius:4,padding:"6px 8px"}}>
-          <div style={{fontSize:10,color:"#58a6ff",marginBottom:4,fontWeight:700}}>Saved Tunes</div>
-          {savedTunes.map((st,i)=>(
-            <div key={st.id} style={{display:"flex",gap:4,alignItems:"center",marginBottom:3}}>
-              <span style={{flex:1,fontSize:11,color:"#c9d1d9",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{st.name}</span>
-              <button style={{...S.btn(false),fontSize:10,padding:"2px 8px"}} onClick={()=>onLoadTune(i)}>Load</button>
-            </div>
-          ))}
-        </div>
-      )}
-      <div style={{fontSize:10,color:"#555",marginTop:5}}>Click cells to place notes · BPM and note changes apply immediately during playback</div>
+      <div style={{fontSize:10,color:"#555",marginTop:5}}>Click cells to place notes · Each column = one 16th note step</div>
     </div>
   );
 }
 
 // ─── Playtest Modal ───────────────────────────────────────────────────────────
-function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, savedTunes, tuneVolume, winConditions, onClose }) {
+function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, onClose }) {
   const findStart = (r) => {
     if(!r)return{x:1,y:1};
-    if(r.avatarStart)return{x:r.avatarStart.x,y:r.avatarStart.y};
     for(let y=0;y<roomH;y++) for(let x=0;x<roomW;x++){
       const tid=r.tiles[y]?.[x];
       const tile=tiles.find(t=>t.id===tid);
@@ -915,54 +591,30 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
   const [roomIdx,setRoomIdx]=useState(startRoom);
   const room=rooms[roomIdx]||{tiles:[],npcs:[],exits:[]};
   const [pos,setPos]=useState(()=>findStart(rooms[startRoom]));
-  const [collected,setCollected]=useState([]); // [{name,spriteId?}]
-  const [dialog,setDialog]=useState(null);
+  const [collected,setCollected]=useState([]);
+  const [dialog,setDialog]=useState(null); // {pages,pageIdx,name}
   const [won,setWon]=useState(false);
-  const [wonMsg,setWonMsg]=useState("");
-  const [removedItems,setRemovedItems]=useState([]); // tile-based: `${roomIdx},${x},${y}`
-  const [removedNpcs,setRemovedNpcs]=useState([]); // sprite-based: `${roomIdx},${x},${y}`
+  const [removedItems,setRemovedItems]=useState([]); // "roomIdx,x,y"
   const [showInv,setShowInv]=useState(false);
-  const [muted,setMuted]=useState(false);
-  const mutedRef=useRef(false);
-  useEffect(()=>{mutedRef.current=muted;},[muted]);
-  const safeBlip=(w,f,d,v)=>{ if(!mutedRef.current) playBlip(w,f,d,v); };
   const canvasRef=useRef(null);
   const tuneRef=useRef(null);
   const tuneStep=useRef(0);
   const ps=Math.max(3,Math.floor(400/Math.max(roomW*tileW,roomH*tileH)));
   const playerSpr=sprites[0];
 
-  // Per-room background tune: resolve which steps to play for the current room
-  const getRoomTune=useCallback((ri)=>{
-    const room=rooms[ri];
-    if(!room)return null;
-    if(room.tuneId&&savedTunes){
-      const st=savedTunes.find(t=>t.id===room.tuneId);
-      if(st&&st.steps.some(s=>s.active))return st.steps;
-    }
-    // Fallback to global tune
-    if(tune&&tune.some(s=>s.active))return tune;
-    return null;
-  },[rooms,savedTunes,tune]);
-
-  // Background tune playback — restarts when room or mute changes
+  // Background tune playback
   useEffect(()=>{
-    clearTimeout(tuneRef.current);
-    if(muted)return;
-    const steps=getRoomTune(roomIdx);
-    if(!steps)return;
+    if(!tune)return;
+    const active=tune.filter(s=>s.active);
+    if(!active.length)return;
     let s=0;
-    const vol=tuneVolume??0.1;
-    const tick=()=>{
-      if(mutedRef.current){return;}
-      const note=steps[s];
-      if(note?.active) playBlip("sine",noteFreq(note.semi),0.12,vol);
+    tuneRef.current=setInterval(()=>{
+      const note=tune[s];
+      if(note?.active) playBlip("sine",noteFreq(note.semi),0.12,0.08);
       s=(s+1)%TUNE_STEPS;
-      tuneRef.current=setTimeout(tick,170);
-    };
-    tuneRef.current=setTimeout(tick,0);
-    return()=>clearTimeout(tuneRef.current);
-  },[roomIdx,getRoomTune,tuneVolume,muted]);
+    },170);
+    return()=>clearInterval(tuneRef.current);
+  },[tune]);
 
   const drawAll=useCallback(()=>{
     const ctx=canvasRef.current?.getContext("2d"); if(!ctx)return;
@@ -984,9 +636,8 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       ctx.fillStyle="rgba(255,0,200,0.2)";
       ctx.fillRect(ex.x*tileW*ps,ex.y*tileH*ps,tileW*ps,tileH*ps);
     });
-    // NPCs (skip removed sprite items)
+    // NPCs
     (room.npcs||[]).forEach(npc=>{
-      if(removedNpcs.includes(`${roomIdx},${npc.x},${npc.y}`))return;
       const spr=sprites.find(s=>s.id===npc.spriteId); if(!spr)return;
       const frame=spr.frames[0]||emptyGrid(tileW,tileH);
       for(let py=0;py<Math.min(tileH,frame.length);py++) for(let px=0;px<Math.min(tileW,frame[0].length);px++){
@@ -1008,7 +659,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       ctx.fillStyle="#fff";
       ctx.fillRect(pos.x*tileW*ps+ps,pos.y*tileH*ps+ps,(tileW-2)*ps,(tileH-2)*ps);
     }
-  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps,pos,playerSpr,removedItems,removedNpcs,roomIdx]);
+  },[room,tiles,sprites,palette,roomW,roomH,tileW,tileH,ps,pos,playerSpr,removedItems]);
 
   useEffect(()=>{ const c=canvasRef.current; if(c){c.width=roomW*tileW*ps;c.height=roomH*tileH*ps;} drawAll(); },[drawAll,roomW,roomH,tileW,tileH,ps]);
 
@@ -1029,45 +680,23 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       e.preventDefault();
       const nx=pos.x+d[0], ny=pos.y+d[1];
       if(nx<0||nx>=roomW||ny<0||ny>=roomH)return;
-      // Check exits (including isEnding exits)
+      // Check exits
       const exit=(room.exits||[]).find(ex=>ex.x===nx&&ex.y===ny);
       if(exit){
-        if(exit.isEnding){ setWonMsg(""); setWon(true); return; }
-        const ax=exit.arrX??rooms[exit.destRoom]?.avatarStart?.x??1;
-        const ay=exit.arrY??rooms[exit.destRoom]?.avatarStart?.y??1;
         setRoomIdx(exit.destRoom);
-        setPos({x:ax,y:ay});
-        safeBlip("sine",660,0.18,0.2);
+        setPos({x:exit.destX,y:exit.destY});
+        playBlip("sine",660,0.18,0.2);
         return;
       }
-      // Check NPC — item sprites get collected, others show dialog
-      const npcKey=`${roomIdx},${nx},${ny}`;
-      const npc=(room.npcs||[]).find(n=>n.x===nx&&n.y===ny&&!removedNpcs.includes(`${roomIdx},${n.x},${n.y}`));
+      // Check NPC
+      const npc=(room.npcs||[]).find(n=>n.x===nx&&n.y===ny);
       if(npc){
         const spr=sprites.find(s=>s.id===npc.spriteId);
-        if(spr?.tileType==="item"){
-          // Collectible sprite — walk onto it to collect
-          if(!removedNpcs.includes(npcKey)){
-            const newRemNpcs=[...removedNpcs,npcKey];
-            const newCollected=[...collected,{name:spr.name||"item",spriteId:spr.id}];
-            setRemovedNpcs(newRemNpcs);
-            setCollected(newCollected);
-            setPos({x:nx,y:ny});
-            safeBlip("triangle",880,0.2,0.3);
-            // Check win conditions
-            if(winConditions){
-              const cnt=newCollected.filter(c=>c.spriteId===spr.id).length;
-              const target=winConditions[spr.id];
-              if(target>0&&cnt>=target){ setWonMsg(`You collected all ${spr.name||"items"}!`); setWon(true); }
-            }
-          }
-          return;
-        }
         if(spr?.dialog){
           const pages=spr.dialog.split(/\n?---\n?/).map(p=>p.trim()).filter(Boolean);
           setDialog({pages:pages.length?pages:[spr.dialog],pageIdx:0,name:spr.name});
           const w=spr.blip?.wave||"square", f=spr.blip?.freq||440;
-          safeBlip(w,f,0.1,0.2);
+          playBlip(w,f,0.1,0.2);
         }
         return;
       }
@@ -1081,81 +710,70 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
         if(!removedItems.includes(key)){
           setRemovedItems(p=>[...p,key]);
           setCollected(p=>[...p,{name:tile.name||"item"}]);
-          safeBlip("triangle",880,0.2,0.3);
+          playBlip("triangle",880,0.2,0.3);
         }
       }
-      if(tt==="end"){ setWonMsg(""); setWon(true); }
+      if(tt==="end")setWon(true);
     };
     window.addEventListener("keydown",handler);
     return()=>window.removeEventListener("keydown",handler);
-  },[pos,dialog,won,room,roomIdx,tiles,sprites,roomW,roomH,removedItems,removedNpcs,collected,winConditions]);
+  },[pos,dialog,won,room,roomIdx,tiles,sprites,roomW,roomH,removedItems]);
 
   const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
   const maxD=400, sc=Math.min(maxD/cw,maxD/ch,1);
-  const restart=()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setRemovedNpcs([]);setWon(false);setWonMsg("");setDialog(null);setShowInv(false); };
+  const restart=()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setDialog(null);setShowInv(false); };
 
   return (
     <div style={S.modal}>
-      <div style={{...S.modalContent,maxWidth:520}}>
-        {/* HUD bar */}
-        <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:10,background:"rgba(0,0,0,0.25)",borderRadius:7,padding:"6px 10px"}}>
-          <span style={{fontSize:12,fontWeight:700,color:"#38bdf8",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>▶ {rooms[roomIdx]?.name||"Playtest"}</span>
-          <span style={{fontSize:11,color:"#64748b"}}>Room {roomIdx+1}/{rooms.length}</span>
-          <button style={{...S.btn(showInv),fontSize:11,padding:"3px 8px"}} onClick={()=>setShowInv(v=>!v)}>🎒 {collected.length}</button>
-          <button style={{...S.btn(muted),fontSize:11,padding:"3px 8px"}} onClick={()=>setMuted(v=>!v)} title="Mute">{muted?"🔇":"🔊"}</button>
-          <button style={{...S.btn(false),padding:"3px 8px",fontSize:11}} onClick={restart}>↺</button>
-          <button style={{...S.btn(false),padding:"3px 8px"}} onClick={onClose}>✕</button>
+      <div style={{...S.modalContent,maxWidth:560}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+          <h3 style={{margin:0,color:"#e94560"}}>▶ Playtest</h3>
+          <div style={{display:"flex",gap:6,alignItems:"center"}}>
+            <span style={{fontSize:11,color:"#888",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{rooms[roomIdx]?.name}</span>
+            <button style={{...S.btn(showInv),fontSize:11}} onClick={()=>setShowInv(v=>!v)}>🎒 {collected.length}</button>
+            <button style={S.btn(false)} onClick={onClose}>✕</button>
+          </div>
         </div>
         {won ? (
           <div style={{textAlign:"center",padding:32}}>
             <div style={{fontSize:40,marginBottom:12}}>🎉</div>
-            <div style={{fontSize:22,color:"#fbbf24",fontWeight:700,marginBottom:8}}>You Win!</div>
-            {wonMsg&&<div style={{color:"#38bdf8",marginBottom:6,fontSize:14}}>{wonMsg}</div>}
-            <div style={{color:"#64748b",marginBottom:16}}>Items collected: {collected.length}</div>
+            <div style={{fontSize:22,color:"#ffec27",fontWeight:700,marginBottom:8}}>You Win!</div>
+            <div style={{color:"#aaa",marginBottom:16}}>Items collected: {collected.length}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
-              <button style={S.btnPrimary} onClick={restart}>↺ Play Again</button>
+              <button style={S.btn(true)} onClick={restart}>↺ Play Again</button>
               <button style={S.btn(false)} onClick={onClose}>Back to Editor</button>
             </div>
           </div>
         ) : (
           <>
-            <div style={{position:"relative",minHeight:ch*sc+10}}>
-              <canvas ref={canvasRef} style={{...S.canvas,display:"block",margin:"0 auto",width:cw*sc,height:ch*sc}} />
-              {dialog && (
-                <div style={{position:"absolute",bottom:0,left:0,right:0,background:"rgba(15,23,42,0.96)",border:"1px solid rgba(56,189,248,0.35)",borderRadius:6,padding:12}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                    <div style={{color:"#38bdf8",fontSize:11,fontWeight:700}}>{dialog.name}</div>
-                    {dialog.pages.length>1&&<div style={{fontSize:10,color:"#475569"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
+            <canvas ref={canvasRef} style={{...S.canvas,display:"block",margin:"0 auto",width:cw*sc,height:ch*sc}} />
+            {dialog && (
+              <div style={{background:"#0f3460",border:"1px solid #e94560",borderRadius:6,padding:12,marginTop:10}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                  <div style={{color:"#e94560",fontSize:11,fontWeight:700}}>{dialog.name}</div>
+                  {dialog.pages.length>1&&<div style={{fontSize:10,color:"#888"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
+                </div>
+                <div style={{fontSize:14,lineHeight:1.5,whiteSpace:"pre-wrap"}}>{dialog.pages[dialog.pageIdx]}</div>
+                <div style={{fontSize:11,color:"#555",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / ↵ to continue →":"Space / ↵ to close"}</div>
+              </div>
+            )}
+            {showInv&&(
+              <div style={{background:"#0d1b3e",border:"1px solid #0f3460",borderRadius:6,padding:10,marginTop:8}}>
+                <div style={{fontSize:11,fontWeight:700,color:"#ffec27",marginBottom:5}}>🎒 Inventory</div>
+                {collected.length===0?<div style={{fontSize:11,color:"#555"}}>Nothing yet.</div>:(
+                  <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                    {collected.map((it,i)=><span key={i} style={{background:"#1a1a2e",border:"1px solid #333",borderRadius:4,padding:"2px 8px",fontSize:12,color:"#ffec27"}}>{it.name}</span>)}
                   </div>
-                  <div style={{fontSize:14,lineHeight:1.5,whiteSpace:"pre-wrap",color:"#e2e8f0"}}>{dialog.pages[dialog.pageIdx]}</div>
-                  <div style={{fontSize:11,color:"#475569",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / ↵ →":"Space / ↵ to close"}</div>
-                </div>
-              )}
+                )}
+              </div>
+            )}
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:10,fontSize:11,color:"#555",flexWrap:"wrap",gap:4}}>
+              <span>Arrow keys to move · NPCs talk · 🌸 = exit portal</span>
+              <span>Rooms: {roomIdx+1}/{rooms.length}</span>
             </div>
-            {showInv&&(()=>{
-              const grouped=collected.reduce((acc,it)=>{const f=acc.find(g=>g.name===it.name);if(f)f.count++;else acc.push({...it,count:1});return acc;},[]);
-              const itemTiles=tiles.filter(t=>t.tileType==="item");
-              return(
-                <div style={{background:"rgba(251,191,36,0.06)",border:"1px solid rgba(251,191,36,0.2)",borderRadius:6,padding:10,marginTop:8}}>
-                  <div style={{fontSize:11,fontWeight:700,color:"#fbbf24",marginBottom:6}}>🎒 Inventory</div>
-                  {grouped.length===0?<div style={{fontSize:11,color:"#475569"}}>Empty.</div>:(
-                    <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-                      {grouped.map((it,i)=>{
-                        const t=itemTiles.find(t=>t.name===it.name);
-                        return(
-                          <div key={i} style={{display:"flex",alignItems:"center",gap:4,background:"rgba(0,0,0,0.3)",border:"1px solid rgba(251,191,36,0.2)",borderRadius:4,padding:"3px 8px"}}>
-                            {t&&<MiniCanvas grid={t.frames[0]} palette={palette} size={16} />}
-                            <span style={{fontSize:12,color:"#fbbf24"}}>{it.name}</span>
-                            {it.count>1&&<span style={{fontSize:11,color:"#94a3b8"}}>×{it.count}</span>}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            })()}
-            <div style={{marginTop:8,fontSize:11,color:"#334155",textAlign:"center"}}>↑↓←→ move · Space dismiss dialog · 🌸 exit portal</div>
+            <div style={{display:"flex",gap:8,justifyContent:"center",marginTop:8}}>
+              <button style={S.btn(false)} onClick={restart}>↺ Restart</button>
+            </div>
           </>
         )}
       </div>
@@ -1163,273 +781,287 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
   );
 }
 
-// ─── Export Bitsy Data ────────────────────────────────────────────────────────
-// Clamp a pixel value to a valid base-36 digit (0–35), guarding against NaN /
-// undefined that can appear in imported-JPEG grids due to quantization edge cases.
-const safePixel = v => (Number.isFinite(v) ? Math.max(0, Math.min(35, Math.round(v))) : 0);
-
-// ─── Bitsy Import Parser ───────────────────────────────────────────────────────
-function parseBitsyData(rawText) {
-  const lines = rawText.replace(/\r\n/g,'\n').split('\n');
-  let gameTitle='Imported Game';
-  const rawTiles=[]; // [{bitsyId, name, frames, isWall}]
-  const rawSprites=[]; // [{bitsyId, name, frames, dlgRef, posRoom, posX, posY}]
-  const rawItems=[]; // [{bitsyId, name, frames, dlgRef}]
-  const rawRooms=[]; // [{bitsyId, name, tileGrid, itemPlacements, exits}]
-  const dialogs={}; // id→text
-  const palettes={}; // id→[{r,g,b}]
-
-  // Grab title from first non-directive line
-  for(const l of lines){
-    const t=l.trim();
-    if(t&&!t.startsWith('#')&&!t.startsWith('!')&&!/^(PAL|ROOM|TIL|SPR|ITM|DLG|TUNE|BLIP|END|VAR|NAME|WAL|COL|EXT|POS)\b/.test(t)){
-      gameTitle=t; break;
-    }
-  }
-
-  const parsePixels=(rows)=>{
-    const frames=[]; let cur=[];
-    for(const r of rows){
-      if(r==='>'){if(cur.length)frames.push(cur);cur=[];}
-      else cur.push(r.split('').map(c=>Math.min(15,parseInt(c,16)||0)));
-    }
-    if(cur.length)frames.push(cur);
-    return frames.length?frames:[emptyGrid(8,8)];
-  };
-
-  let i=0;
-  while(i<lines.length){
-    const l=lines[i].trim();
-    if(l.startsWith('PAL ')){
-      const id=l.slice(4).trim(); const colors=[]; i++;
-      while(i<lines.length&&lines[i].trim()&&!lines[i].trim().match(/^(PAL|ROOM|TIL|SPR|ITM|DLG|TUNE|BLIP|END|VAR)\s/)){
-        const m=lines[i].trim().match(/^(\d+),(\d+),(\d+)$/);
-        if(m)colors.push({r:+m[1],g:+m[2],b:+m[3]});
-        i++;
-      }
-      palettes[id]=colors;
-    } else if(l.startsWith('ROOM ')){
-      const id=l.slice(5).trim(); let name=`room ${id}`;
-      const tileGrid=[],itemPlacements=[],exits=[]; i++;
-      while(i<lines.length){
-        const r=lines[i].trim();
-        if(!r){i++;break;}
-        if(r.startsWith('NAME '))name=r.slice(5);
-        else if(r.startsWith('EXT ')){
-          const m=r.match(/EXT (\d+),(\d+)\s+(?:ROOM\s+)?(\d+)\s+(?:AT\s+)?(\d+),(\d+)/);
-          if(m)exits.push({x:+m[1],y:+m[2],destRoom:+m[3],arrX:+m[4],arrY:+m[5]});
-        } else if(r.startsWith('ITM ')){
-          const m=r.match(/ITM (\w+) (\d+),(\d+)/);
-          if(m)itemPlacements.push({bitsyId:m[1],x:+m[2],y:+m[3]});
-        } else if(/^[a-z0-9,]+$/.test(r)&&r.includes(','))tileGrid.push(r.split(','));
-        i++;
-      }
-      rawRooms.push({bitsyId:id,name,tileGrid,itemPlacements,exits});
-    } else if(l.startsWith('TIL ')){
-      const id=l.slice(4).trim(); let name=`tile_${id}`,isWall=false;
-      const pixRows=[]; i++;
-      while(i<lines.length){
-        const r=lines[i].trim();
-        if(!r){i++;break;}
-        if(r.startsWith('NAME '))name=r.slice(5);
-        else if(r==='WAL true')isWall=true;
-        else if(/^[0-9a-f>]+$/i.test(r)&&(r.length>=4||r==='>'))pixRows.push(r);
-        i++;
-      }
-      rawTiles.push({bitsyId:id,name,frames:parsePixels(pixRows),isWall});
-    } else if(l.startsWith('SPR ')){
-      const id=l.slice(4).trim(); let name=id==='A'?'avatar':`sprite_${id}`;
-      let dlgRef=null,posRoom=0,posX=1,posY=1;
-      const pixRows=[]; i++;
-      while(i<lines.length){
-        const r=lines[i].trim();
-        if(!r){i++;break;}
-        if(r.startsWith('NAME '))name=r.slice(5);
-        else if(r.startsWith('DLG '))dlgRef=r.slice(4).trim().split(/\s/)[0];
-        else if(r.startsWith('POS ')){const m=r.match(/POS (\d+) (\d+),(\d+)/);if(m){posRoom=+m[1];posX=+m[2];posY=+m[3];}}
-        else if(/^[01>]+$/.test(r)&&(r.length>=4||r==='>'))pixRows.push(r);
-        i++;
-      }
-      rawSprites.push({bitsyId:id,name,frames:parsePixels(pixRows),dlgRef,posRoom,posX,posY});
-    } else if(l.startsWith('ITM ')){
-      const id=l.slice(4).trim(); let name=`item_${id}`,dlgRef=null;
-      const pixRows=[]; i++;
-      let hasPixels=false;
-      while(i<lines.length){
-        const r=lines[i].trim();
-        if(!r){i++;break;}
-        if(r.startsWith('NAME '))name=r.slice(5);
-        else if(r.startsWith('DLG '))dlgRef=r.slice(4).trim().split(/\s/)[0];
-        else if(/^[01>]+$/.test(r)&&(r.length>=4||r==='>')){{pixRows.push(r);hasPixels=true;}}
-        i++;
-      }
-      if(hasPixels)rawItems.push({bitsyId:id,name,frames:parsePixels(pixRows),dlgRef});
-    } else if(l.startsWith('DLG ')){
-      const id=l.slice(4).trim().split(/\s/)[0]; i++;
-      const textLines=[];
-      while(i<lines.length){
-        const r=lines[i];
-        if(!r.trim()){i++;break;}
-        if(!r.trim().startsWith('NAME ')&&r.trim()!=='END')textLines.push(r);
-        i++;
-      }
-      while(textLines.length&&!textLines[textLines.length-1].trim())textLines.pop();
-      dialogs[id]=textLines.join('\n');
-    } else { i++; }
-  }
-
-  // Build palette from PAL 0
-  const toHex=({r,g,b})=>'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
-  const newPalette=[...DEFAULT_PALETTE];
-  if(palettes['0']?.length>=1)newPalette[0]=toHex(palettes['0'][0]);
-  if(palettes['0']?.length>=2)newPalette[1]=toHex(palettes['0'][1]);
-  if(palettes['0']?.length>=3)newPalette[2]=toHex(palettes['0'][2]);
-
-  // Tile id map: bitsyId letter → our uid
-  const tileIdMap={};
-  const newTiles=rawTiles.map(t=>{
-    const id=uid(); tileIdMap[t.bitsyId]=id;
-    return {id,name:t.name,frames:t.frames,tileType:t.isWall?'wall':'walkable'};
+// ─── Bitsy File Import ────────────────────────────────────────────────────────
+function parsePixelFrame(rows, drawFormat) {
+  return rows.map(row => {
+    if (drawFormat === 1) return row.split(',').map(v => parseInt(v.trim()) || 0);
+    return row.split('').map(c => c === '1' ? 1 : 0);
   });
-
-  // Item sprites
-  const itemIdMap={};
-  const itemSprites=rawItems.map(it=>{
-    const id=uid(); itemIdMap[it.bitsyId]=id;
-    return {id,name:it.name,frames:it.frames,tileType:'item',
-      dialog:it.dlgRef!=null?(dialogs[it.dlgRef]||''):'',blip:{wave:'square',freq:440}};
-  });
-
-  // Sprites: A=avatar first
-  const spriteIdMap={};
-  const avatarRaw=rawSprites.find(s=>s.bitsyId==='A');
-  const npcRaws=rawSprites.filter(s=>s.bitsyId!=='A');
-  const avatarSpr={
-    id:uid(), name:avatarRaw?.name||'avatar',
-    frames:avatarRaw?.frames||[emptyGrid(8,8)],
-    tileType:'walkable',dialog:'',blip:{wave:'square',freq:440},
-    _pr:avatarRaw?.posRoom??0,_px:avatarRaw?.posX??1,_py:avatarRaw?.posY??1,
-  };
-  if(avatarRaw)spriteIdMap['A']=avatarSpr.id;
-  const npcSprs=npcRaws.map(s=>{
-    const id=uid(); spriteIdMap[s.bitsyId]=id;
-    return {id,name:s.name,frames:s.frames,tileType:'walkable',
-      dialog:s.dlgRef!=null?(dialogs[s.dlgRef]||''):'',blip:{wave:'square',freq:440},
-      _pr:s.posRoom,_px:s.posX,_py:s.posY};
-  });
-  const allSprites=[avatarSpr,...npcSprs,...itemSprites];
-
-  // Rooms
-  const newRooms=rawRooms.map(room=>{
-    const id=uid();
-    const tileGrid=room.tileGrid.map(row=>row.map(cell=>
-      (cell==='0'||!cell)?null:(tileIdMap[cell]||null)
-    ));
-    while(tileGrid.length<16)tileGrid.push(Array(16).fill(null));
-    tileGrid.forEach(row=>{while(row.length<16)row.push(null);});
-    const roomIdxNum=+room.bitsyId;
-    // NPCs from sprite POS
-    const npcs=[...npcSprs,...itemSprites]
-      .filter(s=>s._pr===roomIdxNum)
-      .map(s=>({spriteId:s.id,x:s._px,y:s._py}));
-    // Item placements from room ITM lines
-    room.itemPlacements.forEach(({bitsyId:bid,x,y})=>{
-      const sid=itemIdMap[bid]; if(sid&&!npcs.find(n=>n.spriteId===sid))npcs.push({spriteId:sid,x,y});
-    });
-    const avatarStart=(avatarSpr._pr===roomIdxNum)?{x:avatarSpr._px,y:avatarSpr._py}:null;
-    const exits=room.exits.map(ex=>({x:ex.x,y:ex.y,destRoom:ex.destRoom}));
-    return {id,name:room.name,tiles:tileGrid,npcs,exits,avatarStart,tuneId:null,rules:[]};
-  });
-
-  // Clean up internal _pr/_px/_py
-  const cleanSprites=allSprites.map(({_pr,_px,_py,...s})=>s);
-  return {gameTitle,palette:newPalette,sprites:cleanSprites,tiles:newTiles,rooms:newRooms};
 }
 
-function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
+function parseBitsyData(text) {
+  const lines = text.replace(/\r\n/g,'\n').replace(/\r/g,'\n').split('\n');
+  let i = 0;
+  let roomFormat = 0, drawFormat = 0;
+  let gameTitle = '';
+  const palettes = {}, roomDefs = {}, tileDefs = {}, sprDefs = {}, itmDefs = {}, dlgDefs = {}, endDefs = {};
+
+  const skipBlanks = () => { while(i < lines.length && lines[i].trim() === '') i++; };
+  const readBlock = () => { const b=[]; while(i < lines.length && lines[i].trim() !== '') b.push(lines[i++]); return b; };
+
+  // Title: first non-empty, non-directive, non-section line
+  skipBlanks();
+  if (i < lines.length && !lines[i].startsWith('!') && !/^[A-Z]{2,}\s/.test(lines[i]) && !/^[A-Z]{2,}$/.test(lines[i].trim())) {
+    gameTitle = lines[i].trim(); i++;
+  }
+
+  while (i < lines.length) {
+    skipBlanks(); if (i >= lines.length) break;
+    const line = lines[i].trim();
+    if (line.startsWith('!')) {
+      const m = line.match(/^!\s*(\w+)\s+(.*)/);
+      if (m) { if(m[1]==='ROOM_FORMAT') roomFormat=parseInt(m[2]); else if(m[1]==='DRAW_FORMAT') drawFormat=parseInt(m[2]); }
+      i++; continue;
+    }
+    if (line.startsWith('PAL ')) {
+      const id = line.slice(4).trim(); i++;
+      const colors=[];
+      while(i<lines.length && lines[i].trim()!=='') { const rgb=lines[i].trim().split(',').map(Number); if(rgb.length>=3)colors.push({r:rgb[0],g:rgb[1],b:rgb[2]}); i++; }
+      palettes[id]=colors; continue;
+    }
+    if (line.startsWith('ROOM ')) {
+      const id=line.slice(5).trim(); i++;
+      const room={id,name:'',tiles:[],items:[],ends:[],exits:[],palId:'0'};
+      while(i<lines.length && lines[i].trim()!=='') {
+        const rline=lines[i].trim();
+        if(rline.startsWith('ITM ')&&rline.match(/^ITM\s+\S+\s+\d+,\d+/)){const m=rline.match(/^ITM\s+(\S+)\s+(\d+),(\d+)/);if(m)room.items.push({itmId:m[1],x:+m[2],y:+m[3]});i++;}
+        else if(rline.startsWith('END ')&&rline.match(/^END\s+\S+\s+\d+,\d+/)){const m=rline.match(/^END\s+(\S+)\s+(\d+),(\d+)/);if(m)room.ends.push({endId:m[1],x:+m[2],y:+m[3]});i++;}
+        else if(rline.startsWith('EXT ')){const m=rline.match(/^EXT\s+(\d+),(\d+)\s+(\S+)\s+(\d+),(\d+)/);if(m)room.exits.push({x:+m[1],y:+m[2],destRoom:m[3],destX:+m[4],destY:+m[5]});i++;}
+        else if(rline.startsWith('NAME ')){room.name=rline.slice(5);i++;}
+        else if(rline.startsWith('PAL ')){room.palId=rline.slice(4).trim();i++;}
+        else if(rline.startsWith('ENS ')||rline.startsWith('TUT ')){i++;} // skip unsupported
+        else { room.tiles.push(roomFormat===1?rline.split(',').map(s=>s.trim()):rline.split('')); i++; }
+      }
+      roomDefs[id]=room; continue;
+    }
+    // Helper: parse a pixel+properties block (TIL / SPR / ITM definition)
+    const parseDrawBlock=(defId, kind)=>{
+      i++;
+      const frames=[]; let rows=[];
+      const props={name:'',wal:false,col:kind==='SPR'?2:kind==='ITM'?2:1,dlgId:null,pos:null};
+      while(i<lines.length && lines[i].trim()!=='') {
+        const r=lines[i].trim();
+        if(r==='>'){frames.push(rows);rows=[];i++;}
+        else if(/^(NAME|WAL|COL|DLG|POS|BGC|BLIP)\s/.test(r)||/^(WAL|COL|DLG|POS|BGC|BLIP|NAME)$/.test(r)){
+          if(r.startsWith('NAME '))props.name=r.slice(5);
+          else if(r==='WAL true')props.wal=true;
+          else if(r.startsWith('COL '))props.col=+r.slice(4);
+          else if(r.startsWith('DLG '))props.dlgId=r.slice(4).trim();
+          else if(r.startsWith('POS ')){const m=r.match(/^POS\s+(\S+)\s+(\d+),(\d+)/);if(m)props.pos={room:m[1],x:+m[2],y:+m[3]};}
+          i++;
+        } else { rows.push(r); i++; }
+      }
+      if(rows.length>0)frames.push(rows);
+      return {id:defId,frames:frames.map(f=>parsePixelFrame(f,drawFormat)),...props};
+    };
+    if(line.startsWith('TIL ')){const d=parseDrawBlock(line.slice(4).trim(),'TIL');tileDefs[d.id]=d;continue;}
+    if(line.startsWith('SPR ')){const d=parseDrawBlock(line.slice(4).trim(),'SPR');sprDefs[d.id]=d;continue;}
+    if(line.startsWith('ITM ')&&!line.match(/^ITM\s+\S+\s+\d+,\d+/)){const d=parseDrawBlock(line.slice(4).trim(),'ITM');itmDefs[d.id]=d;continue;}
+    if(line.startsWith('DLG ')){const id=line.slice(4).trim();i++;const txt=[];while(i<lines.length&&lines[i].trim()!=='')txt.push(lines[i++]);dlgDefs[id]=txt.join('\n');continue;}
+    if(line.startsWith('END ')&&!line.match(/^END\s+\S+\s+\d+,\d+/)){const id=line.slice(4).trim();i++;const txt=[];while(i<lines.length&&lines[i].trim()!=='')txt.push(lines[i++]);endDefs[id]=txt.join('\n');continue;}
+    i++; // skip unrecognized lines
+  }
+
+  // Build palette
+  const palData=palettes['0']||[{r:0,g:0,b:0},{r:255,g:255,b:255},{r:255,g:0,b:77}];
+  const palette=Array.from({length:MAX_COLORS},(_,ci)=>ci<palData.length?rgbToHex(palData[ci].r,palData[ci].g,palData[ci].b):DEFAULT_PALETTE[ci]||'#000000');
+
+  // Build tiles
+  const newTiles=[];
+  const tileBitsyToId={}, itmBitsyToId={}, endBitsyToId={};
+  Object.values(tileDefs).forEach(t=>{const id=uid();tileBitsyToId[t.id]=id;newTiles.push({id,name:t.name||`tile_${t.id}`,frames:t.frames.length?t.frames:[emptyGrid(8,8)],tileType:t.wal?'wall':'walkable'});});
+  Object.values(itmDefs).forEach(t=>{const id=uid();itmBitsyToId[t.id]=id;newTiles.push({id,name:t.name||`item_${t.id}`,frames:t.frames.length?t.frames:[emptyGrid(8,8)],tileType:'item'});});
+  Object.keys(endDefs).forEach(endId=>{const id=uid();endBitsyToId[endId]=id;const f=emptyGrid(8,8);for(let y=0;y<8;y++)for(let x=0;x<8;x++)if(y===0||y===7||x===0||x===7)f[y][x]=2;newTiles.push({id,name:`end_${endId}`,frames:[f],tileType:'end'});});
+
+  // Build sprites
+  const newSprites=[];
+  const sprBitsyToIdx={};
+  const avatar=sprDefs['A'];
+  newSprites.push({id:uid(),name:avatar?.name||'avatar',frames:avatar?.frames?.length?avatar.frames:[emptyGrid(8,8)],tileType:'walkable',dialog:'',blip:{wave:'square',freq:440}});
+  sprBitsyToIdx['A']=0;
+  Object.entries(sprDefs).forEach(([sid,spr])=>{
+    if(sid==='A')return;
+    const idx=newSprites.length; sprBitsyToIdx[sid]=idx;
+    newSprites.push({id:uid(),name:spr.name||`sprite_${sid}`,frames:spr.frames.length?spr.frames:[emptyGrid(8,8)],tileType:'walkable',dialog:spr.dlgId?dlgDefs[spr.dlgId]||'':'',blip:{wave:'square',freq:440}});
+  });
+
+  // Build rooms
+  const newRooms=[];
+  const roomBitsyToIdx={};
+  Object.entries(roomDefs).forEach(([rid,room],idx)=>{
+    roomBitsyToIdx[rid]=idx;
+    const tileGrid=room.tiles.map(row=>row.map(bId=>{if(!bId||bId==='0'||bId==='')return null;return tileBitsyToId[bId]||null;}));
+    room.items.forEach(itm=>{if(tileGrid[itm.y]&&itm.x<(tileGrid[itm.y]?.length||0)){const id=itmBitsyToId[itm.itmId];if(id)tileGrid[itm.y][itm.x]=id;}});
+    room.ends.forEach(end=>{if(tileGrid[end.y]&&end.x<(tileGrid[end.y]?.length||0)){const id=endBitsyToId[end.endId];if(id)tileGrid[end.y][end.x]=id;}});
+    const npcs=[];
+    Object.entries(sprDefs).forEach(([sid,spr])=>{if(sid==='A')return;if(spr.pos&&spr.pos.room===rid){const idx2=sprBitsyToIdx[sid];if(idx2!==undefined)npcs.push({spriteId:newSprites[idx2].id,x:spr.pos.x,y:spr.pos.y});}});
+    newRooms.push({id:uid(),name:room.name||`room ${idx}`,tiles:tileGrid,npcs,exits:[]});
+  });
+  // Fix exits
+  Object.entries(roomDefs).forEach(([rid,room])=>{
+    const idx=roomBitsyToIdx[rid];if(idx===undefined)return;
+    newRooms[idx].exits=room.exits.map(ex=>({x:ex.x,y:ex.y,destRoom:roomBitsyToIdx[ex.destRoom]??0,destX:ex.destX,destY:ex.destY}));
+  });
+
+  const firstRoom=Object.values(roomDefs)[0];
+  const detectedRoomW=firstRoom?.tiles?.[0]?.length||16;
+  const detectedRoomH=firstRoom?.tiles?.length||16;
+  const detectedTileW=Object.values(tileDefs)[0]?.frames?.[0]?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.[0]?.length||8;
+  const detectedTileH=Object.values(tileDefs)[0]?.frames?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.length||8;
+
+  return {
+    gameTitle:gameTitle||'Imported Game',
+    palette,
+    sprites:newSprites.length?newSprites:[{id:uid(),name:'avatar',frames:[emptyGrid(8,8)],tileType:'walkable',dialog:'',blip:{wave:'square',freq:440}}],
+    tiles:newTiles.length?newTiles:[{id:uid(),name:'wall',frames:[emptyGrid(8,8)],tileType:'wall'}],
+    rooms:newRooms.length?newRooms:[{id:uid(),name:'room 0',tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[]}],
+    roomW:detectedRoomW, roomH:detectedRoomH, tileW:detectedTileW, tileH:detectedTileH
+  };
+}
+
+// ─── Export Bitsy Data ────────────────────────────────────────────────────────
+// Convert a pixel color-index to standard Bitsy binary: 0 = background, 1 = foreground
+const bitsyPixel = v => (Number.isFinite(v) && v !== 0) ? 1 : 0;
+
+// Render one animation frame as standard Bitsy binary rows ("0"/"1" chars)
+function bitsyFrameRows(frame) {
+  return frame.map(row => row.map(bitsyPixel).join("")).join("\n");
+}
+
+// Render one animation frame as bitsy-color comma-separated integer rows
+function bitsyColorFrameRows(frame) {
+  return frame.map(row => row.map(v => Number.isFinite(v) ? v : 0).join(",")).join("\n");
+}
+
+function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune, colorMode=false) {
+  const frameRowsFn = colorMode ? bitsyColorFrameRows : bitsyFrameRows;
   let out = `${gameTitle || "My Game"}\n\n`;
 
-  // Bitsy 8.x requires these version directive lines or the editor won't parse correctly
-  out += `! VER_MAJ 8\n! VER_MIN 12\n! ROOM_FORMAT 1\n! DLG_COMPAT 0\n! TXT_MODE 0\n\n`;
-
-  // ── PAL ──────────────────────────────────────────────────────────────────
-  out += `PAL 0\n`;
-  palette.forEach(hex => { const c = hexToRgb(hex); out += `${c.r},${c.g},${c.b}\n`; });
+  // Version directives
+  out += `! VER_MAJ 8\n! VER_MIN 12\n! ROOM_FORMAT 1\n! DLG_COMPAT 0\n! TXT_MODE 0\n`;
+  if (colorMode) out += `! DRAW_FORMAT 1\n`;
   out += `\n`;
 
-  // ── ROOM (must come before TIL and SPR in Bitsy's parse order) ───────────
+  // ── Separate tiles by type ───────────────────────────────────────────────
+  const regularTiles = tiles.filter(t => t.tileType !== "item" && t.tileType !== "end");
+  const itemTiles = tiles.filter(t => t.tileType === "item");
+  const endTiles = tiles.filter(t => t.tileType === "end");
+
+  // Build ID maps: internal tile.id → Bitsy text ID
+  const tileIdMap = new Map();
+  regularTiles.forEach((tile, i) => tileIdMap.set(tile.id, String.fromCharCode(97 + i)));
+  const itemIdMap = new Map();
+  itemTiles.forEach((tile, i) => itemIdMap.set(tile.id, String(i)));
+  const endIdMap = new Map();
+  endTiles.forEach((tile, i) => endIdMap.set(tile.id, `end_${i}`));
+
+  // ── PAL ────────────────────────────────────────────────────────────────────
+  // In color mode: output all palette colors used; in standard mode: 3 colors
+  out += `PAL 0\n`;
+  const palCount = colorMode ? palette.length : Math.min(3, palette.length);
+  for (let i = 0; i < palCount; i++) {
+    const c = hexToRgb(palette[i] || (i === 0 ? "#000000" : "#ffffff"));
+    out += `${c.r},${c.g},${c.b}\n`;
+  }
+  out += `\n`;
+
+  // ── ROOM ─────────────────────────────────────────────────────────────────
   rooms.forEach((room, ri) => {
     out += `ROOM ${ri}\n`;
+    // Tile grid — regular tiles only; items/ends get "0" (empty)
     (room.tiles || []).forEach(row => {
       out += row.map(id => {
         if (!id) return "0";
-        const ti = tiles.findIndex(t => t.id === id);
-        return ti >= 0 ? String.fromCharCode(97 + ti) : "0";
+        if (tileIdMap.has(id)) return tileIdMap.get(id);
+        return "0";
       }).join(",") + "\n";
     });
-    (room.exits||[]).forEach(ex=>{
-      if(ex.isEnding) return; // Endings are handled via tileType:"end" tiles, not EXT lines
-      const ax=ex.arrX??rooms[ex.destRoom]?.avatarStart?.x??1;
-      const ay=ex.arrY??rooms[ex.destRoom]?.avatarStart?.y??1;
-      out += `EXT ${ex.x},${ex.y} ROOM ${ex.destRoom} AT ${ax},${ay}\n`;
+    // ITM placements for item tiles
+    (room.tiles || []).forEach((row, ry) => {
+      row.forEach((id, rx) => {
+        if (id && itemIdMap.has(id)) out += `ITM ${itemIdMap.get(id)} ${rx},${ry}\n`;
+      });
+    });
+    // END placements (v7+ spec: END endingId x,y directly in ROOM block)
+    (room.tiles || []).forEach((row, ry) => {
+      row.forEach((id, rx) => {
+        if (id && endIdMap.has(id)) {
+          const endIdx = endTiles.findIndex(t => t.id === id);
+          if (endIdx >= 0) out += `END ${endIdx} ${rx},${ry}\n`;
+        }
+      });
+    });
+    // Exits: EXT x,y destRoom destX,destY
+    (room.exits||[]).forEach(ex => {
+      out += `EXT ${ex.x},${ex.y} ${ex.destRoom} ${ex.destX},${ex.destY}\n`;
     });
     if (room.name) out += `NAME ${room.name}\n`;
     out += `PAL 0\n\n`;
   });
 
-  // ── TIL ──────────────────────────────────────────────────────────────────
-  tiles.forEach((tile, i) => {
-    out += `TIL ${String.fromCharCode(97 + i)}\n`;
+  // ── TIL (regular tiles — walkable/wall) ────────────────────────────────
+  regularTiles.forEach((tile, i) => {
+    const id = String.fromCharCode(97 + i);
+    out += `TIL ${id}\n`;
     tile.frames.forEach((frame, fi) => {
-      frame.forEach(row => out += row.map(safePixel).map(v => v.toString(36)).join("") + "\n");
+      out += frameRowsFn(frame) + "\n";
       if (fi < tile.frames.length - 1) out += ">\n";
     });
     if (tile.name) out += `NAME ${tile.name}\n`;
-    out += `COL ${[...new Set(tile.frames[0].flat().map(safePixel))].join(",")}\n`;
     if (tile.tileType === "wall") out += `WAL true\n`;
+    if (colorMode) out += `COL 1\n`;
     out += `\n`;
   });
 
-  // ── SPR ──────────────────────────────────────────────────────────────────
-  // sprites[0] → SPR A (avatar/player); sprites[1..n] → SPR a, b, c… (NPCs)
+  // ── SPR (avatar + NPCs) ─────────────────────────────────────────────────
   let dlgIndex = 0;
   sprites.forEach((spr, i) => {
     const sprId = i === 0 ? "A" : String.fromCharCode(97 + (i - 1));
     out += `SPR ${sprId}\n`;
     spr.frames.forEach((frame, fi) => {
-      frame.forEach(row => out += row.map(safePixel).map(v => v.toString(36)).join("") + "\n");
+      out += frameRowsFn(frame) + "\n";
       if (fi < spr.frames.length - 1) out += ">\n";
     });
     if (spr.name) out += `NAME ${spr.name}\n`;
-    out += `COL ${[...new Set(spr.frames[0].flat().map(safePixel))].join(",")}\n`;
-    // Dialog ref uses a plain integer (not a named string) per Bitsy spec
     if (i > 0 && spr.dialog) { out += `DLG ${dlgIndex}\n`; dlgIndex++; }
-    // Find actual room placement — for avatar check avatarStart; for NPCs check npcs array
+    // Position: find actual room placement or fall back to defaults
     let posRoom = 0, posX = i === 0 ? 4 : (i * 2) % 14, posY = i === 0 ? 4 : 2;
-    if (i === 0) {
-      // Avatar: use explicit avatarStart if set on any room
-      for (let ri = 0; ri < rooms.length; ri++) {
-        if (rooms[ri].avatarStart) { posRoom = ri; posX = rooms[ri].avatarStart.x; posY = rooms[ri].avatarStart.y; break; }
-      }
-    } else {
-      for (let ri = 0; ri < rooms.length; ri++) {
-        const placed = (rooms[ri].npcs || []).find(n => n.spriteId === spr.id);
-        if (placed) { posRoom = ri; posX = placed.x; posY = placed.y; break; }
-      }
+    for (let ri = 0; ri < rooms.length; ri++) {
+      const placed = (rooms[ri].npcs || []).find(n => n.spriteId === spr.id);
+      if (placed) { posRoom = ri; posX = placed.x; posY = placed.y; break; }
     }
-    out += `POS ${posRoom} ${posX},${posY}\n\n`;
+    out += `POS ${posRoom} ${posX},${posY}\n`;
+    if (colorMode) out += `COL 2\n`;
+    out += `\n`;
   });
 
-  // ── DLG ──────────────────────────────────────────────────────────────────
+  // ── ITM (from "item" tiles) ──────────────────────────────────────────────
+  itemTiles.forEach((tile, i) => {
+    out += `ITM ${i}\n`;
+    tile.frames.forEach((frame, fi) => {
+      out += frameRowsFn(frame) + "\n";
+      if (fi < tile.frames.length - 1) out += ">\n";
+    });
+    if (tile.name) out += `NAME ${tile.name}\n`;
+    if (colorMode) out += `COL 2\n`;
+    out += `\n`;
+  });
+
+  // ── DLG (NPC dialogs) ───────────────────────────────────────────────────
   let dlgOut = 0;
   sprites.forEach((spr, i) => {
     if (i > 0 && spr.dialog) {
-      out += `DLG ${dlgOut}\n${spr.dialog}\nEND\n\n`;
+      out += `DLG ${dlgOut}\n${spr.dialog}\n\n`;
       dlgOut++;
     }
   });
 
-  // ── TUNE (if any steps active) ────────────────────────────────────────────
+  // ── END (ending screens) ────────────────────────────────────────────────
+  endTiles.forEach((tile, i) => {
+    out += `END ${i}\nYou reached the ${tile.name || "end"}!\n\n`;
+  });
+
+  // ── TUNE (if any steps active) ──────────────────────────────────────────
   if (tune && tune.some(s=>s.active)) {
     out += `TUNE 0\n`;
     out += `NAME theme\n`;
@@ -1442,157 +1074,89 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune) {
   return out;
 }
 
-// ─── Help Modal ───────────────────────────────────────────────────────────────
-function HelpModal({ onClose }) {
-  const shortcuts=[["B","Draw / Pencil"],["E","Erase"],["F","Fill"],["I","Pick Color"],["G","Toggle Grid"],["1–9","Select Color"],["?","This Help"],["↑↓←→","Move (Playtest)"],["Space / ↵","Next Dialog (Playtest)"]];
-  return (
-    <div style={S.modal} onClick={onClose}>
-      <div style={{...S.modalContent,maxWidth:380}} onClick={e=>e.stopPropagation()}>
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <h3 style={{margin:0,color:"#38bdf8"}}>⌨️ Keyboard Shortcuts</h3>
-          <button style={S.btn(false)} onClick={onClose}>✕</button>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"max-content 1fr",gap:"8px 16px",alignItems:"center"}}>
-          {shortcuts.map(([key,desc])=>[
-            <kbd key={key} style={{background:"#0f172a",border:"1px solid rgba(255,255,255,0.12)",borderRadius:4,padding:"2px 8px",color:"#38bdf8",fontFamily:"monospace",fontSize:12,textAlign:"center",display:"block"}}>{key}</kbd>,
-            <span key={desc} style={{fontSize:13,color:"#e2e8f0"}}>{desc}</span>
-          ])}
-        </div>
-        <div style={{marginTop:14,padding:"10px 12px",background:"rgba(56,189,248,0.05)",borderRadius:6,border:"1px solid rgba(56,189,248,0.1)",fontSize:11,color:"#64748b",lineHeight:1.7}}>
-          <b style={{color:"#94a3b8"}}>Quick start:</b> Draw tiles → place in room → add NPCs → ▶ Play
-        </div>
-      </div>
-    </div>
-  );
+// ─── HTML Game Export ─────────────────────────────────────────────────────────
+function buildHtmlExport(gameTitle, palette, sprites, tiles, rooms, tune, tileW, tileH, roomW, roomH) {
+  const stateJson = JSON.stringify({gameTitle,palette,sprites,tiles,rooms,tune,tileW,tileH,roomW,roomH}).replace(/<\/script>/gi,'<\\/script>');
+  const engine = `(function(){
+var S=${stateJson};
+var pal=S.palette,sprs=S.sprites,tls=S.tiles,rms=S.rooms,tn=S.tune;
+var TW=S.tileW,TH=S.tileH,RW=S.roomW,RH=S.roomH;
+var cv=document.getElementById('game'),ctx=cv.getContext('2d');
+var PS=Math.max(2,Math.floor(Math.min(window.innerWidth*.95,window.innerHeight*.9)/Math.max(RW*TW,RH*TH)));
+cv.width=RW*TW*PS;cv.height=RH*TH*PS;
+cv.style.cssText='image-rendering:pixelated;image-rendering:crisp-edges;display:block;';
+var ri=0,pos={x:4,y:4},collected=[],removed={},dlg=null,won=false,wonTxt='',tick=0;
+function findStart(rm){if(!rm)return{x:1,y:1};for(var ry=0;ry<RH;ry++)for(var rx=0;rx<RW;rx++){var t=tls.find(function(t){return t.id===(rm.tiles[ry]&&rm.tiles[ry][rx]);});if(!t||t.tileType!=='wall')return{x:rx,y:ry};}return{x:1,y:1};}
+pos=findStart(rms[0]);
+var ac=null;
+function getAC(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac;}
+function blip(w,f,d,v){try{var a=getAC(),o=a.createOscillator(),g=a.createGain();o.type=w||'square';o.frequency.value=f||440;g.gain.value=v||0.15;g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+(d||0.15));o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+(d||0.15));}catch(e){}}
+function nf(s){return 130.81*Math.pow(2,s/12);}
+var ts2=0,tsi=null;
+function startTune(){if(!tn||!tn.some(function(s){return s.active;}))return;tsi=setInterval(function(){var n=tn[ts2];if(n&&n.active)blip('sine',nf(n.semi),0.12,0.08);ts2=(ts2+1)%tn.length;},170);}
+startTune();
+function frame(item){var f=item.frames;return f&&f[tick%(f.length||1)]||f&&f[0]||null;}
+function drawSprite(f,cx,cy){if(!f)return;for(var py=0;py<TH;py++)for(var px=0;px<TW;px++){var v=f[py]&&f[py][px];if(!v)continue;ctx.fillStyle=pal[v]||pal[0];ctx.fillRect((cx*TW+px)*PS,(cy*TH+py)*PS,PS,PS);}}
+function render(){
+  var rm=rms[ri];if(!rm)return;
+  ctx.fillStyle=pal[0]||'#000';ctx.fillRect(0,0,cv.width,cv.height);
+  for(var ry=0;ry<RH;ry++)for(var rx=0;rx<RW;rx++){
+    var tid=rm.tiles[ry]&&rm.tiles[ry][rx];if(!tid)continue;
+    var t=tls.find(function(t){return t.id===tid;});if(!t)continue;
+    if(removed[ri+','+rx+','+ry])continue;
+    drawSprite(frame(t),rx,ry);
+  }
+  (rm.exits||[]).forEach(function(e){ctx.fillStyle='rgba(255,0,200,0.18)';ctx.fillRect(e.x*TW*PS,e.y*TH*PS,TW*PS,TH*PS);});
+  (rm.npcs||[]).forEach(function(n){var sp=sprs.find(function(s){return s.id===n.spriteId;});if(sp)drawSprite(frame(sp),n.x,n.y);});
+  drawSprite(frame(sprs[0]),pos.x,pos.y);
+  if(dlg){
+    var bw=cv.width-16,bh=86,bx=8,by=cv.height-bh-8;
+    ctx.fillStyle='#0f3460';ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle='#e94560';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
+    ctx.fillStyle='#e94560';ctx.font='bold 10px monospace';ctx.fillText(dlg.name||'',bx+8,by+14);
+    ctx.fillStyle='#fff';ctx.font='12px monospace';
+    var txt=dlg.pages[dlg.pi]||'',ml=Math.floor((bw-16)/7),yo=by+28;
+    for(var ci=0;ci<txt.length&&yo<by+bh-14;){var ch2=txt.slice(ci,ci+ml),nl=ch2.indexOf('\\n');if(nl>=0){ctx.fillText(ch2.slice(0,nl),bx+8,yo);ci+=nl+1;}else{ctx.fillText(ch2,bx+8,yo);ci+=ml;}yo+=14;}
+    ctx.fillStyle='#444';ctx.font='9px monospace';ctx.fillText(dlg.pi<dlg.pages.length-1?'Space/Enter to continue':'Space/Enter to close',bx+8,by+bh-5);
+    if(dlg.pages.length>1)ctx.fillText((dlg.pi+1)+'/'+dlg.pages.length,bx+bw-40,by+14);
+  }
+  if(won){
+    ctx.fillStyle='rgba(0,0,0,0.72)';ctx.fillRect(0,0,cv.width,cv.height);
+    ctx.textAlign='center';ctx.fillStyle='#ffec27';ctx.font='bold 18px monospace';ctx.fillText('\uD83C\uDF89 '+(S.gameTitle||'Game')+' \uD83C\uDF89',cv.width/2,cv.height/2-20);
+    if(wonTxt){ctx.fillStyle='#fff';ctx.font='12px monospace';ctx.fillText(wonTxt,cv.width/2,cv.height/2+5);}
+    ctx.fillStyle='#aaa';ctx.font='10px monospace';
+    ctx.fillText('Collected: '+collected.length,cv.width/2,cv.height/2+22);
+    ctx.fillText('Press R to restart',cv.width/2,cv.height/2+38);ctx.textAlign='left';
+  }
 }
-
-// ─── New Game Wizard ──────────────────────────────────────────────────────────
-function WizardModal({ palette, onComplete, onSkip }) {
-  const [step, setStep] = useState(0);
-  const [chosenChar, setChosenChar] = useState(null);
-  const [chosenWorld, setChosenWorld] = useState(null);
-
-  const stepTitles = ["Choose your character", "Choose your world"];
-  const stepEmojis = ["🧑", "🌍"];
-
-  return (
-    <div style={S.modal}>
-      <div style={{...S.modalContent, maxWidth:540}}>
-        {/* Header */}
-        <div style={{textAlign:"center",marginBottom:20}}>
-          <div style={{fontSize:28,marginBottom:6}}>{stepEmojis[step]}</div>
-          <h2 style={{margin:0,color:"#38bdf8",fontSize:18}}>{stepTitles[step]}</h2>
-          <div style={{display:"flex",justifyContent:"center",gap:6,marginTop:10}}>
-            {[0,1].map(i=><div key={i} style={{width:8,height:8,borderRadius:"50%",background:i<=step?"#38bdf8":"rgba(255,255,255,0.1)"}} />)}
-          </div>
-        </div>
-
-        {step===0&&(
-          <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:20}}>
-            {WIZARD_CHARS.map((ch,i)=>(
-              <button key={i} onClick={()=>setChosenChar(i)}
-                style={{background:chosenChar===i?"rgba(56,189,248,0.15)":"rgba(255,255,255,0.03)",border:chosenChar===i?"2px solid #38bdf8":"2px solid rgba(255,255,255,0.08)",borderRadius:10,padding:"12px 8px",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6,transition:"all .15s"}}>
-                <MiniCanvas grid={ch.grid} palette={palette} size={48} />
-                <span style={{fontSize:11,color:chosenChar===i?"#38bdf8":"#94a3b8",fontWeight:chosenChar===i?700:400}}>{ch.name}</span>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {step===1&&(
-          <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:20}}>
-            {WIZARD_WORLDS.map((w,i)=>(
-              <button key={i} onClick={()=>setChosenWorld(i)}
-                style={{background:chosenWorld===i?"rgba(56,189,248,0.15)":"rgba(255,255,255,0.03)",border:chosenWorld===i?"2px solid #38bdf8":"2px solid rgba(255,255,255,0.08)",borderRadius:10,padding:"14px 10px",cursor:"pointer",display:"flex",alignItems:"center",gap:12,transition:"all .15s"}}>
-                <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                  <MiniCanvas grid={w.floor} palette={palette} size={28} />
-                  <MiniCanvas grid={w.wall} palette={palette} size={28} />
-                </div>
-                <div style={{textAlign:"left"}}>
-                  <div style={{fontSize:13,color:chosenWorld===i?"#38bdf8":"#e2e8f0",fontWeight:700}}>{w.name}</div>
-                  <div style={{fontSize:10,color:"#64748b",marginTop:2}}>{w.floorName} + {w.wallName}</div>
-                </div>
-              </button>
-            ))}
-          </div>
-        )}
-
-        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <button style={{...S.btn(false),color:"#475569",fontSize:11}} onClick={onSkip}>Skip →</button>
-          <div style={{display:"flex",gap:8}}>
-            {step>0&&<button style={S.btn(false)} onClick={()=>setStep(s=>s-1)}>← Back</button>}
-            {step===0&&<button style={chosenChar===null?S.btn(false):S.btnPrimary} disabled={chosenChar===null} onClick={()=>setStep(1)}>Next →</button>}
-            {step===1&&<button style={chosenWorld===null?S.btn(false):S.btnPrimary} disabled={chosenWorld===null}
-              onClick={()=>onComplete(chosenChar,chosenWorld)}>🎮 Start Creating!</button>}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+var last=0;(function loop(ts){if(ts-last>200){tick++;last=ts;}render();requestAnimationFrame(loop);})(0);
+document.addEventListener('keydown',function(e){
+  if(won){if(e.key==='r'||e.key==='R')restart();return;}
+  if(dlg){if([' ','Enter','ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].indexOf(e.key)>=0){e.preventDefault();dlg.pi++;if(dlg.pi>=dlg.pages.length)dlg=null;}return;}
+  var dx={'ArrowLeft':[-1,0],'ArrowRight':[1,0],'ArrowUp':[0,-1],'ArrowDown':[0,1]}[e.key];if(!dx)return;e.preventDefault();
+  var rm=rms[ri],nx=pos.x+dx[0],ny=pos.y+dx[1];
+  if(nx<0||nx>=RW||ny<0||ny>=RH)return;
+  var ex=(rm.exits||[]).find(function(e){return e.x===nx&&e.y===ny;});
+  if(ex){ri=typeof ex.destRoom==='number'?ex.destRoom:parseInt(ex.destRoom)||0;pos={x:ex.destX,y:ex.destY};blip('sine',660,0.18,0.2);return;}
+  var npc=(rm.npcs||[]).find(function(n){return n.x===nx&&n.y===ny;});
+  if(npc){var sp=sprs.find(function(s){return s.id===npc.spriteId;});if(sp&&sp.dialog){var pgs=sp.dialog.split(/\\n?---\\n?/).map(function(p){return p.trim();}).filter(Boolean);dlg={pages:pgs.length?pgs:[sp.dialog],pi:0,name:sp.name};blip((sp.blip&&sp.blip.wave)||'square',(sp.blip&&sp.blip.freq)||440,0.1,0.2);}return;}
+  var tid=rm.tiles[ny]&&rm.tiles[ny][nx],tl=tls.find(function(t){return t.id===tid;}),tt=(tl&&tl.tileType)||'walkable';
+  if(tt==='wall')return;
+  pos={x:nx,y:ny};
+  if(tt==='item'){var k=ri+','+nx+','+ny;if(!removed[k]){removed[k]=1;collected.push(tl.name||'item');blip('triangle',880,0.2,0.3);}}
+  if(tt==='end'){won=true;wonTxt='You reached '+(tl.name||'the end')+'!';if(tsi)clearInterval(tsi);}
+});
+function addDpad(){
+  var d=document.createElement('div');d.style.cssText='position:fixed;bottom:16px;left:50%;transform:translateX(-50%);display:grid;grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:3px;';
+  [['','ArrowUp',''],['ArrowLeft','','ArrowRight'],['','ArrowDown','']].forEach(function(row){row.forEach(function(k){var b=document.createElement('button');b.style.cssText='background:'+(k?'rgba(255,255,255,0.12)':'transparent')+';border:none;border-radius:8px;font-size:22px;color:#fff;cursor:pointer;touch-action:manipulation;';b.textContent=k?({'ArrowUp':'↑','ArrowDown':'↓','ArrowLeft':'←','ArrowRight':'→'}[k]):'';if(k){b.addEventListener('touchstart',function(e){e.preventDefault();document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));},{passive:false});b.onclick=function(){document.dispatchEvent(new KeyboardEvent('keydown',{key:k,bubbles:true}));};}d.appendChild(b);});});
+  var act=document.createElement('button');act.style.cssText='position:fixed;bottom:20px;right:16px;width:56px;height:56px;background:rgba(233,69,96,0.35);border:none;border-radius:50%;font-size:22px;color:#fff;cursor:pointer;';act.textContent='✓';act.onclick=function(){document.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true}));};act.addEventListener('touchstart',function(e){e.preventDefault();act.onclick();},{passive:false});
+  document.body.appendChild(d);document.body.appendChild(act);
 }
+addDpad();
+function restart(){ri=0;pos=findStart(rms[0]);collected=[];removed={};dlg=null;won=false;wonTxt='';if(tsi)clearInterval(tsi);tsi=null;ts2=0;startTune();}
+})();`;
 
-// ─── Game Progress Checklist ──────────────────────────────────────────────────
-function ProgressChecklist({ sprites, tiles, rooms }) {
-  const avatar = sprites[0];
-  const checks = [
-    { label:"Draw your player",   done: avatar?.frames[0].flat().some(v=>v!==0) },
-    { label:"Design a tile",      done: tiles.some(t=>t.frames[0].flat().some(v=>v!==0)) },
-    { label:"Build a room",       done: rooms.some(r=>r.tiles.flat().some(v=>v!==null)) },
-    { label:"Add a collectible",  done: sprites.some(s=>s.tileType==="item") },
-    { label:"Give someone dialog",done: sprites.some(s=>s.dialog?.trim()) },
-    { label:"Add an exit",        done: rooms.some(r=>r.exits?.length>0) },
-  ];
-  const doneCount = checks.filter(c=>c.done).length;
-  const pct = Math.round(doneCount/checks.length*100);
-
-  return (
-    <div style={{...S.section,marginBottom:0}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:6}}>
-        <div style={S.sectionTitle}>Game Checklist</div>
-        <span style={{fontSize:10,color:pct===100?"#4ade80":"#64748b",fontWeight:700}}>{doneCount}/{checks.length}</span>
-      </div>
-      <div style={{height:3,background:"rgba(255,255,255,0.06)",borderRadius:2,marginBottom:8,overflow:"hidden"}}>
-        <div style={{height:"100%",width:`${pct}%`,background:pct===100?"#4ade80":"#38bdf8",borderRadius:2,transition:"width .4s"}} />
-      </div>
-      {checks.map(({label,done},i)=>(
-        <div key={i} style={{display:"flex",alignItems:"center",gap:7,marginBottom:4,fontSize:11,color:done?"#e2e8f0":"#475569",transition:"color .3s"}}>
-          <span style={{fontSize:13,transition:"transform .3s",transform:done?"scale(1.1)":"scale(1)"}}>{done?"✅":"⬜"}</span>
-          <span style={{textDecoration:done?"line-through":"none",opacity:done?0.6:1}}>{label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ─── Pre-Play Hints Modal ─────────────────────────────────────────────────────
-function PrePlayModal({ sprites, tiles, rooms, onPlay, onClose }) {
-  const hints = [];
-  const avatar = sprites[0];
-  const hasAvatarPixels = avatar?.frames[0].flat().some(v=>v!==0);
-  const hasRoomTiles = rooms.some(r=>r.tiles.flat().some(v=>v!==null));
-  const hasExit = rooms.some(r=>r.exits?.length>0);
-  if(!hasAvatarPixels) hints.push({emoji:"🧑",text:"Your player has no pixels yet — draw something in the Sprites tab!"});
-  if(!hasRoomTiles) hints.push({emoji:"🗺️",text:"Your room is empty — place some tiles in the Rooms tab first!"});
-  if(!hasExit) hints.push({emoji:"🚪",text:"No exit yet — players will be stuck! Use the Exit tool to add a door."});
-  if(hints.length===0){ onPlay(); return null; }
-  return (
-    <div style={S.modal} onClick={onClose}>
-      <div style={{...S.modalContent,maxWidth:400}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 4px",color:"#fbbf24"}}>⚠️ Before you play…</h3>
-        <p style={{fontSize:12,color:"#64748b",marginBottom:16}}>Your game will work, but here's what's missing:</p>
-        {hints.map(({emoji,text},i)=>(
-          <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start",marginBottom:12,padding:"10px 12px",background:"rgba(251,191,36,0.07)",borderRadius:8,border:"1px solid rgba(251,191,36,0.15)"}}>
-            <span style={{fontSize:18}}>{emoji}</span>
-            <span style={{fontSize:12,color:"#e2e8f0",lineHeight:1.5}}>{text}</span>
-          </div>
-        ))}
-        <div style={{display:"flex",gap:8,justifyContent:"flex-end",marginTop:4}}>
-          <button style={S.btn(false)} onClick={onClose}>Fix it first</button>
-          <button style={S.btnPrimary} onClick={onPlay}>▶ Play anyway</button>
-        </div>
-      </div>
-    </div>
-  );
+  return `<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="UTF-8">\n<meta name="viewport" content="width=device-width,initial-scale=1.0">\n<title>${(gameTitle||'My Game').replace(/</g,'&lt;')}</title>\n<style>*{box-sizing:border-box}body{margin:0;background:#000;display:flex;flex-direction:column;justify-content:center;align-items:center;min-height:100vh;font-family:monospace;overflow:hidden}#gt{color:#e94560;font-size:12px;margin-bottom:6px;letter-spacing:2px;text-transform:uppercase}#hint{color:#333;font-size:9px;margin-top:6px}</style>\n</head>\n<body>\n<div id="gt">${(gameTitle||'My Game').replace(/</g,'&lt;')}</div>\n<canvas id="game"></canvas>\n<div id="hint">Arrow keys · Space/Enter to interact · R to restart</div>\n<script>\n${engine}\n</script>\n</body>\n</html>`;
 }
 
 // ─── Export Modal ─────────────────────────────────────────────────────────────
@@ -1623,7 +1187,9 @@ function ExportModal({ data, onClose }) {
         {data.type === "text" && (
           <>
             <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>
-              Copy this text and paste it into a <code style={{ color: "#ffec27" }}>.txt</code> file, then rename it to <code style={{ color: "#ffec27" }}>.bitsy</code> — or paste it into the Bitsy editor directly.
+              {data.filename
+                ? <>Copy this HTML, save it as <code style={{ color: "#ffec27" }}>{data.filename}</code>, then open it in any browser to play — or share the file with students.</>
+                : <>Copy this text and paste it into a <code style={{ color: "#ffec27" }}>.txt</code> file, then rename it to <code style={{ color: "#ffec27" }}>.bitsy</code> — or paste it into the Bitsy editor directly.</>}
             </div>
             <textarea
               ref={textRef}
@@ -1633,15 +1199,11 @@ function ExportModal({ data, onClose }) {
               onFocus={e => e.target.select()}
             />
             <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-              <button style={{ ...S.btnPrimary, flex: 1 }} onClick={()=>{
-                const blob=new Blob([data.content],{type:"text/plain"});
-                const url=URL.createObjectURL(blob);
-                const a=document.createElement("a");
-                a.href=url; a.download=(data.title||"game").replace(/\.bitsy$/i,"")+".bitsy"; a.click();
-                URL.revokeObjectURL(url);
-              }}>📥 Download .bitsy</button>
               <button style={{ ...S.btn(copied), flex: 1 }} onClick={copy}>
-                {copied ? "✓ Copied!" : "📋 Copy"}
+                {copied ? "✓ Copied!" : "📋 Copy All to Clipboard"}
+              </button>
+              <button style={{ ...S.btn(false), flex: 1 }} onClick={() => { textRef.current?.select(); }}>
+                Select All
               </button>
             </div>
           </>
@@ -1665,6 +1227,240 @@ function ExportModal({ data, onClose }) {
   );
 }
 
+// ─── Dialog Pages Editor ──────────────────────────────────────────────────────
+// ─── Text Import Modal (emoji / character art → pixel grid) ──────────────────
+function TextImportModal({ onImport, onClose, palette }) {
+  const [text, setText] = useState('');
+  const [targetSize, setTargetSize] = useState(8);
+  const [importAs, setImportAs] = useState('sprite');
+  const [preview, setPreview] = useState(null);
+  const [error, setError] = useState('');
+
+  const DARK = ['⬛','■','▪','▓','●','#','X','1','x'];
+  const parseText = (t) => {
+    // Extract tokens: each emoji or non-space char is one pixel
+    const tokens = [];
+    const seen = new Set();
+    for (let ci = 0; ci < t.length; ) {
+      const cp = t.codePointAt(ci);
+      const ch = String.fromCodePoint(cp);
+      ci += ch.length;
+      if (ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t') continue;
+      if (!seen.has(ch)) seen.add(ch);
+      tokens.push(ch);
+    }
+    if (tokens.length === 0) return null;
+    const unique = [...seen];
+    // Heuristic: the most-used character is likely background (0)
+    const counts = {};
+    tokens.forEach(c => counts[c] = (counts[c]||0) + 1);
+    const sorted = unique.sort((a,b)=>(counts[b]||0)-(counts[a]||0));
+    const bg = sorted[0];
+    // Also check if a known dark char is present
+    const hasDark = unique.some(c => DARK.includes(c));
+    const isDark = c => hasDark ? DARK.includes(c) : c !== bg;
+    return { tokens, isDark, bg };
+  };
+
+  const buildGrid = (tokens, isDark, size) => {
+    const grid = Array.from({length:size}, ()=>Array(size).fill(0));
+    for (let idx = 0; idx < Math.min(tokens.length, size*size); idx++) {
+      const r = Math.floor(idx / size), c = idx % size;
+      grid[r][c] = isDark(tokens[idx]) ? 1 : 0;
+    }
+    return grid;
+  };
+
+  const upscale = (grid) => {
+    const h = grid.length, w = grid[0].length;
+    return Array.from({length:h*2}, (_,y) =>
+      Array.from({length:w*2}, (_,x) => grid[Math.floor(y/2)][Math.floor(x/2)]));
+  };
+
+  const handlePreview = () => {
+    setError('');
+    const result = parseText(text);
+    if (!result) { setError('No pixels found. Paste emoji art (⬜⬛ or similar).'); return; }
+    const rawCount = result.tokens.length;
+    let detectedSize = rawCount >= 256 ? 16 : 8;
+    let grid = buildGrid(result.tokens, result.isDark, detectedSize);
+    if (targetSize === 16 && detectedSize === 8) grid = upscale(grid);
+    if (targetSize === 8 && detectedSize === 16) {
+      // downsample: take every 2nd pixel
+      grid = Array.from({length:8}, (_,y) => Array.from({length:8}, (_,x) => grid[y*2][x*2]));
+    }
+    setPreview(grid);
+  };
+
+  const doImport = () => {
+    if (!preview) return;
+    onImport({ grid: preview, mode: importAs });
+  };
+
+  return (
+    <div style={S.modal} onClick={onClose}>
+      <div style={{...S.modalContent, maxWidth:480}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <h3 style={{margin:0,color:'#e94560'}}>Import from Text / Emoji Art</h3>
+          <button style={S.btn(false)} onClick={onClose}>✕</button>
+        </div>
+        <div style={{fontSize:11,color:'#888',marginBottom:8}}>
+          Paste emoji pixel art (⬜⬛), text art (░▓), or binary strings. Each token = 1 pixel.
+        </div>
+        <textarea value={text} onChange={e=>{setText(e.target.value);setPreview(null);setError('');}}
+          placeholder={"⬜ ⬛ ⬛ ⬜\n⬛ ⬜ ⬜ ⬛\n..."}
+          style={{...S.input, height:100, resize:'vertical', fontFamily:'monospace', fontSize:13}} />
+        <div style={{display:'flex',gap:8,alignItems:'center',marginTop:8,flexWrap:'wrap'}}>
+          <span style={{fontSize:11,color:'#aaa'}}>Target size:</span>
+          {[8,16].map(sz=><button key={sz} style={{...S.btn(targetSize===sz),fontSize:11}} onClick={()=>{setTargetSize(sz);setPreview(null);}}>{sz}×{sz}</button>)}
+          <span style={{fontSize:11,color:'#aaa',marginLeft:8}}>Import as:</span>
+          {['sprite','tile','item'].map(m=><button key={m} style={{...S.btn(importAs===m),fontSize:11}} onClick={()=>setImportAs(m)}>{m}</button>)}
+        </div>
+        {error && <div style={{color:'#e94560',fontSize:11,marginTop:6}}>{error}</div>}
+        <button style={{...S.btnGreen,marginTop:10,width:'100%'}} onClick={handlePreview}>Preview</button>
+        {preview && (
+          <div style={{marginTop:10}}>
+            <div style={{fontSize:11,color:'#aaa',marginBottom:4}}>Preview ({preview[0].length}×{preview.length}):</div>
+            <canvas ref={el=>{
+              if(!el)return; const ps=Math.max(4,Math.floor(120/Math.max(preview[0].length,preview.length)));
+              el.width=preview[0].length*ps; el.height=preview.length*ps;
+              const ctx=el.getContext('2d');
+              for(let y=0;y<preview.length;y++)for(let x=0;x<preview[0].length;x++){ctx.fillStyle=palette[preview[y][x]]||palette[0];ctx.fillRect(x*ps,y*ps,ps,ps);}
+            }} style={{imageRendering:'pixelated',display:'block',border:'2px solid #0f3460',borderRadius:3}} />
+            <button style={{...S.btn(true),marginTop:10,width:'100%'}} onClick={doImport}>Import as {importAs}</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Bitsy File Import Modal ───────────────────────────────────────────────────
+function BitsyImportModal({ onImport, onClose }) {
+  const [status, setStatus] = useState('');
+  const [parsed, setParsed] = useState(null);
+  const fileRef = useRef(null);
+
+  const handleFile = (e) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const result = parseBitsyData(ev.target.result);
+        setParsed(result);
+        const tCount = result.tiles.length, sCount = result.sprites.length, rCount = result.rooms.length;
+        setStatus(`✓ Parsed: ${sCount} sprite${sCount!==1?'s':''}, ${tCount} tile${tCount!==1?'s':''}, ${rCount} room${rCount!==1?'s':''} — "${result.gameTitle}"`);
+      } catch(err) {
+        setStatus(`✗ Parse error: ${err.message}`);
+        setParsed(null);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  return (
+    <div style={S.modal} onClick={onClose}>
+      <div style={{...S.modalContent, maxWidth:440}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
+          <h3 style={{margin:0,color:'#e94560'}}>Import .bitsy File</h3>
+          <button style={S.btn(false)} onClick={onClose}>✕</button>
+        </div>
+        <div style={{fontSize:11,color:'#888',marginBottom:10}}>
+          Load a <code style={{color:'#ffec27'}}>.bitsy</code> or <code style={{color:'#ffec27'}}>.txt</code> game file (standard Bitsy or Bitsy-color format). This will replace your current project.
+        </div>
+        <input ref={fileRef} type="file" accept=".bitsy,.txt,text/plain" onChange={handleFile}
+          style={{...S.input, marginBottom:8, cursor:'pointer'}} />
+        {status && <div style={{fontSize:12,color:status.startsWith('✓')?'#00e436':'#e94560',marginBottom:10,padding:'6px 8px',background:'#0d1b3e',borderRadius:4}}>{status}</div>}
+        <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
+          <button style={S.btn(false)} onClick={onClose}>Cancel</button>
+          <button style={{...S.btn(true),background:'#e94560'}} disabled={!parsed} onClick={()=>{if(parsed)onImport(parsed);}}>Load Game</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DialogPagesEditor({ value, onChange }) {
+  const pages = value ? value.split(/\n?---\n?/) : [""];
+  const update = (newPages) => onChange(newPages.join("\n---\n"));
+  return (
+    <div>
+      {pages.map((page, i) => (
+        <div key={i} style={{ marginBottom: 8 }}>
+          <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:3 }}>
+            <span style={{ fontSize:10, color:"#888" }}>Page {i + 1}</span>
+            <div style={{ display:"flex", gap:3 }}>
+              {i > 0 && (
+                <button style={{ ...S.btn(false), fontSize:10, padding:"2px 6px" }}
+                  title="Move page up"
+                  onClick={() => { const p=[...pages]; [p[i-1],p[i]]=[p[i],p[i-1]]; update(p); }}>↑</button>
+              )}
+              {i < pages.length - 1 && (
+                <button style={{ ...S.btn(false), fontSize:10, padding:"2px 6px" }}
+                  title="Move page down"
+                  onClick={() => { const p=[...pages]; [p[i],p[i+1]]=[p[i+1],p[i]]; update(p); }}>↓</button>
+              )}
+              {pages.length > 1 && (
+                <button style={{ ...S.btn(false), fontSize:10, padding:"2px 6px", color:"#e94560", borderColor:"#e94560" }}
+                  title="Remove this page"
+                  onClick={() => update(pages.filter((_,j) => j !== i))}>✕</button>
+              )}
+            </div>
+          </div>
+          <textarea value={page}
+            onChange={e => { const p=[...pages]; p[i]=e.target.value; update(p); }}
+            placeholder={`Page ${i+1} text…`}
+            style={{ ...S.input, height:56, resize:"vertical", fontFamily:"inherit" }} />
+        </div>
+      ))}
+      <button style={{ ...S.btn(false), width:"100%", fontSize:11, marginTop:2 }}
+        onClick={() => update([...pages, ""])}>+ Add Page</button>
+    </div>
+  );
+}
+
+// ─── Cloud Saves Modal ────────────────────────────────────────────────────────
+function CloudSavesModal({ user, saves, onSave, onLoad, onDelete, onClose, loading }) {
+  const [saveTitle, setSaveTitle] = useState("");
+  return (
+    <div style={S.modal} onClick={onClose}>
+      <div style={{ ...S.modalContent, maxWidth:480 }} onClick={e=>e.stopPropagation()}>
+        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+          <h3 style={{ margin:0, color:"#e94560" }}>☁️ Cloud Saves</h3>
+          <button style={S.btn(false)} onClick={onClose}>✕</button>
+        </div>
+        <div style={{ fontSize:12, color:"#aaa", marginBottom:12 }}>
+          Signed in as <b style={{ color:"#e0e0e0" }}>{user?.email}</b>
+        </div>
+        <div style={{ display:"flex", gap:8, marginBottom:16 }}>
+          <input value={saveTitle} onChange={e=>setSaveTitle(e.target.value)}
+            placeholder="Save name…" style={{ ...S.input, flex:1 }}
+            onKeyDown={e=>{ if(e.key==="Enter"&&saveTitle.trim()){ onSave(saveTitle.trim()); setSaveTitle(""); } }} />
+          <button style={{ ...S.btn(true) }} onClick={()=>{ onSave(saveTitle.trim()||"Untitled"); setSaveTitle(""); }} disabled={loading}>
+            {loading?"Saving…":"💾 Save"}
+          </button>
+        </div>
+        {saves.length === 0 ? (
+          <div style={{ fontSize:12, color:"#555", textAlign:"center", padding:16 }}>No saves yet.</div>
+        ) : (
+          <div>
+            {saves.map(save => (
+              <div key={save.id} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6, background:"#0d1b3e", borderRadius:4, padding:"8px 10px" }}>
+                <div style={{ flex:1, minWidth:0 }}>
+                  <div style={{ fontSize:13, color:"#e0e0e0", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{save.title}</div>
+                  <div style={{ fontSize:10, color:"#555" }}>{save.updatedAt ? new Date(save.updatedAt).toLocaleString() : ""}</div>
+                </div>
+                <button style={{ ...S.btn(false), fontSize:11 }} onClick={()=>onLoad(save)} disabled={loading}>Load</button>
+                <button style={{ ...S.btn(false), fontSize:11, color:"#e94560", borderColor:"#e94560" }} onClick={()=>onDelete(save.id)} disabled={loading}>✕</button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ─── ID gen ───────────────────────────────────────────────────────────────────
 let nextId=1;
 function uid(){ return `id_${nextId++}`; }
@@ -1682,17 +1478,8 @@ export default function App() {
   const [gameTitle,setGameTitle]=useState("My Multicolor Bitsy Game");
   const [activePack,setActivePack]=useState(null);
   const [exitModal,setExitModal]=useState(null); // {x,y} being configured
-  const npcDragModeRef=useRef("place"); // "place"|"remove" — set on mousedown, held for drag
   const [findQuery,setFindQuery]=useState("");
-  const [zoom,setZoom]=useState(1);
-  const [showHelp,setShowHelp]=useState(false);
-  const [showWizard,setShowWizard]=useState(true);
-  const [showPrePlay,setShowPrePlay]=useState(false);
-  const [showBitsyImport,setShowBitsyImport]=useState(false);
-  const [winConditions,setWinConditions]=useState({}); // {spriteId: targetCount}
   const [tune,setTune]=useState(Array.from({length:TUNE_STEPS},()=>({semi:12,active:false})));
-  const [tuneVolume,setTuneVolume]=useState(0.15);
-  const [savedTunes,setSavedTunes]=useState([]);
 
   // Grid config
   const [spriteW,setSpriteW]=useState(8); const [spriteH,setSpriteH]=useState(8);
@@ -1705,30 +1492,73 @@ export default function App() {
   const [selectedTile,setSelectedTile]=useState(0);
   const [selectedFrame,setSelectedFrame]=useState(0);
 
-  const [rooms,setRooms]=useState([{id:uid(),name:"room 0",tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[],avatarStart:null,tuneId:null,rules:[]}]);
+  const [rooms,setRooms]=useState([{id:uid(),name:"room 0",tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[]}]);
   const [selectedRoom,setSelectedRoom]=useState(0);
-  const [roomTool,setRoomTool]=useState("place"); // place | erase | fill | npc | avatarStart
+  const [roomTool,setRoomTool]=useState("place"); // place | erase | fill | npc
+  const [roomZoom,setRoomZoom]=useState(1);
 
   const [animFrame,setAnimFrame]=useState(0);
   const [playing,setPlaying]=useState(false);
 
+  // Firebase auth state: undefined=loading, null=not signed in, User=signed in
+  const [user,setUser]=useState(undefined);
+  const [cloudModal,setCloudModal]=useState(false);
+  const [cloudSaves,setCloudSaves]=useState([]);
+  const [cloudLoading,setCloudLoading]=useState(false);
+
+  // Modal state for new features
+  const [showBitsyImport,setShowBitsyImport]=useState(false);
+  const [showTextImport,setShowTextImport]=useState(false);
+
+  // Undo/redo history
+  const historyRef=useRef([]);
+  const historyIdxRef=useRef(-1);
+  const pushHistory=useCallback(()=>{
+    const snap={tiles:JSON.parse(JSON.stringify(tiles)),sprites:JSON.parse(JSON.stringify(sprites)),rooms:JSON.parse(JSON.stringify(rooms)),palette:[...palette]};
+    const hist=historyRef.current.slice(0,historyIdxRef.current+1);
+    hist.push(snap);
+    if(hist.length>40)hist.shift();
+    historyRef.current=hist;
+    historyIdxRef.current=hist.length-1;
+  },[tiles,sprites,rooms,palette]);
+  const undo=useCallback(()=>{
+    const idx=historyIdxRef.current;if(idx<=0)return;
+    historyIdxRef.current=idx-1;
+    const snap=historyRef.current[idx-1];
+    setTiles(snap.tiles);setSprites(snap.sprites);setRooms(snap.rooms);setPalette(snap.palette);
+  },[]);
+  const redo=useCallback(()=>{
+    const idx=historyIdxRef.current,hist=historyRef.current;if(idx>=hist.length-1)return;
+    historyIdxRef.current=idx+1;
+    const snap=hist[idx+1];
+    setTiles(snap.tiles);setSprites(snap.sprites);setRooms(snap.rooms);setPalette(snap.palette);
+  },[]);
+
   useEffect(()=>{ if(!playing)return; const t=setInterval(()=>setAnimFrame(f=>f+1),200); return()=>clearInterval(t); },[playing]);
+
+  // Firebase auth observer
+  useEffect(()=>{
+    const unsub = watchAuthState(u=>setUser(u));
+    return unsub;
+  },[]);
 
   // Keyboard shortcuts
   useEffect(()=>{
     const h=(e)=>{
+      const mod=e.ctrlKey||e.metaKey;
+      // Undo: Ctrl/Cmd+Z
+      if(mod&&e.key.toLowerCase()==='z'&&!e.shiftKey){e.preventDefault();undo();return;}
+      // Redo: Ctrl/Cmd+Shift+Z or Ctrl/Cmd+Y
+      if(mod&&(e.shiftKey&&e.key.toLowerCase()==='z'||e.key.toLowerCase()==='y')){e.preventDefault();redo();return;}
       if(e.target.tagName==="INPUT"||e.target.tagName==="SELECT"||e.target.tagName==="TEXTAREA")return;
       switch(e.key.toLowerCase()){
-        case"b":setTool("draw");break; case"d":setTool("draw");break;
-        case"e":setTool("erase");break; case"f":setTool("fill");break;
-        case"i":setTool("pick");break; case"g":setShowGrid(v=>!v);break;
-        case"?":setShowHelp(v=>!v);break;
-        case" ":e.preventDefault();setShowPrePlay(true);break;
+        case"d":setTool("draw");break; case"e":setTool("erase");break;
+        case"f":setTool("fill");break; case"g":setShowGrid(v=>!v);break;
         default: if(e.key>="1"&&e.key<="9"){const i=parseInt(e.key)-1;if(i<palette.length)setSelectedColor(i);}
       }
     };
     window.addEventListener("keydown",h); return()=>window.removeEventListener("keydown",h);
-  },[palette.length]);
+  },[palette.length,undo,redo]);
 
   const currentItems=tab==="sprite"?sprites:tiles;
   const selectedIdx=tab==="sprite"?selectedSprite:selectedTile;
@@ -1753,12 +1583,6 @@ export default function App() {
   },[]);
 
   const handleDraw=useCallback((x,y)=>{
-    if(tool==="pick"){
-      const colorIdx=currentFrameRef.current[y]?.[x];
-      if(colorIdx!==undefined)setSelectedColor(colorIdx);
-      setTool("draw");
-      return;
-    }
     const setItems=tab==="sprite"?setSprites:setTiles;
     const idx=tab==="sprite"?selectedSprite:selectedTile;
     setItems(prev=>{
@@ -1835,8 +1659,8 @@ export default function App() {
   const handleImport=({grid,palette:newPalette,mode})=>{
     if(newPalette)setPalette(newPalette.slice(0,MAX_COLORS));
     if(mode==="sprite"){
-      const n={id:uid(),name:"imported",frames:[grid],tileType:"walkable",dialog:"",blip:{wave:"square",freq:440}};
-      setSprites(p=>{const next=[...p,n];setSelectedSprite(next.length-1);return next;});
+      const n={id:uid(),name:"imported",frames:[grid],tileType:"walkable",dialog:""};
+      setSprites(p=>{setSelectedSprite(p.length);return[...p,n];});
       setSpriteW(grid[0].length);setSpriteH(grid.length);setTab("sprite");
     } else {
       const n={id:uid(),name:"imported_tile",frames:[grid],tileType:"walkable"};
@@ -1878,7 +1702,7 @@ export default function App() {
         setSpriteW(grid[0].length);setSpriteH(grid.length);
         setSelectedFrame(0);
       } else {
-        const n={id:uid(),name:asset.name,frames:[grid],tileType:asset.tileType||"walkable",dialog:asset.dialog||"",blip:asset.blip||{wave:"square",freq:440}};
+        const n={id:uid(),name:asset.name,frames:[grid],tileType:asset.tileType||"walkable",dialog:asset.dialog||""};
         setSprites(p=>{setSelectedSprite(p.length);return[...p,n];});
         setSpriteW(grid[0].length);setSpriteH(grid.length);setTab("sprite");
         setSelectedFrame(0);
@@ -1919,11 +1743,49 @@ export default function App() {
       setExportModal({type:"image",title:`${currentItem.name||"sprite"} spritesheet`,content:c.toDataURL("image/png")});
     }catch(err){alert("Export failed: "+err.message);}
   };
-  const exportGameData=()=>{
+  const exportGameData=(colorMode=false)=>{
     try{
-      const data=exportBitsyData(gameTitle,palette,sprites,tiles,rooms,tune);
-      setExportModal({type:"text",title:"Game Data (.bitsy)",content:data});
+      const data=exportBitsyData(gameTitle,palette,sprites,tiles,rooms,tune,colorMode);
+      const title=colorMode?"Game Data (.bitsy — Multicolor)":"Game Data (.bitsy — Standard)";
+      setExportModal({type:"text",title,content:data});
     }catch(err){alert("Export failed: "+err.message);}
+  };
+  const exportHtml=()=>{
+    try{
+      const html=buildHtmlExport(gameTitle,palette,sprites,tiles,rooms,tune,tileW,tileH,roomW,roomH);
+      setExportModal({type:"text",title:"Export HTML Game",content:html,filename:`${(gameTitle||'game').replace(/[^a-z0-9]/gi,'_').toLowerCase()}.html`});
+    }catch(err){alert("Export failed: "+err.message);}
+  };
+  // .bitsy file import
+  const handleBitsyImport=(data)=>{
+    pushHistory();
+    if(data.gameTitle)setGameTitle(data.gameTitle);
+    if(data.palette)setPalette(data.palette);
+    if(data.sprites)setSprites(data.sprites);
+    if(data.tiles)setTiles(data.tiles);
+    if(data.rooms)setRooms(data.rooms);
+    if(data.roomW)setRoomW(data.roomW);
+    if(data.roomH)setRoomH(data.roomH);
+    if(data.tileW){setTileW(data.tileW);setSpriteW(data.tileW);}
+    if(data.tileH){setTileH(data.tileH);setSpriteH(data.tileH);}
+    setSelectedSprite(0);setSelectedTile(0);setSelectedRoom(0);setSelectedFrame(0);
+    setShowBitsyImport(false);
+  };
+  // Text/emoji import
+  const handleTextImport=({grid,mode})=>{
+    pushHistory();
+    const w=grid[0].length, h=grid.length;
+    if(mode==='sprite'){
+      const n={id:uid(),name:'imported_sprite',frames:[grid],tileType:'walkable',dialog:'',blip:{wave:'square',freq:440}};
+      setSprites(p=>{setSelectedSprite(p.length);return[...p,n];});
+      setSpriteW(w);setSpriteH(h);setTab('sprite');
+    } else {
+      const type=mode==='item'?'item':mode==='tile'?'walkable':'walkable';
+      const n={id:uid(),name:'imported_tile',frames:[grid],tileType:type};
+      setTiles(p=>{setSelectedTile(p.length);return[...p,n];});
+      setTileW(w);setTileH(h);setTab('tile');
+    }
+    setSelectedFrame(0);setShowTextImport(false);
   };
   const exportRoomPng=(room)=>{
     try{
@@ -1939,8 +1801,8 @@ export default function App() {
     }catch(err){alert("Export failed: "+err.message);}
   };
 
-  // Room handling — isFirst=true on mousedown, false on drag
-  const handleRoomPlace=(rx,ry,isFirst=false)=>{
+  // Room handling
+  const handleRoomPlace=(rx,ry)=>{
     setRooms(prev=>{
       const rs=[...prev];
       const room={...rs[selectedRoom],tiles:rs[selectedRoom].tiles.map(r=>[...r]),npcs:[...(rs[selectedRoom].npcs||[])]};
@@ -1949,13 +1811,14 @@ export default function App() {
         room.npcs=room.npcs.filter(n=>!(n.x===rx&&n.y===ry));
         room.exits=(room.exits||[]).filter(e=>!(e.x===rx&&e.y===ry));
       } else if(roomTool==="exit"){
-        if(!isFirst)return prev; // only act on initial click, not drag
+        // Toggle: clicking existing exit removes it; clicking empty opens config modal
         const existing=(room.exits||[]).find(e=>e.x===rx&&e.y===ry);
         if(existing){ room.exits=(room.exits||[]).filter(e=>!(e.x===rx&&e.y===ry)); rs[selectedRoom]=room; return rs; }
+        // Open config modal — we can't do async from here, so set exitModal and bail
         setExitModal({x:rx,y:ry});
-        return prev;
+        return prev; // don't mutate yet; confirmed in ExitConfigModal callback
       } else if(roomTool==="fill"){
-        if(!isFirst)return prev; // fill only on click, not drag
+        // Flood fill tiles
         const old=room.tiles[ry][rx];
         const newId=tiles[selectedTile]?.id||null;
         if(old===newId)return prev;
@@ -1967,100 +1830,75 @@ export default function App() {
           stack.push([cx-1,cy],[cx+1,cy],[cx,cy-1],[cx,cy+1]);
         }
       } else if(roomTool==="npc"){
-        if(isFirst){
-          // On first click: decide whether this drag places or removes
-          const alreadyHere=room.npcs.find(n=>n.x===rx&&n.y===ry&&n.spriteId===sprites[selectedSprite]?.id);
-          npcDragModeRef.current=alreadyHere?"remove":"place";
-        }
+        // Toggle: clicking an NPC's cell removes it; clicking empty places it
+        const alreadyHere=room.npcs.find(n=>n.x===rx&&n.y===ry&&n.spriteId===sprites[selectedSprite]?.id);
         room.npcs=room.npcs.filter(n=>!(n.x===rx&&n.y===ry));
-        if(npcDragModeRef.current==="place"&&sprites[selectedSprite]&&selectedSprite>0){
+        if(!alreadyHere&&sprites[selectedSprite]&&selectedSprite>0){
           room.npcs.push({spriteId:sprites[selectedSprite].id,x:rx,y:ry});
         }
-      } else if(roomTool==="avatarStart"){
-        if(!isFirst)return prev; // avatar start only on initial click
-        const same=room.avatarStart&&room.avatarStart.x===rx&&room.avatarStart.y===ry;
-        room.avatarStart=same?null:{x:rx,y:ry};
       } else {
-        // Place tile — always place (no toggle during drag); erase tool handles removal
+        // Toggle: clicking a cell that already has the selected tile clears it
         const selectedId=tiles[selectedTile]?.id||null;
-        room.tiles[ry][rx]=selectedId;
+        room.tiles[ry][rx]=room.tiles[ry][rx]===selectedId ? null : selectedId;
       }
       rs[selectedRoom]=room;
       return rs;
     });
   };
   const addRoom=()=>{
-    const n={id:uid(),name:`room ${rooms.length}`,tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[],avatarStart:null,tuneId:null,rules:[]};
+    const n={id:uid(),name:`room ${rooms.length}`,tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[]};
     setRooms(p=>[...p,n]);setSelectedRoom(rooms.length);
   };
-  const moveRoom=(i,delta)=>{
-    const ni=i+delta;
-    if(ni<0||ni>=rooms.length)return;
-    setRooms(prev=>{const rs=[...prev];[rs[i],rs[ni]]=[rs[ni],rs[i]];return rs;});
-    setSelectedRoom(ni);
-  };
 
-  const handleWizardComplete=(charIdx,worldIdx)=>{
-    const ch=WIZARD_CHARS[charIdx];
-    const wo=WIZARD_WORLDS[worldIdx];
-    // Set avatar pixels
-    setSprites(prev=>{
-      const s=[...prev];
-      s[0]={...s[0],frames:[ch.grid.map(r=>[...r])]};
-      return s;
-    });
-    // Create floor + wall tiles
-    const floorId=uid(), wallId=uid();
-    const floorTile={id:floorId,name:wo.floorName,frames:[wo.floor.map(r=>[...r])],tileType:"walkable"};
-    const wallTile={id:wallId,name:wo.wallName,frames:[wo.wall.map(r=>[...r])],tileType:"wall"};
-    setTiles([floorTile,wallTile]);
-    // Generate starter room: border=wall, interior=floor, exit at bottom-right
-    const W=roomW, H=roomH;
-    const grid=Array.from({length:H},(_,ry)=>Array.from({length:W},(_,rx)=>{
-      if(rx===0||ry===0||rx===W-1||ry===H-1) return wallId;
-      return floorId;
-    }));
-    const exitX=W-2, exitY=H-2;
-    setRooms(prev=>{
-      const rs=[...prev];
-      rs[0]={...rs[0],tiles:grid,avatarStart:{x:1,y:1},exits:[{x:exitX,y:exitY,destRoom:0}]};
-      return rs;
-    });
-    setSelectedRoom(0);
-    setTab("room");
-    setShowWizard(false);
+  // Cloud save / load
+  const openCloudModal=async()=>{
+    if(!user)return;
+    setCloudLoading(true);
+    try{ const saves=await loadAllGames(user.uid); setCloudSaves(saves); }catch(e){}
+    setCloudLoading(false);
+    setCloudModal(true);
   };
-
-  const handleBitsyImport=({gameTitle:gt,palette:pal,sprites:sprs,tiles:tils,rooms:rms})=>{
-    setGameTitle(gt);
-    setPalette(pal.slice(0,MAX_COLORS));
-    setSprites(sprs.length?sprs:[{id:uid(),name:"avatar",frames:[emptyGrid(8,8)],dialog:"",tileType:"walkable",blip:{wave:"square",freq:440}}]);
-    setTiles(tils.length?tils:[{id:uid(),name:"wall",frames:[emptyGrid(8,8)],tileType:"wall"}]);
-    setRooms(rms.length?rms:[{id:uid(),name:"room 0",tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[],avatarStart:null,tuneId:null,rules:[]}]);
-    setSelectedRoom(0); setSelectedSprite(0); setSelectedTile(0); setSelectedFrame(0);
-    setTab("sprite");
-    setShowBitsyImport(false);
-    setShowWizard(false);
+  const handleCloudSave=async(title)=>{
+    if(!user)return;
+    setCloudLoading(true);
+    try{
+      const state={gameTitle,palette,sprites,tiles,rooms,tune};
+      await saveGame(user.uid,uid(),title,state);
+      const saves=await loadAllGames(user.uid); setCloudSaves(saves);
+    }catch(e){ alert("Save failed: "+e.message); }
+    setCloudLoading(false);
   };
-
-  // Tune save/load
-  const saveTune=(st)=>setSavedTunes(p=>[...p.filter(t=>t.name!==st.name),st]);
-  const loadTune=(i)=>{const st=savedTunes[i];if(st)setTune([...st.steps]);};
+  const handleCloudLoad=async(save)=>{
+    try{
+      const state=JSON.parse(save.data);
+      if(state.gameTitle) setGameTitle(state.gameTitle);
+      if(state.palette) setPalette(state.palette);
+      if(state.sprites){ setSprites(state.sprites); setSelectedSprite(0); }
+      if(state.tiles){ setTiles(state.tiles); setSelectedTile(0); }
+      if(state.rooms){ setRooms(state.rooms); setSelectedRoom(0); }
+      if(state.tune) setTune(state.tune);
+      // Advance ID counter past any loaded IDs to avoid collisions
+      const allIds=[...(state.sprites||[]),...(state.tiles||[]),...(state.rooms||[])].map(x=>x.id||"");
+      const maxN=allIds.reduce((m,id)=>{ const n=parseInt(id.replace("id_","")); return isNaN(n)?m:Math.max(m,n); },0);
+      if(maxN>=nextId) nextId=maxN+1;
+      setCloudModal(false);
+    }catch(e){ alert("Load failed: "+e.message); }
+  };
+  const handleCloudDelete=async(gameId)=>{
+    if(!user)return;
+    setCloudLoading(true);
+    try{
+      await deleteGame(user.uid,gameId);
+      const saves=await loadAllGames(user.uid); setCloudSaves(saves);
+    }catch(e){ alert("Delete failed: "+e.message); }
+    setCloudLoading(false);
+  };
 
   const confirmExit=(exitData)=>{
     setRooms(prev=>{
       const rs=[...prev];
-      // Add forward exit to current room
       const room={...rs[selectedRoom],exits:[...(rs[selectedRoom].exits||[]).filter(e=>!(e.x===exitData.x&&e.y===exitData.y)),exitData]};
-      rs[selectedRoom]=room;
-      // If two-way and not an ending, add reverse exit in destination room pointing back here
-      if(exitData.twoWay&&!exitData.isEnding&&exitData.destRoom!=null){
-        const destRoomObj=rs[exitData.destRoom];
-        // Reverse: placed at arrival pos in dest room, returns player to the source tile in this room
-        const reverseExit={x:exitData.arrX??1,y:exitData.arrY??1,destRoom:selectedRoom,arrX:exitData.x,arrY:exitData.y,twoWay:true};
-        rs[exitData.destRoom]={...destRoomObj,exits:[...(destRoomObj.exits||[]).filter(e=>!(e.x===reverseExit.x&&e.y===reverseExit.y)),reverseExit]};
-      }
-      return rs;
+      rs[selectedRoom]=room; return rs;
     });
     setExitModal(null);
   };
@@ -2075,38 +1913,53 @@ export default function App() {
     setTiles(p=>p.map(t=>({...t,frames:t.frames.map(f=>{const g=emptyGrid(nw,nh);for(let y=0;y<Math.min(f.length,nh);y++)for(let x=0;x<Math.min(f[0].length,nw);x++)g[y][x]=f[y][x];return g;})})));
   };
 
-  const basePixelSize=Math.max(4,Math.floor(340/Math.max(itemW,itemH)));
-  const pixelSize=Math.max(1,Math.round(basePixelSize*zoom));
-  const currentFrameRef=useRef(currentFrame);
-  useEffect(()=>{currentFrameRef.current=currentFrame;},[currentFrame]);
+  const pixelSize=Math.max(8,Math.floor(380/Math.max(itemW,itemH)));
   const previewFrame=currentItem?currentItem.frames[animFrame%currentItem.frames.length]:emptyGrid(8,8);
   const currentTileType=currentItem?.tileType||"walkable";
 
   return (
     <div style={S.app}>
-      {/* ── Header ─────────────────────────────────────────────────────────── */}
+      {/* Header */}
       <div style={S.header}>
         <span style={S.title}>🎮 Multicolor Bitsy</span>
-        <div style={{width:1,height:20,background:"rgba(255,255,255,0.08)",flexShrink:0}} />
         <input value={gameTitle} onChange={e=>setGameTitle(e.target.value)}
-          style={{...S.input,width:180,fontSize:12,flex:"0 0 auto"}} placeholder="Game title…" />
-        <div style={{flex:1}} />
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <button style={S.btnPrimary} onClick={()=>setShowPrePlay(true)}>▶ Play</button>
-          <button style={S.btn(false)} onClick={()=>setShowImport(true)}>⬆ PNG</button>
-          <button style={S.btn(false)} onClick={()=>setShowBitsyImport(true)}>📂 .bitsy</button>
+          style={{...S.input,width:200,fontSize:13}} placeholder="Game title..." />
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+          {FIREBASE_READY&&(
+            user===undefined ? null :
+            user===null ? (
+              <button style={{...S.btn(false),background:"#0d2040",borderColor:"#29adff",color:"#29adff"}}
+                onClick={()=>signInWithGoogle().catch(()=>{})}>🔑 Sign In</button>
+            ) : (
+              <>
+                <button style={{...S.btn(false),background:"#082040",borderColor:"#29adff",color:"#29adff",fontSize:11}}
+                  onClick={openCloudModal}>☁️ Cloud Saves</button>
+                <span style={{fontSize:10,color:"#555",maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
+                  title={user.email}>{user.displayName||user.email}</span>
+                <button style={{...S.btn(false),fontSize:10,color:"#666"}}
+                  onClick={()=>signOutUser()}>Sign Out</button>
+              </>
+            )
+          )}
+          <button style={{...S.btn(false),fontSize:11,padding:"4px 8px"}} title="Undo (Ctrl+Z)" onClick={undo}>↩ Undo</button>
+          <button style={{...S.btn(false),fontSize:11,padding:"4px 8px"}} title="Redo (Ctrl+Shift+Z)" onClick={redo}>↪ Redo</button>
+          <button style={{...S.btn(false),borderColor:"#00e436",color:"#00e436"}} onClick={()=>setShowBitsyImport(true)}>📂 Import .bitsy</button>
+          <button style={S.btnGreen} onClick={()=>setShowImport(true)}>Import Image</button>
+          <button style={{...S.btnGreen,borderColor:"#29adff",color:"#29adff",background:"transparent"}} onClick={()=>setShowTextImport(true)}>⬛ Text Art</button>
+          <button style={S.btn(false)} onClick={()=>setShowPlaytest(true)}>▶ Test Game</button>
           <button style={S.btn(false)} onClick={exportPng}>PNG</button>
           {currentItem?.frames.length>1&&<button style={S.btn(false)} onClick={exportSpritesheet}>Sheet</button>}
-          <button style={{...S.btn(false),color:"#fb923c",borderColor:"rgba(251,146,60,0.3)"}} onClick={exportGameData}>Export .bitsy</button>
-          <button style={{...S.btn(false),fontWeight:700,fontSize:13,padding:"4px 9px"}} onClick={()=>setShowHelp(true)} title="Keyboard shortcuts">?</button>
+          <button style={S.btn(false)} onClick={()=>exportGameData(false)}>Export .bitsy</button>
+          <button style={{...S.btn(false),borderColor:"#29adff",color:"#29adff"}} onClick={()=>exportGameData(true)}>Export Color .bitsy</button>
+          <button style={{...S.btn(false),borderColor:"#ffec27",color:"#ffec27"}} onClick={exportHtml}>🌐 Export HTML</button>
         </div>
       </div>
 
-      {/* ── Mode Bar ───────────────────────────────────────────────────────── */}
-      <div style={S.modeBar}>
-        {[["sprite","🎨","Sprites"],["tile","🧱","Tiles"],["room","🗺","Rooms"],["tune","🎵","Audio"]].map(([t,emoji,label])=>(
-          <button key={t} style={S.modeBtn(tab===t)} onClick={()=>{setTab(t);setSelectedFrame(0);}}>
-            {emoji} {label}
+      {/* Tabs */}
+      <div style={{background:"#16213e",padding:"0 20px",display:"flex"}}>
+        {["sprite","tile","room","tune"].map(t=>(
+          <button key={t} style={S.tab(tab===t)} onClick={()=>{setTab(t);setSelectedFrame(0);}}>
+            {t==="sprite"?"🧑 Sprites":t==="tile"?"🟦 Tiles":t==="room"?"🗺 Rooms":"🎵 Tune"}
           </button>
         ))}
       </div>
@@ -2114,8 +1967,6 @@ export default function App() {
       <div style={S.main}>
         {/* Left Sidebar */}
         <div style={S.sidebar}>
-          {/* Progress Checklist */}
-          <ProgressChecklist sprites={sprites} tiles={tiles} rooms={rooms} />
           {/* Palette */}
           <div style={S.section}>
             <div style={S.sectionTitle}>Palette</div>
@@ -2130,21 +1981,17 @@ export default function App() {
             </div>
           </div>
 
-          {/* Tool Palette */}
-          {tab!=="room"&&tab!=="tune"&&(
+          {/* Tools */}
+          {tab!=="room"&&(
             <div style={S.section}>
               <div style={S.sectionTitle}>Tools</div>
-              {[["draw","✏️","Pencil","B"],["erase","🧹","Eraser","E"],["fill","🪣","Fill","F"],["pick","💧","Pick Color","I"]].map(([t,emoji,label,key])=>(
-                <button key={t} style={S.toolBtn(tool===t)} onClick={()=>setTool(t)}>
-                  <span style={{fontSize:15}}>{emoji}</span>
-                  <span style={{flex:1}}>{label}</span>
-                  <kbd style={{fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>{key}</kbd>
-                </button>
-              ))}
-              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:11,cursor:"pointer",color:"#94a3b8",padding:"4px 10px",marginTop:2}}>
-                <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} />
-                <span>Show grid</span>
-                <kbd style={{marginLeft:"auto",fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>G</kbd>
+              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                {[["draw","✏️"],["erase","🧹"],["fill","🪣"]].map(([t,emoji])=>(
+                  <button key={t} style={S.btn(tool===t)} onClick={()=>setTool(t)}>{emoji} {t}</button>
+                ))}
+              </div>
+              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:11,marginTop:6,cursor:"pointer"}}>
+                <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} /> Show grid
               </label>
             </div>
           )}
@@ -2170,35 +2017,25 @@ export default function App() {
           {/* Room tools */}
           {tab==="room"&&(
             <div style={S.section}>
-              <div style={S.sectionTitle}>Tools</div>
-              <div style={{fontSize:10,color:"#475569",marginBottom:4,textTransform:"uppercase",letterSpacing:"0.05em"}}>Tile</div>
-              {[["place","🟦","Paint","T"],["erase","🧹","Erase","E"],["fill","🪣","Fill","F"]].map(([t,emoji,label,key])=>(
-                <button key={t} style={S.toolBtn(roomTool===t)} onClick={()=>setRoomTool(t)}>
-                  <span style={{fontSize:14}}>{emoji}</span>
-                  <span style={{flex:1}}>{label}</span>
-                  <kbd style={{fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>{key}</kbd>
-                </button>
-              ))}
-              <div style={{fontSize:10,color:"#475569",marginBottom:4,marginTop:8,textTransform:"uppercase",letterSpacing:"0.05em"}}>Objects</div>
-              {[["npc","👥","NPC","N"],["exit","🚪","Exit","X"],["avatarStart","🧍","Start","S"]].map(([t,emoji,label,key])=>(
-                <button key={t} style={S.toolBtn(roomTool===t)} onClick={()=>setRoomTool(t)}>
-                  <span style={{fontSize:14}}>{emoji}</span>
-                  <span style={{flex:1}}>{label}</span>
-                  <kbd style={{fontSize:9,background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.1)",borderRadius:3,padding:"1px 5px",color:"#475569",fontFamily:"monospace"}}>{key}</kbd>
-                </button>
-              ))}
-              <div style={{marginTop:8,padding:"6px 8px",background:"rgba(0,0,0,0.25)",borderRadius:5,fontSize:11,minHeight:28,color:"#64748b",lineHeight:1.4,border:"1px solid rgba(255,255,255,0.04)"}}>
-                {roomTool==="place"&&<><span style={{color:"#38bdf8"}}>●</span> {`Painting: ${tiles[selectedTile]?.name||"none"}`}</>}
-                {roomTool==="erase"&&<><span style={{color:"#f87171"}}>●</span> {" Erasing tiles, NPCs & exits"}</>}
-                {roomTool==="fill"&&<><span style={{color:"#38bdf8"}}>●</span> {` Flood-fill: ${tiles[selectedTile]?.name||"none"}`}</>}
-                {roomTool==="npc"&&<><span style={{color:"#fbbf24"}}>●</span> {` Placing: ${sprites[selectedSprite]?.name||"none"}`}</>}
-                {roomTool==="exit"&&<><span style={{color:"#a78bfa"}}>●</span> {" Click cell to place exit"}</>}
-                {roomTool==="avatarStart"&&<><span style={{color:"#4ade80"}}>●</span> {" Click cell for avatar start"}</>}
+              <div style={S.sectionTitle}>Room Tools</div>
+              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                {[["place","🟦 Place"],["erase","🧹 Erase"],["fill","🪣 Fill"],["npc","🧑 NPC"],["exit","🚪 Exit"]].map(([t,label])=>(
+                  <button key={t} style={S.btn(roomTool===t)} onClick={()=>setRoomTool(t)}>{label}</button>
+                ))}
               </div>
-              <div style={{marginTop:8,display:"flex",gap:4,alignItems:"center"}}>
-                <span style={{fontSize:11,color:"#64748b"}}>Room size:</span>
+              {roomTool==="npc"&&<div style={{fontSize:11,color:"#888",marginTop:6}}>Select a sprite below (not avatar) and click room to place</div>}
+              {roomTool==="exit"&&<div style={{fontSize:11,color:"#ff44ee",marginTop:6}}>Click a cell to place an exit portal (pink ▶). Click again to remove.</div>}
+              <div style={{marginTop:8,display:"flex",gap:4,alignItems:"center",flexWrap:"wrap"}}>
+                <span style={{fontSize:11,color:"#aaa"}}>Zoom:</span>
+                {[0.5,0.75,1,1.5,2].map(z=>(
+                  <button key={z} style={{...S.btn(roomZoom===z),fontSize:10,padding:"3px 7px"}}
+                    onClick={()=>setRoomZoom(z)}>{z===1?"1×":`${z}×`}</button>
+                ))}
+              </div>
+              <div style={{marginTop:6,display:"flex",gap:4,alignItems:"center"}}>
+                <span style={{fontSize:11,color:"#aaa"}}>Room:</span>
                 <select style={S.select} value={roomW} onChange={e=>setRoomW(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
-                <span style={{color:"#475569"}}>×</span>
+                <span style={{color:"#888"}}>×</span>
                 <select style={S.select} value={roomH} onChange={e=>setRoomH(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
               </div>
             </div>
@@ -2218,12 +2055,8 @@ export default function App() {
               <>
                 {rooms.map((room,i)=>(
                   <div key={room.id} onClick={()=>setSelectedRoom(i)}
-                    style={{padding:"3px 5px",background:i===selectedRoom?"#0f3460":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid #e94560":"1px solid transparent",display:"flex",alignItems:"center",gap:4}}>
-                    <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{room.name}</span>
-                    <div style={{display:"flex",flexDirection:"column",gap:1,flexShrink:0}} onClick={e=>e.stopPropagation()}>
-                      <button style={{background:"none",border:"none",color:i>0?"#8b949e":"#333",cursor:i>0?"pointer":"default",fontSize:9,padding:"0 2px",lineHeight:1}} onClick={()=>moveRoom(i,-1)} disabled={i===0} title="Move up">▲</button>
-                      <button style={{background:"none",border:"none",color:i<rooms.length-1?"#8b949e":"#333",cursor:i<rooms.length-1?"pointer":"default",fontSize:9,padding:"0 2px",lineHeight:1}} onClick={()=>moveRoom(i,1)} disabled={i===rooms.length-1} title="Move down">▼</button>
-                    </div>
+                    style={{padding:"5px 8px",background:i===selectedRoom?"#0f3460":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid #e94560":"1px solid transparent"}}>
+                    {room.name}
                   </div>
                 ))}
                 <button style={{...S.btn(false),marginTop:4,width:"100%",fontSize:11}} onClick={addRoom}>+ Add Room</button>
@@ -2249,51 +2082,8 @@ export default function App() {
             )}
           </div>
 
-          {/* Tile + Sprite selectors for room mode */}
-          {tab==="room"&&(
-            <>
-              <div style={S.section}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
-                  <div style={S.sectionTitle}>Tiles</div>
-                  <span style={{fontSize:10,color:["place","erase","fill"].includes(roomTool)?"#e94560":"#444",fontWeight:600}}>
-                    {["place","erase","fill"].includes(roomTool)?"▶ active":"click to select"}
-                  </span>
-                </div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
-                  {tiles.map((tile,i)=>(
-                    <div key={tile.id} onClick={()=>{setSelectedTile(i);setRoomTool("place");}}
-                      style={{border:i===selectedTile&&["place","fill"].includes(roomTool)?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative"}}
-                      title={tile.name+(tile.tileType&&tile.tileType!=="walkable"?" ("+tile.tileType+")":"")}>
-                      <MiniCanvas grid={tile.frames[0]} palette={palette} size={28} />
-                      {tile.tileType&&tile.tileType!=="walkable"&&<div style={{position:"absolute",bottom:0,right:0,fontSize:7,background:TILE_TYPE_COLORS[tile.tileType],color:"#000",padding:"0 2px",fontWeight:700,borderRadius:"2px 0 0 0"}}>{tile.tileType[0]}</div>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-              <div style={S.section}>
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:4}}>
-                  <div style={S.sectionTitle}>NPCs</div>
-                  <span style={{fontSize:10,color:["npc","avatarStart"].includes(roomTool)?"#e94560":"#444",fontWeight:600}}>
-                    {["npc","avatarStart"].includes(roomTool)?"▶ active":"click to select"}
-                  </span>
-                </div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
-                  {sprites.map((spr,i)=>(
-                    <div key={spr.id}
-                      onClick={()=>{setSelectedSprite(i);setRoomTool(i===0?"avatarStart":"npc");}}
-                      style={{border:(i===selectedSprite&&["npc","avatarStart"].includes(roomTool))?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative"}}
-                      title={i===0?"Avatar — click room to set start position":spr.name+" (NPC)"}>
-                      <MiniCanvas grid={spr.frames[0]} palette={palette} size={28} />
-                      {i===0&&<div style={{position:"absolute",bottom:0,right:0,fontSize:7,background:"#00ff78",color:"#000",padding:"0 2px",fontWeight:700,borderRadius:"2px 0 0 0"}}>A</div>}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Asset Packs */}
-          <div style={S.section}>
+          {/* Asset Packs — hidden in room mode (shown in below-canvas panel instead) */}
+          {tab!=="room"&&<div style={S.section}>
             <div style={S.sectionTitle}>Asset Packs</div>
             {tab==="sprite"&&selectedSprite===0&&(
               <div style={{fontSize:10,color:"#29adff",background:"#082040",borderRadius:3,padding:"4px 6px",marginBottom:6,border:"1px solid #29adff"}}>
@@ -2322,152 +2112,98 @@ export default function App() {
                 )}
               </div>
             ))}
-          </div>
+          </div>}
         </div>
 
         {/* Center Canvas */}
+        {tab==="room" ? (
+        <div style={S.centerRoom}>
+          {/* Canvas area — fills remaining space */}
+          <div style={{flex:1,overflow:"auto",display:"flex",alignItems:"flex-start",justifyContent:"center",padding:"8px 8px 0 8px",minHeight:0}}>
+            <RoomCanvas room={rooms[selectedRoom]||{tiles:[],npcs:[]}} tiles={tiles} sprites={sprites}
+              palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH}
+              onPlace={handleRoomPlace} onStrokeEnd={pushHistory} roomTool={roomTool} zoom={roomZoom}
+              selectedTileId={tiles[selectedTile]?.id} selectedSpriteId={sprites[selectedSprite]?.id} />
+          </div>
+          {/* Below-canvas panel: Tiles · NPCs · Asset Packs */}
+          <div style={{borderTop:"2px solid #0f3460",background:"#16213e",display:"flex",flexShrink:0,overflowX:"auto",maxHeight:220}}>
+            {/* Tiles */}
+            <div style={{padding:"8px 10px",borderRight:"1px solid #0f3460",minWidth:140,maxWidth:240,overflowY:"auto"}}>
+              <div style={{...S.sectionTitle,marginBottom:5}}>Tiles</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
+                {tiles.map((tile,i)=>(
+                  <div key={tile.id} onClick={()=>setSelectedTile(i)}
+                    style={{border:i===selectedTile?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative",flexShrink:0}}>
+                    <MiniCanvas grid={tile.frames[0]} palette={palette} size={28} />
+                    {tile.tileType&&tile.tileType!=="walkable"&&<div style={{position:"absolute",bottom:0,right:0,fontSize:7,background:TILE_TYPE_COLORS[tile.tileType],color:"#000",padding:"0 2px",fontWeight:700,borderRadius:"2px 0 0 0"}}>{tile.tileType[0]}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+            {/* NPCs */}
+            <div style={{padding:"8px 10px",borderRight:"1px solid #0f3460",minWidth:120,maxWidth:200,overflowY:"auto"}}>
+              <div style={{...S.sectionTitle,marginBottom:5}}>NPCs</div>
+              <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
+                {sprites.map((spr,i)=>(
+                  <div key={spr.id} onClick={()=>setSelectedSprite(i)}
+                    style={{border:i===selectedSprite?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",opacity:i===0?0.4:1,flexShrink:0}}>
+                    <MiniCanvas grid={spr.frames[0]} palette={palette} size={28} />
+                  </div>
+                ))}
+              </div>
+              <div style={{fontSize:9,color:"#555",marginTop:4}}>Index 0 = player (avatar)</div>
+            </div>
+            {/* Asset Packs */}
+            <div style={{padding:"8px 10px",flex:1,minWidth:180,overflowY:"auto"}}>
+              <div style={{...S.sectionTitle,marginBottom:5}}>Asset Packs</div>
+              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                {ASSET_PACKS.map((pack,pi)=>(
+                  <div key={pi}>
+                    <button onClick={()=>setActivePack(activePack===pi?null:pi)}
+                      style={{...S.btn(activePack===pi),fontSize:10,padding:"3px 7px",marginBottom:2}}>
+                      {pack.name} {activePack===pi?"▲":"▼"}
+                    </button>
+                    {activePack===pi&&(
+                      <div style={{display:"flex",flexWrap:"wrap",gap:2,padding:4,background:"#0d1b3e",borderRadius:4,maxWidth:320}}>
+                        {pack.assets.map((asset,ai)=>(
+                          <div key={ai} onClick={()=>addFromPack(asset)}
+                            title={`Add ${asset.name}`}
+                            style={{cursor:"pointer",border:"1px solid #333",borderRadius:3,flexShrink:0}}
+                            onMouseEnter={e=>e.currentTarget.style.border="1px solid #e94560"}
+                            onMouseLeave={e=>e.currentTarget.style.border="1px solid #333"}>
+                            <MiniCanvas grid={asset.grid} palette={palette} size={28} />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+        ) : (
         <div style={S.center}>
           {tab==="tune"?(
             <div style={{width:"100%",maxWidth:640,padding:8}}>
               <div style={{fontWeight:700,color:"#e94560",marginBottom:12,fontSize:14}}>🎵 Background Tune</div>
-              <TuneEditor tune={tune} onChange={setTune} volume={tuneVolume} onVolumeChange={setTuneVolume} savedTunes={savedTunes} onSaveTune={saveTune} onLoadTune={loadTune} />
+              <TuneEditor tune={tune} onChange={setTune} />
               <div style={{marginTop:16,fontSize:11,color:"#555",lineHeight:1.8}}>
-                The tune loops in the background while your game is playing. Save a tune and assign it to rooms in the <b style={{color:"#58a6ff"}}>🗺 Rooms</b> tab right panel.
+                The tune loops in the background while your game is playing.<br/>
+                Separate dialog pages with <code style={{color:"#ffec27"}}>---</code> on its own line for multi-page speech.
               </div>
             </div>
-          ):tab==="room"?(
-            <>
-            <RoomCanvas room={rooms[selectedRoom]||{tiles:[],npcs:[]}} tiles={tiles} sprites={sprites}
-              palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH}
-              onPlace={handleRoomPlace} roomTool={roomTool}
-              selectedTileId={tiles[selectedTile]?.id} selectedSpriteId={sprites[selectedSprite]?.id}
-              avatarStart={rooms[selectedRoom]?.avatarStart} />
-            <div style={{marginTop:8,fontSize:11,color:"#484f58",background:"rgba(255,255,255,0.03)",borderRadius:4,padding:"3px 10px",border:"1px solid rgba(255,255,255,0.05)"}}>
-              {rooms[selectedRoom]?.name||"room"} &nbsp;·&nbsp; {roomW}×{roomH} tiles &nbsp;·&nbsp; {tileW}×{tileH}px each
-            </div>
-            </>
           ):(tab!=="tune"&&(
             <>
-              <PixelCanvas grid={currentFrame} palette={palette} onDraw={handleDraw} pixelSize={pixelSize} showGrid={showGrid} />
-              <div style={{display:"flex",alignItems:"center",gap:6,marginTop:6}}>
-                <button onClick={()=>setZoom(z=>Math.max(0.5,+(z-0.25).toFixed(2)))}
-                  style={{...S.btn(false),padding:"2px 9px",fontSize:14,lineHeight:1,minWidth:28}}>−</button>
-                <span style={{fontSize:11,color:"#64748b",minWidth:32,textAlign:"center"}}>{zoom}×</span>
-                <button onClick={()=>setZoom(z=>Math.min(4,+(z+0.25).toFixed(2)))}
-                  style={{...S.btn(false),padding:"2px 9px",fontSize:14,lineHeight:1,minWidth:28}}>+</button>
-                <button onClick={()=>setZoom(1)} style={{...S.btn(false),padding:"2px 7px",fontSize:10,color:"#475569",marginLeft:2}}>reset</button>
-                {currentItem&&<span style={{marginLeft:"auto",fontSize:11,color:"#475569"}}>{currentItem.name} · {itemW}×{itemH}px</span>}
-              </div>
+              <PixelCanvas grid={currentFrame} palette={palette} onDraw={handleDraw} onStrokeEnd={pushHistory} pixelSize={pixelSize} showGrid={showGrid} />
+              {currentItem&&<div style={{marginTop:6,fontSize:11,color:"#888"}}>{currentItem.name} · Frame {selectedFrame+1}/{currentItem.frames.length} · {itemW}×{itemH}</div>}
             </>
           ))}
         </div>
 
         {/* Right Panel */}
         <div style={S.rightPanel}>
-          {tab==="room"&&rooms[selectedRoom]&&(
-            <>
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Room Name</div>
-                <input value={rooms[selectedRoom].name} onChange={e=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],name:e.target.value};return rs;})} style={S.input} />
-              </div>
-
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Exits</div>
-                {(rooms[selectedRoom].exits||[]).length===0?(
-                  <div style={{fontSize:11,color:"#555",lineHeight:1.6}}>No exits yet. Use the 🚪 Exit tool, click a cell to add a portal.</div>
-                ):(
-                  <div style={{display:"flex",flexDirection:"column",gap:4}}>
-                    {(rooms[selectedRoom].exits||[]).map((ex,i)=>{
-                      const destName=rooms[ex.destRoom]?.name||`room ${ex.destRoom}`;
-                      const arr=rooms[ex.destRoom]?.avatarStart||{x:1,y:1};
-                      return(
-                        <div key={i} style={{background:"#0d1b3e",borderRadius:4,padding:"5px 8px",fontSize:11,border:"1px solid rgba(255,68,238,0.25)"}}>
-                          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                            <span style={{color:"#ff44ee",fontWeight:700}}>🚪 ({ex.x},{ex.y}){ex.twoWay?" ↔":"→"}</span>
-                            <button style={{...S.btn(false),fontSize:9,padding:"1px 6px",color:"#e94560",borderColor:"rgba(233,69,96,0.3)"}}
-                              onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:(rs[selectedRoom].exits||[]).filter((_,j)=>j!==i)};return rs;})}>✕</button>
-                          </div>
-                          <div style={{color:"#8b949e",marginTop:2}}>{destName} at ({arr.x},{arr.y})</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Inventory */}
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Collectibles & Inventory</div>
-                {sprites.filter(s=>s.tileType==="item").length===0?(
-                  <div style={{fontSize:11,color:"#475569",lineHeight:1.6}}>No collectibles yet. In the Sprites tab, select a sprite and apply the <b style={{color:"#fbbf24"}}>⭐ Collectible</b> template or set its behavior to <b>item</b>.</div>
-                ):(
-                  sprites.filter(s=>s.tileType==="item").map(spr=>{
-                    const placed=rooms.reduce((n,r)=>n+(r.npcs||[]).filter(nn=>nn.spriteId===spr.id).length,0);
-                    const target=winConditions[spr.id]||0;
-                    return(
-                      <div key={spr.id} style={{background:"rgba(251,191,36,0.06)",border:"1px solid rgba(251,191,36,0.15)",borderRadius:7,padding:"8px 10px",marginBottom:6}}>
-                        <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                          <MiniCanvas grid={spr.frames[0]} palette={palette} size={20}/>
-                          <span style={{fontSize:12,color:"#fbbf24",fontWeight:700,flex:1}}>{spr.name}</span>
-                          <span style={{fontSize:11,color:"#64748b"}}>{placed} placed</span>
-                        </div>
-                        <div style={{display:"flex",alignItems:"center",gap:6}}>
-                          <span style={{fontSize:11,color:"#94a3b8",whiteSpace:"nowrap"}}>Win when</span>
-                          <input type="number" min={0} max={99} value={target}
-                            onChange={e=>setWinConditions(prev=>({...prev,[spr.id]:Math.max(0,+e.target.value)}))}
-                            style={{...S.input,width:44,padding:"2px 6px",textAlign:"center",fontSize:12}}/>
-                          <span style={{fontSize:11,color:"#64748b",whiteSpace:"nowrap"}}>{target===1?"collected":"collected"}</span>
-                        </div>
-                        {target>0&&placed<target&&<div style={{fontSize:10,color:"#f87171",marginTop:4}}>⚠ Only {placed}/{target} placed in rooms</div>}
-                        {target>0&&placed>=target&&<div style={{fontSize:10,color:"#4ade80",marginTop:4}}>✓ Enough placed ({placed}/{target})</div>}
-                        {target===0&&<div style={{fontSize:10,color:"#475569",marginTop:4}}>Set to 0 = no win requirement</div>}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Background Tune</div>
-                {savedTunes.length===0?(
-                  <div style={{fontSize:11,color:"#555",lineHeight:1.6}}>No saved tunes yet.<br/>Go to the 🎵 Tune tab, compose a tune and click <b style={{color:"#7ee787"}}>💾 Save</b>.</div>
-                ):(
-                  <>
-                    <select style={{...S.select,width:"100%",marginBottom:6}}
-                      value={rooms[selectedRoom].tuneId||""}
-                      onChange={e=>{const v=e.target.value;setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],tuneId:v||null};return rs;});}}>
-                      <option value="">None (silent)</option>
-                      {savedTunes.map(st=><option key={st.id} value={st.id}>{st.name}</option>)}
-                    </select>
-                    <div style={{fontSize:10,color:"#555"}}>This tune loops when the player enters this room.</div>
-                  </>
-                )}
-              </div>
-
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Legend</div>
-                <div style={{fontSize:11,color:"#aaa",lineHeight:1.8}}>
-                  {TILE_TYPES.map(t=>(
-                    <div key={t} style={{color:TILE_TYPE_COLORS[t]||"#aaa"}}>
-                      {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
-                      {t==="wall"?" — blocks":t==="item"?" — collectible":t==="end"?" — win!":""}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={S.section}>
-                <div style={S.sectionTitle}>Actions</div>
-                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>{
-                    setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[]};return rs;});
-                  }}>Clear Room</button>
-                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>exportRoomPng(rooms[selectedRoom])}>Export PNG</button>
-                </div>
-              </div>
-            </>
-          )}
-          {tab!=="room"&&tab!=="tune"&&currentItem&&(
+          {tab!=="room"&&currentItem&&(
             <>
               <div style={S.section}>
                 <div style={S.sectionTitle}>Name</div>
@@ -2482,43 +2218,13 @@ export default function App() {
                 </div>
               )}
               {tab==="sprite"&&selectedSprite>0&&(
-                <>
-                  <div style={{marginBottom:8}}>
-                    <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#082040",borderColor:"#29adff",color:"#29adff"}}
-                      onClick={()=>setAsAvatar(selectedSprite)}>
-                      👤 Set as Avatar (replace player appearance)
-                    </button>
-                  </div>
-                  {/* Quick-start templates */}
-                  <div style={S.section}>
-                    <div style={S.sectionTitle}>Quick Templates</div>
-                    <div style={{display:"flex",flexDirection:"column",gap:3}}>
-                      {[
-                        {emoji:"💬",label:"NPC",     tileType:"walkable", dialog:"Hello there!\n---\nNice to meet you!",          name:"npc"},
-                        {emoji:"⭐",label:"Collectible",tileType:"item",   dialog:"You picked it up!",                            name:"gem"},
-                        {emoji:"🪧",label:"Sign",     tileType:"walkable", dialog:"→ This way",                                   name:"sign"},
-                        {emoji:"🚪",label:"Ending",   tileType:"end",      dialog:"You did it! The adventure is complete.",       name:"door"},
-                      ].map(({emoji,label,tileType,dialog,name})=>(
-                        <button key={label} style={{...S.toolBtn(currentItem.tileType===tileType&&label!=="NPC"&&label!=="Sign"), justifyContent:"flex-start"}}
-                          onClick={()=>{
-                            setSprites(prev=>{
-                              const ss=[...prev];
-                              const cur=ss[selectedSprite];
-                              ss[selectedSprite]={...cur, tileType,
-                                dialog: cur.dialog?.trim() ? cur.dialog : dialog,
-                                name: (cur.name==="avatar"||cur.name.startsWith("sprite_")||cur.name==="npc"||cur.name==="gem"||cur.name==="sign"||cur.name==="door") ? name : cur.name,
-                              };
-                              return ss;
-                            });
-                          }}>
-                          <span style={{fontSize:13}}>{emoji}</span>
-                          <span style={{flex:1,fontSize:11}}>{label}</span>
-                        </button>
-                      ))}
-                    </div>
-                    <div style={{fontSize:10,color:"#475569",marginTop:5}}>Sets behavior + starter dialog in one click</div>
-                  </div>
-                </>
+                <div style={{marginBottom:12}}>
+                  <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#082040",borderColor:"#29adff",color:"#29adff"}}
+                    onClick={()=>setAsAvatar(selectedSprite)}>
+                    👤 Set as Avatar (replace player appearance)
+                  </button>
+                  <div style={{fontSize:10,color:"#555",marginTop:3}}>Copies this sprite's pixels into sprites[0], which is the playable character.</div>
+                </div>
               )}
 
               {/* Tile type (shown for both sprites and tiles) */}
@@ -2541,10 +2247,14 @@ export default function App() {
               {tab==="sprite"&&(
                 <div style={S.section}>
                   <div style={S.sectionTitle}>NPC Dialog</div>
-                  <textarea value={currentItem.dialog||""} onChange={e=>updateDialog(e.target.value)}
-                    placeholder="What does this character say? Separate pages with --- on its own line."
-                    style={{...S.input,height:64,resize:"vertical",fontFamily:"inherit"}} />
-                  <div style={{fontSize:10,color:"#666",marginTop:3}}>Separate pages with <code>---</code> · Sprite 0 is the player — dialog ignored.</div>
+                  {selectedSprite===0 ? (
+                    <div style={{fontSize:11,color:"#555",fontStyle:"italic",padding:"4px 0"}}>Avatar (player) has no dialog.</div>
+                  ) : (
+                    <>
+                      <DialogPagesEditor value={currentItem.dialog||""} onChange={updateDialog} />
+                      <div style={{fontSize:10,color:"#666",marginTop:3}}>Each page shows one at a time. Press Space or Enter in-game to advance.</div>
+                    </>
+                  )}
                 </div>
               )}
 
@@ -2610,6 +2320,9 @@ export default function App() {
                     ["Flip H",f=>f.map(r=>[...r].reverse())],
                     ["Flip V",f=>[...f].reverse().map(r=>[...r])],
                     ["Rot CW",f=>{const h=f.length,w=f[0].length;return Array.from({length:w},(_,x)=>Array.from({length:h},(_,y)=>f[h-1-y][x]));}],
+                    ["Rot CCW",f=>{const h=f.length,w=f[0].length;return Array.from({length:w},(_,x)=>Array.from({length:h},(_,y)=>f[y][w-1-x]));}],
+                    ["Mirror H",f=>f.map(r=>{const hw=Math.ceil(r.length/2);return r.map((_,x)=>x<hw?r[x]:r[r.length-1-x])})],
+                    ["Mirror V",f=>{const hh=Math.ceil(f.length/2);return f.map((r,y)=>y<hh?[...r]:[...f[f.length-1-y]])}],
                     ["Clear",()=>emptyGrid(itemW,itemH)],
                   ].map(([label,fn])=>(
                     <button key={label} style={{...S.btn(false),fontSize:11}} onClick={()=>{
@@ -2619,10 +2332,70 @@ export default function App() {
                     }}>{label}</button>
                   ))}
                 </div>
+                <div style={{marginTop:6}}>
+                  <div style={{fontSize:10,color:"#888",marginBottom:3}}>Nudge</div>
+                  <div style={{display:"flex",gap:3,alignItems:"center",justifyContent:"center"}}>
+                    {[
+                      ["←",f=>f.map(r=>[...r.slice(1),0])],
+                      ["↑",f=>[...f.slice(1),f[0].map(()=>0)]],
+                      ["↓",f=>[f[0].map(()=>0),...f.slice(0,-1)]],
+                      ["→",f=>f.map(r=>[0,...r.slice(0,-1)])],
+                    ].map(([label,fn])=>(
+                      <button key={label} style={{...S.btn(false),fontSize:13,padding:"3px 8px",minWidth:28}} onClick={()=>{
+                        const setItems=tab==="sprite"?setSprites:setTiles;
+                        const idx=tab==="sprite"?selectedSprite:selectedTile;
+                        setItems(prev=>{const items=[...prev];const item={...items[idx],frames:[...items[idx].frames]};item.frames[selectedFrame]=fn(item.frames[selectedFrame]);items[idx]=item;return items;});
+                      }}>{label}</button>
+                    ))}
+                  </div>
+                </div>
               </div>
             </>
           )}
 
+          {/* Room right panel */}
+          {tab==="room"&&rooms[selectedRoom]&&(
+            <>
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Room Name</div>
+                <input value={rooms[selectedRoom].name}
+                  onChange={e=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],name:e.target.value};return rs;})}
+                  style={S.input} />
+              </div>
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Legend</div>
+                <div style={{fontSize:11,color:"#aaa",lineHeight:1.8}}>
+                  {TILE_TYPES.map(t=>(
+                    <div key={t} style={{color:TILE_TYPE_COLORS[t]||"#aaa"}}>
+                      {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
+                      {t==="wall"?" — blocks player":t==="item"?" — collected on touch":t==="end"?" — triggers win":""}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              {(rooms[selectedRoom]?.exits||[]).length>0&&(
+                <div style={S.section}>
+                  <div style={S.sectionTitle}>Exits ({rooms[selectedRoom].exits.length})</div>
+                  {rooms[selectedRoom].exits.map((ex,i)=>(
+                    <div key={i} style={{fontSize:11,color:"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#0d1b3e",borderRadius:3,padding:"3px 6px"}}>
+                      <span>({ex.x},{ex.y}) → Room {ex.destRoom} @ ({ex.destX},{ex.destY})</span>
+                      <button style={{background:"none",border:"none",color:"#e94560",cursor:"pointer",fontSize:12,padding:"0 2px"}}
+                        onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:rs[selectedRoom].exits.filter((_,j)=>j!==i)};return rs;})}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <div style={S.section}>
+                <div style={S.sectionTitle}>Actions</div>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>{
+                    setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],tiles:emptyGrid(roomW,roomH).map(r=>r.map(()=>null)),npcs:[],exits:[]};return rs;});
+                  }}>Clear Room</button>
+                  <button style={{...S.btn(false),fontSize:11}} onClick={()=>exportRoomPng(rooms[selectedRoom])}>Export Room PNG</button>
+                </div>
+              </div>
+            </>
+          )}
 
           {/* Shortcuts */}
           <div style={{...S.section,marginTop:12}}>
@@ -2635,22 +2408,13 @@ export default function App() {
       </div>
 
       {showImport&&<PngImportModal onImport={handleImport} onClose={()=>setShowImport(false)} palette={palette} maxColors={MAX_COLORS} />}
-      {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={0} tiles={tiles} sprites={sprites}
-        palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune}
-        savedTunes={savedTunes} tuneVolume={tuneVolume} winConditions={winConditions} onClose={()=>setShowPlaytest(false)} />}
+      {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={selectedRoom} tiles={tiles} sprites={sprites}
+        palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune} onClose={()=>setShowPlaytest(false)} />}
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
-      {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} tiles={tiles} palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} />}
-      {showHelp&&<HelpModal onClose={()=>setShowHelp(false)} />}
-      {showBitsyImport&&<BitsyImportModal onImport={handleBitsyImport} onClose={()=>setShowBitsyImport(false)}
-        gameTitle={gameTitle} palette={palette} sprites={sprites} tiles={tiles} rooms={rooms} tune={tune} />}
-      {showWizard&&<WizardModal palette={palette} onComplete={handleWizardComplete} onSkip={()=>setShowWizard(false)} />}
-      {showPrePlay&&<PrePlayModal sprites={sprites} tiles={tiles} rooms={rooms}
-        onPlay={()=>{setShowPrePlay(false);setShowPlaytest(true);}}
-        onClose={()=>setShowPrePlay(false)} />}
-      {/* Build timestamp footer */}
-      <div style={{position:"fixed",bottom:6,left:10,fontSize:10,color:"rgba(100,116,139,0.6)",pointerEvents:"none",userSelect:"none",zIndex:1}}>
-        {(()=>{try{const d=new Date(__BUILD_TIME__);return"Updated "+d.toLocaleDateString(undefined,{month:"short",day:"numeric",year:"numeric"})+" "+d.toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});}catch{return "";}})()}
-      </div>
+      {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} />}
+      {cloudModal&&user&&<CloudSavesModal user={user} saves={cloudSaves} onSave={handleCloudSave} onLoad={handleCloudLoad} onDelete={handleCloudDelete} onClose={()=>setCloudModal(false)} loading={cloudLoading} />}
+      {showBitsyImport&&<BitsyImportModal onImport={handleBitsyImport} onClose={()=>setShowBitsyImport(false)} />}
+      {showTextImport&&<TextImportModal onImport={handleTextImport} onClose={()=>setShowTextImport(false)} palette={palette} />}
     </div>
   );
 }
