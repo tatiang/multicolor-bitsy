@@ -251,7 +251,7 @@ const S = {
   title:{ fontSize:20, fontWeight:700, color:"#e94560", letterSpacing:1, whiteSpace:"nowrap" },
   main:{ display:"flex", flex:1, overflow:"hidden" },
   sidebar:{ width:256, background:"#16213e", padding:12, overflowY:"auto", borderRight:"2px solid #0f3460", flexShrink:0 },
-  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:16, overflow:"auto" },
+  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", padding:16, overflow:"auto" },
   centerRoom:{ flex:1, display:"flex", flexDirection:"column", alignItems:"stretch", justifyContent:"flex-start", overflow:"hidden", minWidth:0 },
   rightPanel:{ width:290, background:"#16213e", padding:12, overflowY:"auto", borderLeft:"2px solid #0f3460", flexShrink:0 },
   section:{ marginBottom:14 },
@@ -1266,7 +1266,7 @@ function TextImportModal({ onImport, onClose, palette }) {
     const grid = Array.from({length:size}, ()=>Array(size).fill(0));
     for (let idx = 0; idx < Math.min(tokens.length, size*size); idx++) {
       const r = Math.floor(idx / size), c = idx % size;
-      grid[r][c] = isDark(tokens[idx]) ? 1 : 0;
+      grid[r][c] = isDark(tokens[idx]) ? 0 : 1;
     }
     return grid;
   };
@@ -2119,7 +2119,7 @@ export default function App() {
         {tab==="room" ? (
         <div style={S.centerRoom}>
           {/* Canvas area — fills remaining space */}
-          <div style={{flex:1,overflow:"auto",display:"flex",alignItems:"flex-start",justifyContent:"center",padding:"8px 8px 0 8px",minHeight:0}}>
+          <div style={{flex:1,overflow:"auto",display:"flex",alignItems:"flex-start",justifyContent:"center",padding:"16px 8px 0 8px",minHeight:0}}>
             <RoomCanvas room={rooms[selectedRoom]||{tiles:[],npcs:[]}} tiles={tiles} sprites={sprites}
               palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH}
               onPlace={handleRoomPlace} onStrokeEnd={pushHistory} roomTool={roomTool} zoom={roomZoom}
@@ -2324,6 +2324,7 @@ export default function App() {
                     ["Rot CCW",f=>{const h=f.length,w=f[0].length;return Array.from({length:w},(_,x)=>Array.from({length:h},(_,y)=>f[y][w-1-x]));}],
                     ["Mirror H",f=>f.map(r=>{const hw=Math.ceil(r.length/2);return r.map((_,x)=>x<hw?r[x]:r[r.length-1-x])})],
                     ["Mirror V",f=>{const hh=Math.ceil(f.length/2);return f.map((r,y)=>y<hh?[...r]:[...f[f.length-1-y]])}],
+                    ["Invert",f=>f.map(r=>r.map(v=>v===0?1:v===1?0:v))],
                     ["Clear",()=>emptyGrid(itemW,itemH)],
                   ].map(([label,fn])=>(
                     <button key={label} style={{...S.btn(false),fontSize:11}} onClick={()=>{
