@@ -1282,7 +1282,7 @@ function TextImportModal({ onImport, onClose, palette }) {
     const result = parseText(text);
     if (!result) { setError('No pixels found. Paste emoji art (⬜⬛ or similar).'); return; }
     const rawCount = result.tokens.length;
-    let detectedSize = rawCount >= 256 ? 16 : 8;
+    let detectedSize = rawCount >= 160 ? 16 : 8; // midpoint between 64 (8×8) and 256 (16×16)
     let grid = buildGrid(result.tokens, result.isDark, detectedSize);
     if (targetSize === 16 && detectedSize === 8) grid = upscale(grid);
     if (targetSize === 8 && detectedSize === 16) {
