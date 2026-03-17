@@ -773,7 +773,8 @@ function TuneEditor({ tune, onChange }) {
 }
 
 // ─── Playtest Modal ───────────────────────────────────────────────────────────
-function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, onClose }) {
+function PlaytestModal({ rooms, startRoom=0, avatarStart, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, onClose }) {
+  const initRoom = avatarStart?.room ?? startRoom;
   const findStart = (r) => {
     if(!r)return{x:1,y:1};
     for(let y=0;y<roomH;y++) for(let x=0;x<roomW;x++){
@@ -783,9 +784,9 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
     }
     return {x:1,y:1};
   };
-  const [roomIdx,setRoomIdx]=useState(startRoom);
+  const [roomIdx,setRoomIdx]=useState(initRoom);
   const room=rooms[roomIdx]||{tiles:[],npcs:[],exits:[]};
-  const [pos,setPos]=useState(()=>findStart(rooms[startRoom]));
+  const [pos,setPos]=useState(()=>avatarStart ? {x:avatarStart.x, y:avatarStart.y} : findStart(rooms[initRoom]));
   const [collected,setCollected]=useState([]);
   const [dialog,setDialog]=useState(null); // {pages,pageIdx,name}
   const [won,setWon]=useState(false);
@@ -922,7 +923,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
 
   const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
   const maxD=400, sc=Math.min(maxD/cw,maxD/ch,1);
-  const restart=()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setWonMsg("");setDialog(null);setShowInv(false); };
+  const restart=()=>{ setRoomIdx(initRoom);setPos(avatarStart?{x:avatarStart.x,y:avatarStart.y}:findStart(rooms[initRoom]));setCollected([]);setRemovedItems([]);setWon(false);setWonMsg("");setDialog(null);setShowInv(false); };
 
   return (
     <div style={S.modal}>
@@ -1110,13 +1111,19 @@ function parseBitsyData(text) {
   const detectedTileW=Object.values(tileDefs)[0]?.frames?.[0]?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.[0]?.length||8;
   const detectedTileH=Object.values(tileDefs)[0]?.frames?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.length||8;
 
+  const avatarPos=sprDefs['A']?.pos;
+  const avatarStart=avatarPos
+    ? {room: roomBitsyToIdx[avatarPos.room] ?? 0, x: avatarPos.x, y: avatarPos.y}
+    : {room: 0, x: 1, y: 1};
+
   return {
     gameTitle:gameTitle||'Imported Game',
     palette,
     sprites:newSprites.length?newSprites:[{id:uid(),name:'avatar',frames:[emptyGrid(8,8)],tileType:'walkable',dialog:'',blip:{wave:'square',freq:440}}],
     tiles:newTiles.length?newTiles:[{id:uid(),name:'wall',frames:[emptyGrid(8,8)],tileType:'wall'}],
     rooms:newRooms.length?newRooms:[{id:uid(),name:'room 0',tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[]}],
-    roomW:detectedRoomW, roomH:detectedRoomH, tileW:detectedTileW, tileH:detectedTileH
+    roomW:detectedRoomW, roomH:detectedRoomH, tileW:detectedTileW, tileH:detectedTileH,
+    avatarStart
   };
 }
 
@@ -1708,6 +1715,7 @@ export default function App() {
   const [cloudModal,setCloudModal]=useState(false);
   const [cloudSaves,setCloudSaves]=useState([]);
   const [cloudLoading,setCloudLoading]=useState(false);
+  const [avatarStart,setAvatarStart]=useState({room:0,x:1,y:1});
 
   // Modal state for new features
   const [showBitsyImport,setShowBitsyImport]=useState(false);
@@ -1971,7 +1979,8 @@ export default function App() {
     if(data.roomH)setRoomH(data.roomH);
     if(data.tileW){setTileW(data.tileW);setSpriteW(data.tileW);}
     if(data.tileH){setTileH(data.tileH);setSpriteH(data.tileH);}
-    setSelectedSprite(0);setSelectedTile(0);setSelectedRoom(0);setSelectedFrame(0);
+    if(data.avatarStart){setAvatarStart(data.avatarStart);setSelectedRoom(data.avatarStart.room);}
+    setSelectedSprite(0);setSelectedTile(0);setSelectedFrame(0);
     setShowBitsyImport(false);
   };
   // Text/emoji import
@@ -2745,7 +2754,7 @@ export default function App() {
         </div>
       </div>
       {showImport&&<PngImportModal onImport={handleImport} onClose={()=>setShowImport(false)} palette={palette} maxColors={MAX_COLORS} />}
-      {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={selectedRoom} tiles={tiles} sprites={sprites}
+      {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={selectedRoom} avatarStart={avatarStart} tiles={tiles} sprites={sprites}
         palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune} onClose={()=>setShowPlaytest(false)} />}
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
       {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)}
