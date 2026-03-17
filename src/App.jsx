@@ -651,7 +651,7 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, til
     <div style={S.modal} onClick={onClose}>
       <div style={{...S.modalContent,maxWidth:420}} onClick={e=>e.stopPropagation()}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <h3 style={{margin:0,color:isEnding?"#ffec27":"#4f7fff"}}>{isEnding?"🏁 Configure Ending":"🚪 Configure Exit"}</h3>
+          <h3 style={{margin:0,color:isEnding?"#F59E0B":"#F59E0B"}}>{isEnding?"🏁 Configure Ending":"🚪 Configure Exit"}</h3>
           <div style={{display:"flex",gap:4}}>
             <button style={{...S.btn(visualMode),fontSize:10}} onClick={()=>setVisualMode(true)}>Visual</button>
             <button style={{...S.btn(!visualMode),fontSize:10}} onClick={()=>setVisualMode(false)}>Simple</button>
@@ -668,10 +668,10 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, til
 
         {visualMode ? (
           <div style={{margin:"10px 0"}}>
-            <div style={{fontSize:11,color:"#888",marginBottom:4}}>Click to set arrival position:</div>
+            <div style={{fontSize:11,color:"#6B6460",marginBottom:4}}>Click to set arrival position:</div>
             <canvas ref={thumbRef} onClick={handleThumbClick}
               style={{imageRendering:"pixelated",cursor:"crosshair",border:"1px solid #0f3460",borderRadius:4,display:"block",maxWidth:"100%"}} />
-            <div style={{fontSize:10,color:"#555",marginTop:4}}>Arrival: ({destX},{destY})</div>
+            <div style={{fontSize:10,color:"#6B6460",marginTop:4}}>Arrival: ({destX},{destY})</div>
           </div>
         ) : (
           <div style={S.row}>
@@ -682,19 +682,19 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, til
           </div>
         )}
 
-        <div style={{borderTop:"1px solid #1a1a2e",paddingTop:10,marginTop:8}}>
-          <label style={{display:"flex",alignItems:"center",gap:6,fontSize:12,cursor:"pointer",color:"#ffec27",marginBottom:6}}>
+        <div style={{borderTop:"1px solid #3C3834",paddingTop:10,marginTop:8}}>
+          <label style={{display:"flex",alignItems:"center",gap:6,fontSize:12,cursor:"pointer",color:"#F59E0B",marginBottom:6}}>
             <input type="checkbox" checked={isEnding} onChange={e=>setIsEnding(e.target.checked)} />
             This exit triggers an ending
           </label>
           {isEnding&&(
             <div style={{marginBottom:6}}>
-              <span style={{fontSize:11,color:"#aaa"}}>Ending message (optional):</span>
+              <span style={{fontSize:11,color:"#B8B0A8"}}>Ending message (optional):</span>
               <input value={endingMessage} onChange={e=>setEndingMessage(e.target.value)}
                 placeholder="You reached the destination!" style={{...S.input,width:"100%",marginTop:3}} />
             </div>
           )}
-          <label style={{display:"flex",alignItems:"center",gap:6,fontSize:12,cursor:"pointer",color:"#29adff"}}>
+          <label style={{display:"flex",alignItems:"center",gap:6,fontSize:12,cursor:"pointer",color:"#38BDF8"}}>
             <input type="checkbox" checked={twoWay} onChange={e=>setTwoWay(e.target.checked)} />
             Create two-way exit (also add reverse exit in destination room)
           </label>
@@ -756,12 +756,12 @@ function TuneEditor({ tune, onChange }) {
             const name=NOTE_NAMES[semi%12];
             const natural=!name.includes("#");
             return [
-              <div key={`l${ri}`} style={{fontSize:9,color:natural?"#ccc":"#555",background:"#1E1B18",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:3,height:10}}>
+              <div key={`l${ri}`} style={{fontSize:9,color:natural?"#B8B0A8":"#6B6460",background:"#1E1B18",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:3,height:10}}>
                 {natural?`${name}${oct}`:""}
               </div>,
               ...Array.from({length:TUNE_STEPS},(_,si)=>{
                 const act=tune[si]?.active&&tune[si]?.semi===semi;
-                return <div key={`${ri}-${si}`} onClick={()=>toggle(si,semi)} style={{height:10,background:act?"#4f7fff":si===activeStep?"#1a3050":"#111",border:"1px solid #0a1428",cursor:"pointer",borderRadius:1}} />;
+                return <div key={`${ri}-${si}`} onClick={()=>toggle(si,semi)} style={{height:10,background:act?"#F59E0B":si===activeStep?"#302C28":"#1A1714",border:"1px solid #2A2622",cursor:"pointer",borderRadius:1}} />;
               })
             ];
           }).flat()}
@@ -938,7 +938,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
         {won ? (
           <div style={{textAlign:"center",padding:32}}>
             <div style={{fontSize:40,marginBottom:12}}>🎉</div>
-            <div style={{fontSize:22,color:"#ffec27",fontWeight:700,marginBottom:8}}>{wonMsg||"You Win!"}</div>
+            <div style={{fontSize:22,color:"#F59E0B",fontWeight:700,marginBottom:8}}>{wonMsg||"You Win!"}</div>
             <div style={{color:"#B8B0A8",marginBottom:16}}>Items collected: {collected.length}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button style={S.btn(true)} onClick={restart}>↺ Play Again</button>
@@ -949,7 +949,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
           <>
             <canvas ref={canvasRef} style={{...S.canvas,display:"block",margin:"0 auto",width:cw*sc,height:ch*sc}} />
             {dialog && (
-              <div style={{background:C.bgAlt,border:`1px solid ${C.accent}`,borderRadius:6,padding:12,marginTop:10}}>
+              <div style={{background:"#1E1B18",border:"1px solid #F59E0B",borderRadius:6,padding:12,marginTop:10}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
                   <div style={{color:"#F59E0B",fontSize:11,fontWeight:700}}>{dialog.name}</div>
                   {dialog.pages.length>1&&<div style={{fontSize:10,color:"#B8B0A8"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
@@ -960,10 +960,10 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
             )}
             {showInv&&(
               <div style={{background:"#1E1B18",border:"1px solid #3C3834",borderRadius:6,padding:10,marginTop:8}}>
-                <div style={{fontSize:11,fontWeight:700,color:"#ffec27",marginBottom:5}}>🎒 Inventory</div>
+                <div style={{fontSize:11,fontWeight:700,color:"#F59E0B",marginBottom:5}}>🎒 Inventory</div>
                 {collected.length===0?<div style={{fontSize:11,color:"#6B6460"}}>Nothing yet.</div>:(
                   <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-                    {collected.map((it,i)=><span key={i} style={{background:"#0f1117",border:"1px solid #3C3834",borderRadius:4,padding:"2px 8px",fontSize:12,color:"#ffec27"}}>{it.name}</span>)}
+                    {collected.map((it,i)=><span key={i} style={{background:"#141210",border:"1px solid #3C3834",borderRadius:4,padding:"2px 8px",fontSize:12,color:"#F59E0B"}}>{it.name}</span>)}
                   </div>
                 )}
               </div>
@@ -1389,8 +1389,8 @@ function ExportModal({ data, onClose }) {
           <>
             <div style={{ fontSize: 12, color: "#B8B0A8", marginBottom: 8 }}>
               {data.filename
-                ? <>Copy this HTML, save it as <code style={{ color: "#ffec27" }}>{data.filename}</code>, then open it in any browser to play — or share the file with students.</>
-                : <>Copy this text and paste it into a <code style={{ color: "#ffec27" }}>.txt</code> file, then rename it to <code style={{ color: "#ffec27" }}>.bitsy</code> — or paste it into the Bitsy editor directly.</>}
+                ? <>Copy this HTML, save it as <code style={{ color: "#F59E0B" }}>{data.filename}</code>, then open it in any browser to play — or share the file with students.</>
+                : <>Copy this text and paste it into a <code style={{ color: "#F59E0B" }}>.txt</code> file, then rename it to <code style={{ color: "#F59E0B" }}>.bitsy</code> — or paste it into the Bitsy editor directly.</>}
             </div>
             <textarea
               ref={textRef}
@@ -1502,26 +1502,26 @@ function TextImportModal({ onImport, onClose, palette }) {
     <div style={S.modal} onClick={onClose}>
       <div style={{...S.modalContent, maxWidth:480}} onClick={e=>e.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          <h3 style={{margin:0,color:'#4f7fff'}}>Import from Text / Emoji Art</h3>
+          <h3 style={{margin:0,color:'#F59E0B'}}>Import from Text / Emoji Art</h3>
           <button style={S.btn(false)} onClick={onClose}>✕</button>
         </div>
-        <div style={{fontSize:11,color:'#888',marginBottom:8}}>
+        <div style={{fontSize:11,color:'#6B6460',marginBottom:8}}>
           Paste emoji pixel art (⬜⬛), text art (░▓), or binary strings. Each token = 1 pixel.
         </div>
         <textarea value={text} onChange={e=>{setText(e.target.value);setPreview(null);setError('');}}
           placeholder={"⬜ ⬛ ⬛ ⬜\n⬛ ⬜ ⬜ ⬛\n..."}
           style={{...S.input, height:100, resize:'vertical', fontFamily:'monospace', fontSize:13}} />
         <div style={{display:'flex',gap:8,alignItems:'center',marginTop:8,flexWrap:'wrap'}}>
-          <span style={{fontSize:11,color:'#8b93a8'}}>Target size:</span>
+          <span style={{fontSize:11,color:'#B8B0A8'}}>Target size:</span>
           {[8,16].map(sz=><button key={sz} style={{...S.btn(targetSize===sz),fontSize:11}} onClick={()=>{setTargetSize(sz);setPreview(null);}}>{sz}×{sz}</button>)}
-          <span style={{fontSize:11,color:'#8b93a8',marginLeft:8}}>Import as:</span>
+          <span style={{fontSize:11,color:'#B8B0A8',marginLeft:8}}>Import as:</span>
           {['sprite','tile','item'].map(m=><button key={m} style={{...S.btn(importAs===m),fontSize:11}} onClick={()=>setImportAs(m)}>{m}</button>)}
         </div>
-        {error && <div style={{color:'#4f7fff',fontSize:11,marginTop:6}}>{error}</div>}
+        {error && <div style={{color:'#F59E0B',fontSize:11,marginTop:6}}>{error}</div>}
         <button style={{...S.btnGreen,marginTop:10,width:'100%'}} onClick={handlePreview}>Preview</button>
         {preview && (
           <div style={{marginTop:10}}>
-            <div style={{fontSize:11,color:'#8b93a8',marginBottom:4}}>Preview ({preview[0].length}×{preview.length}):</div>
+            <div style={{fontSize:11,color:'#B8B0A8',marginBottom:4}}>Preview ({preview[0].length}×{preview.length}):</div>
             <canvas ref={el=>{
               if(!el)return; const ps=Math.max(4,Math.floor(120/Math.max(preview[0].length,preview.length)));
               el.width=preview[0].length*ps; el.height=preview.length*ps;
@@ -1563,18 +1563,18 @@ function BitsyImportModal({ onImport, onClose }) {
     <div style={S.modal} onClick={onClose}>
       <div style={{...S.modalContent, maxWidth:440}} onClick={e=>e.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          <h3 style={{margin:0,color:'#4f7fff'}}>Import .bitsy File</h3>
+          <h3 style={{margin:0,color:'#F59E0B'}}>Import .bitsy File</h3>
           <button style={S.btn(false)} onClick={onClose}>✕</button>
         </div>
-        <div style={{fontSize:11,color:'#888',marginBottom:10}}>
-          Load a <code style={{color:'#ffec27'}}>.bitsy</code> or <code style={{color:'#ffec27'}}>.txt</code> game file (standard Bitsy or Bitsy-color format). This will replace your current project.
+        <div style={{fontSize:11,color:'#6B6460',marginBottom:10}}>
+          Load a <code style={{color:'#F59E0B'}}>.bitsy</code> or <code style={{color:'#F59E0B'}}>.txt</code> game file (standard Bitsy or Bitsy-color format). This will replace your current project.
         </div>
         <input ref={fileRef} type="file" accept=".bitsy,.txt,text/plain" onChange={handleFile}
           style={{...S.input, marginBottom:8, cursor:'pointer'}} />
-        {status && <div style={{fontSize:12,color:status.startsWith('✓')?'#00e436':'#4f7fff',marginBottom:10,padding:'6px 8px',background:'#1c2233',borderRadius:4}}>{status}</div>}
+        {status && <div style={{fontSize:12,color:status.startsWith('✓')?'#34D399':'#F59E0B',marginBottom:10,padding:'6px 8px',background:'#272320',borderRadius:4}}>{status}</div>}
         <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
           <button style={S.btn(false)} onClick={onClose}>Cancel</button>
-          <button style={{...S.btn(true),background:'#4f7fff'}} disabled={!parsed} onClick={()=>{if(parsed)onImport(parsed);}}>Load Game</button>
+          <button style={{...S.btn(true)}} disabled={!parsed} onClick={()=>{if(parsed)onImport(parsed);}}>Load Game</button>
         </div>
       </div>
     </div>
@@ -2131,18 +2131,18 @@ export default function App() {
     <div style={S.app}>
       {/* Header */}
       <div style={S.header}>
-        <span style={S.title}>🎮 Multicolor Bitsy</span>
+        <span style={S.title}>Multicolor<br/>Bitsy</span>
         <input value={gameTitle} onChange={e=>setGameTitle(e.target.value)}
           style={{...S.input,width:200,fontSize:13}} placeholder="Game title..." />
         <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
           {FIREBASE_READY&&(
             user===undefined ? null :
             user===null ? (
-              <button style={{...S.btn(false),background:"#0d2040",borderColor:"#29adff",color:"#29adff"}}
+              <button style={{...S.btn(false),background:"#1A1714",borderColor:"#38BDF8",color:"#38BDF8"}}
                 onClick={()=>signInWithGoogle().catch(()=>{})}>🔑 Sign In</button>
             ) : (
               <>
-                <button style={{...S.btn(false),background:"#1a2540",borderColor:"#29adff",color:"#29adff",fontSize:11}}
+                <button style={{...S.btn(false),background:"#1A1714",borderColor:"#38BDF8",color:"#38BDF8",fontSize:11}}
                   onClick={openCloudModal}>☁️ Cloud Saves</button>
                 <span style={{fontSize:10,color:"#6B6460",maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
                   title={user.email}>{user.displayName||user.email}</span>
@@ -2153,20 +2153,20 @@ export default function App() {
           )}
           <button style={{...S.btn(false),fontSize:11,padding:"4px 8px"}} title="Undo (Ctrl+Z)" onClick={undo}>↩ Undo</button>
           <button style={{...S.btn(false),fontSize:11,padding:"4px 8px"}} title="Redo (Ctrl+Shift+Z)" onClick={redo}>↪ Redo</button>
-          <button style={{...S.btn(false),borderColor:"#00e436",color:"#00e436"}} onClick={()=>setShowBitsyImport(true)}>📂 Import .bitsy</button>
+          <button style={{...S.btn(false),borderColor:"#34D399",color:"#34D399"}} onClick={()=>setShowBitsyImport(true)}>📂 Import .bitsy</button>
           <button style={S.btnGreen} onClick={()=>setShowImport(true)}>Import Image</button>
-          <button style={{...S.btnGreen,borderColor:"#29adff",color:"#29adff",background:"transparent"}} onClick={()=>setShowTextImport(true)}>⬛ Text Art</button>
+          <button style={{...S.btnGreen,borderColor:"#38BDF8",color:"#38BDF8",background:"transparent"}} onClick={()=>setShowTextImport(true)}>⬛ Text Art</button>
           <button style={S.btn(false)} onClick={()=>setShowPlaytest(true)}>▶ Test Game</button>
           <button style={S.btn(false)} onClick={exportPng}>PNG</button>
           {currentItem?.frames.length>1&&<button style={S.btn(false)} onClick={exportSpritesheet}>Sheet</button>}
           <button style={S.btn(false)} onClick={()=>exportGameData(false)}>Export .bitsy</button>
-          <button style={{...S.btn(false),borderColor:"#29adff",color:"#29adff"}} onClick={()=>exportGameData(true)}>Export Color .bitsy</button>
-          <button style={{...S.btn(false),borderColor:"#ffec27",color:"#ffec27"}} onClick={exportHtml}>🌐 Export HTML</button>
+          <button style={{...S.btn(false),borderColor:"#1E6A8A",color:"#38BDF8"}} onClick={()=>exportGameData(true)}>Export Color .bitsy</button>
+          <button style={{...S.btn(false),borderColor:"#92600A",color:"#F59E0B"}} onClick={exportHtml}>🌐 Export HTML</button>
         </div>
       </div>
 
       {/* Tabs */}
-      <div style={{background:C.bgPanel,padding:"0 20px",display:"flex",borderBottom:`1px solid ${C.border}`}}>
+      <div style={{background:"#1E1B18",padding:"0 20px",display:"flex",borderBottom:"1px solid #3C3834",alignItems:"flex-end",height:40,flexShrink:0}}>
         {["sprite","tile","room","tune"].map(t=>(
           <button key={t} style={S.tab(tab===t)} onClick={()=>{setTab(t);setSelectedFrame(0);}}>
             {t==="sprite"?"🧑 Sprites":t==="tile"?"🟦 Tiles":t==="room"?"🗺 Rooms":"🎵 Tune"}
@@ -2195,13 +2195,20 @@ export default function App() {
           {tab!=="room"&&(
             <div style={S.section}>
               <div style={S.sectionTitle}>Tools</div>
-              <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
-                {[["draw","✏️"],["erase","🧹"],["fill","🪣"]].map(([t,emoji])=>(
-                  <button key={t} style={S.btn(tool===t)} onClick={()=>setTool(t)}>{emoji} {t}</button>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:5}}>
+                {[["draw","✏️","D"],["erase","🧹","E"],["fill","🪣","F"]].map(([t,emoji,key])=>(
+                  <button key={t} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:3,padding:"8px 4px 6px",background:tool===t?"rgba(245,158,11,0.15)":"#272320",border:tool===t?"1px solid #92600A":"1px solid #3C3834",borderRadius:6,cursor:"pointer",color:tool===t?"#F59E0B":"#B8B0A8",fontSize:"9.5px",fontWeight:500,fontFamily:"'DM Sans',system-ui,sans-serif",transition:"all .12s"}} onClick={()=>setTool(t)}>
+                    <span style={{fontSize:18,lineHeight:1}}>{emoji}</span>
+                    <span>{t} <span style={{display:"inline-flex",padding:"1px 4px",background:"#1A1714",border:"1px solid #3C3834",borderRadius:3,fontSize:8,color:"#6B6460",fontFamily:"'DM Mono',monospace"}}>{key}</span></span>
+                  </button>
                 ))}
               </div>
-              <label style={{display:"flex",alignItems:"center",gap:6,fontSize:11,marginTop:6,cursor:"pointer"}}>
-                <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} /> Show grid
+              <label style={{display:"flex",alignItems:"center",gap:8,fontSize:11.5,marginTop:8,cursor:"pointer",color:"#B8B0A8"}}>
+                <input type="checkbox" checked={showGrid} onChange={e=>setShowGrid(e.target.checked)} style={{display:"none"}} />
+                <div style={{width:32,height:18,background:showGrid?"#34D399":"#3C3834",borderRadius:9,position:"relative",transition:"background .2s",flexShrink:0}}>
+                  <div style={{position:"absolute",top:2,width:14,height:14,background:"white",borderRadius:"50%",boxShadow:"0 1px 3px rgba(0,0,0,0.4)",transition:"left .2s",left:showGrid?16:2}} />
+                </div>
+                Show pixel grid
               </label>
             </div>
           )}
@@ -2234,7 +2241,7 @@ export default function App() {
                 ))}
               </div>
               {roomTool==="npc"&&<div style={{fontSize:11,color:"#B8B0A8",marginTop:6}}>Select a sprite below (not avatar) and click room to place</div>}
-              {roomTool==="exit"&&<div style={{fontSize:11,color:"#ff44ee",marginTop:6}}>Click a cell to place an exit portal (pink ▶). Click again to remove.</div>}
+              {roomTool==="exit"&&<div style={{fontSize:11,color:"#C084FC",marginTop:6}}>Click a cell to place an exit portal (pink ▶). Click again to remove.</div>}
               <div style={{marginTop:8,display:"flex",gap:4,alignItems:"center",flexWrap:"wrap"}}>
                 <span style={{fontSize:11,color:"#B8B0A8"}}>Zoom:</span>
                 {[0.5,0.75,1,1.5,2].map(z=>(
@@ -2273,20 +2280,27 @@ export default function App() {
               </>
             ):(
               <>
-                {currentItems.filter(it=>!findQuery||it.name.toLowerCase().includes(findQuery.toLowerCase())).map((item)=>{const i=currentItems.indexOf(item);return(
+                {currentItems.filter(it=>!findQuery||it.name.toLowerCase().includes(findQuery.toLowerCase())).map((item)=>{const i=currentItems.indexOf(item);
+                  const tBadge={walkable:["#34D399","rgba(52,211,153,0.12)"],wall:["#FB7185","rgba(251,113,133,0.12)"],item:["#FCD34D","rgba(252,211,77,0.12)"],end:["#818CF8","rgba(129,140,248,0.12)"]};
+                  const [btc,btbg]=tBadge[item.tileType]||["#6B6460","transparent"];
+                  return(
                   <div key={item.id} onClick={()=>{tab==="sprite"?setSelectedSprite(i):setSelectedTile(i);setSelectedFrame(0);setFindQuery("");}}
-                    style={{padding:"3px 6px",background:i===selectedIdx?"#302C28":"transparent",borderRadius:5,cursor:"pointer",fontSize:12,marginBottom:2,display:"flex",alignItems:"center",gap:6,border:i===selectedIdx?"1px solid #92600A":"1px solid transparent",transition:"background .1s"}}>
-                    <div style={{width:20,height:20,overflow:"hidden",flexShrink:0}}>
-                      <MiniCanvas grid={item.frames[0]} palette={palette} size={20} />
+                    style={{padding:"5px 7px",background:i===selectedIdx?"#302C28":"transparent",borderRadius:5,cursor:"pointer",marginBottom:2,display:"flex",alignItems:"center",gap:8,border:i===selectedIdx?"1px solid #92600A":"1px solid transparent",transition:"background .1s"}}>
+                    <div style={{width:32,height:32,overflow:"hidden",flexShrink:0,borderRadius:3,background:"#141210"}}>
+                      <MiniCanvas grid={item.frames[0]} palette={palette} size={32} />
                     </div>
-                    <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
-                    {item.tileType&&item.tileType!=="walkable"&&<span style={{fontSize:9,color:TILE_TYPE_COLORS[item.tileType]||"#888",fontWeight:700}}>{item.tileType}</span>}
-                    {item.frames?.length>1&&<span style={{color:"#B8B0A8",fontSize:10}}>{item.frames.length}f</span>}
+                    <div style={{flex:1,minWidth:0}}>
+                      <div style={{fontSize:12,color:"#F5F0EB",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",fontWeight:500}}>{item.name}</div>
+                      <div style={{display:"flex",gap:4,alignItems:"center",marginTop:2}}>
+                        {item.tileType&&<span style={{fontFamily:"'DM Mono',monospace",fontSize:8.5,padding:"1px 5px",borderRadius:3,background:btbg,color:btc}}>{item.tileType}</span>}
+                        {item.frames?.length>1&&<span style={{fontFamily:"'DM Mono',monospace",fontSize:8.5,color:"#6B6460"}}>{item.frames.length}f</span>}
+                      </div>
+                    </div>
                   </div>
                 );})}
                 <div style={{display:"flex",gap:4,marginTop:4}}>
                   <button style={{...S.btn(false),flex:1,fontSize:11}} onClick={addItem}>+ Add</button>
-                  <button style={{...S.btn(false),flex:1,fontSize:11}} onClick={deleteItem} disabled={currentItems.length<=1}>Del</button>
+                  <button style={{...S.btn(false),flex:1,fontSize:11,color:"#FB7185",borderColor:"#9F3348"}} onClick={deleteItem} disabled={currentItems.length<=1}>Del</button>
                 </div>
               </>
             )}
@@ -2296,7 +2310,7 @@ export default function App() {
           {tab!=="room"&&<div style={S.section}>
             <div style={S.sectionTitle}>Asset Packs</div>
             {tab==="sprite"&&selectedSprite===0&&(
-              <div style={{fontSize:10,color:"#29adff",background:"#1a2540",borderRadius:3,padding:"4px 6px",marginBottom:6,border:"1px solid #29adff"}}>
+              <div style={{fontSize:10,color:"#38BDF8",background:"#1A1714",borderRadius:4,padding:"4px 6px",marginBottom:6,border:"1px solid #1E6A8A"}}>
                 Avatar selected — clicking a character sprite below will replace the avatar's pixels directly.
               </div>
             )}
@@ -2312,8 +2326,8 @@ export default function App() {
                       <div key={ai} onClick={()=>addFromPack(asset)}
                         title={`Add ${asset.name} (${asset.itemType}${asset.tileType?", "+asset.tileType:""})`}
                         style={{cursor:"pointer",border:"1px solid #3C3834",borderRadius:3,position:"relative",transition:"border .1s"}}
-                        onMouseEnter={e=>e.currentTarget.style.border="1px solid #4f7fff"}
-                        onMouseLeave={e=>e.currentTarget.style.border="1px solid #333"}>
+                        onMouseEnter={e=>e.currentTarget.style.border="1px solid #F59E0B"}
+                        onMouseLeave={e=>e.currentTarget.style.border="1px solid #3C3834"}>
                         <MiniCanvas grid={asset.grid} palette={palette} size={32} />
                         <div style={{fontSize:8,color:"#B8B0A8",textAlign:"center",marginTop:1,maxWidth:32,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",padding:"0 2px"}}>{asset.name}</div>
                       </div>
@@ -2336,14 +2350,14 @@ export default function App() {
               selectedTileId={tiles[selectedTile]?.id} selectedSpriteId={sprites[selectedSprite]?.id} />
           </div>
           {/* Below-canvas panel: Tiles · NPCs · Asset Packs */}
-          <div style={{borderTop:"1px solid #2a3650",background:"#161b27",display:"flex",flexShrink:0,overflowX:"auto",maxHeight:220}}>
+          <div style={{borderTop:"1px solid #3C3834",background:"#1E1B18",display:"flex",flexShrink:0,overflowX:"auto",maxHeight:220}}>
             {/* Tiles */}
-            <div style={{padding:"8px 10px",borderRight:"1px solid #2a3650",minWidth:140,maxWidth:240,overflowY:"auto"}}>
+            <div style={{padding:"8px 10px",borderRight:"1px solid #3C3834",minWidth:140,maxWidth:240,overflowY:"auto"}}>
               <div style={{...S.sectionTitle,marginBottom:5}}>Tiles</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
                 {tiles.map((tile,i)=>(
                   <div key={tile.id} onClick={()=>setSelectedTile(i)}
-                    style={{border:i===selectedTile?"2px solid #4f7fff":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative",flexShrink:0}}>
+                    style={{border:i===selectedTile?"2px solid #F59E0B":"1px solid #3C3834",borderRadius:3,cursor:"pointer",position:"relative",flexShrink:0}}>
                     <MiniCanvas grid={tile.frames[0]} palette={palette} size={28} />
                     {tile.tileType&&tile.tileType!=="walkable"&&<div style={{position:"absolute",bottom:0,right:0,fontSize:7,background:TILE_TYPE_COLORS[tile.tileType],color:"#000",padding:"0 2px",fontWeight:700,borderRadius:"2px 0 0 0"}}>{tile.tileType[0]}</div>}
                   </div>
@@ -2351,12 +2365,12 @@ export default function App() {
               </div>
             </div>
             {/* NPCs */}
-            <div style={{padding:"8px 10px",borderRight:"1px solid #2a3650",minWidth:120,maxWidth:200,overflowY:"auto"}}>
+            <div style={{padding:"8px 10px",borderRight:"1px solid #3C3834",minWidth:120,maxWidth:200,overflowY:"auto"}}>
               <div style={{...S.sectionTitle,marginBottom:5}}>NPCs</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
                 {sprites.map((spr,i)=>(
                   <div key={spr.id} onClick={()=>setSelectedSprite(i)}
-                    style={{border:i===selectedSprite?"2px solid #4f7fff":"2px solid #444",borderRadius:3,cursor:"pointer",opacity:i===0?0.4:1,flexShrink:0}}>
+                    style={{border:i===selectedSprite?"2px solid #F59E0B":"1px solid #3C3834",borderRadius:3,cursor:"pointer",opacity:i===0?0.4:1,flexShrink:0}}>
                     <MiniCanvas grid={spr.frames[0]} palette={palette} size={28} />
                   </div>
                 ))}
@@ -2379,8 +2393,8 @@ export default function App() {
                           <div key={ai} onClick={()=>addFromPack(asset)}
                             title={`Add ${asset.name}`}
                             style={{cursor:"pointer",border:"1px solid #3C3834",borderRadius:3,flexShrink:0}}
-                            onMouseEnter={e=>e.currentTarget.style.border="1px solid #4f7fff"}
-                            onMouseLeave={e=>e.currentTarget.style.border="1px solid #333"}>
+                            onMouseEnter={e=>e.currentTarget.style.border="1px solid #F59E0B"}
+                            onMouseLeave={e=>e.currentTarget.style.border="1px solid #3C3834"}>
                             <MiniCanvas grid={asset.grid} palette={palette} size={28} />
                           </div>
                         ))}
@@ -2425,7 +2439,7 @@ export default function App() {
               </div>
               <div style={{marginTop:12,fontSize:11,color:"#6B6460",lineHeight:1.8}}>
                 The tune loops in the background while your game is playing.<br/>
-                Separate dialog pages with <code style={{color:"#ffec27"}}>---</code> on its own line for multi-page speech.
+                Separate dialog pages with <code style={{color:"#F59E0B"}}>---</code> on its own line for multi-page speech.
               </div>
             </div>
           ):(tab!=="tune"&&(
@@ -2447,14 +2461,14 @@ export default function App() {
 
               {/* Set as Avatar — shown on any non-avatar sprite */}
               {tab==="sprite"&&selectedSprite===0&&(
-                <div style={{background:"#1E1B18",border:"1px solid #3C3834",borderRadius:4,padding:"6px 10px",marginBottom:12,fontSize:11,color:"#B8B0A8"}}>
+                <div style={{background:"#1A1714",border:"1px solid #3C3834",borderRadius:5,padding:"6px 10px",marginBottom:12,fontSize:11,color:"#B8B0A8"}}>
                   🧑 <b style={{color:"#F59E0B"}}>This is the Avatar</b> — the player character.<br/>
                   To set its look: select it here, then click any character sprite in an Asset Pack below to replace its pixels instantly.
                 </div>
               )}
               {tab==="sprite"&&selectedSprite>0&&(
                 <div style={{marginBottom:12}}>
-                  <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#1a2540",borderColor:"#29adff",color:"#29adff"}}
+                  <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#1A1714",borderColor:"#38BDF8",color:"#38BDF8"}}
                     onClick={()=>setAsAvatar(selectedSprite)}>
                     👤 Set as Avatar (replace player appearance)
                   </button>
@@ -2464,17 +2478,19 @@ export default function App() {
 
               {/* Tile type (shown for both sprites and tiles) */}
               <div style={S.section}>
-                <div style={S.sectionTitle}>Behavior Tag</div>
-                <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-                  {TILE_TYPES.map(t=>(
-                    <button key={t} onClick={()=>updateTileType(t)}
-                      style={{...S.btn(currentTileType===t),fontSize:11,color:currentTileType===t?"#fff":TILE_TYPE_COLORS[t]||"#aaa",borderColor:TILE_TYPE_COLORS[t]||"#333"}}>
-                      {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
-                    </button>
-                  ))}
-                </div>
-                <div style={{fontSize:10,color:"#6B6460",marginTop:4}}>
-                  🟢 walkable · 🔴 wall (blocks player) · 🟡 item (collect it!) · 🔵 end (win the game)
+                <div style={S.sectionTitle}>Behavior</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
+                  {TILE_TYPES.map(t=>{
+                    const isActive=currentTileType===t;
+                    const tColors={walkable:["#34D399","rgba(52,211,153,0.15)"],wall:["#FB7185","rgba(251,113,133,0.15)"],item:["#FCD34D","rgba(252,211,77,0.15)"],end:["#818CF8","rgba(129,140,248,0.15)"]};
+                    const [tc,tbg]=tColors[t]||["#B8B0A8","transparent"];
+                    return(
+                      <button key={t} onClick={()=>updateTileType(t)}
+                        style={{padding:"6px 4px",borderRadius:5,border:isActive?`1px solid ${tc}`:"1px solid #3C3834",background:isActive?tbg:"#272320",color:isActive?tc:"#B8B0A8",fontSize:10.5,fontWeight:500,cursor:"pointer",textAlign:"center",fontFamily:"'DM Sans',system-ui,sans-serif",transition:"all .12s"}}>
+                        {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -2509,19 +2525,19 @@ export default function App() {
                     <span style={{fontSize:11,color:"#B8B0A8",minWidth:36}}>{currentItem.blip?.freq||440}Hz</span>
                   </div>
                   <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                    <span style={{fontSize:11,color:"#aaa"}}>Duration:</span>
+                    <span style={{fontSize:11,color:"#B8B0A8"}}>Duration:</span>
                     <input type="range" min={0.05} max={1.0} step={0.01} value={currentItem.blip?.dur||0.15}
                       onChange={e=>updateBlip("dur",+e.target.value)} style={{flex:1}} />
-                    <span style={{fontSize:11,color:"#aaa",minWidth:30}}>{(currentItem.blip?.dur||0.15).toFixed(2)}s</span>
+                    <span style={{fontSize:11,color:"#B8B0A8",minWidth:30}}>{(currentItem.blip?.dur||0.15).toFixed(2)}s</span>
                   </div>
                   <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                    <span style={{fontSize:11,color:"#aaa"}}>Volume:</span>
+                    <span style={{fontSize:11,color:"#B8B0A8"}}>Volume:</span>
                     <input type="range" min={0} max={1.0} step={0.01} value={currentItem.blip?.vol||0.25}
                       onChange={e=>updateBlip("vol",+e.target.value)} style={{flex:1}} />
-                    <span style={{fontSize:11,color:"#aaa",minWidth:24}}>{Math.round((currentItem.blip?.vol||0.25)*100)}%</span>
+                    <span style={{fontSize:11,color:"#B8B0A8",minWidth:24}}>{Math.round((currentItem.blip?.vol||0.25)*100)}%</span>
                   </div>
                   <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                    <label style={{fontSize:11,color:"#aaa",display:"flex",alignItems:"center",gap:4,cursor:"pointer"}}>
+                    <label style={{fontSize:11,color:"#B8B0A8",display:"flex",alignItems:"center",gap:4,cursor:"pointer"}}>
                       <input type="checkbox" checked={!!currentItem.blip?.freqEnd} onChange={e=>{
                         if(e.target.checked) updateBlip("freqEnd",currentItem.blip?.freq||440);
                         else updateBlip("freqEnd",undefined);
@@ -2530,30 +2546,30 @@ export default function App() {
                   </div>
                   {currentItem.blip?.freqEnd!=null&&(
                     <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                      <span style={{fontSize:11,color:"#aaa"}}>End:</span>
+                      <span style={{fontSize:11,color:"#B8B0A8"}}>End:</span>
                       <input type="range" min={110} max={1760} step={10} value={currentItem.blip?.freqEnd||440}
                         onChange={e=>updateBlip("freqEnd",+e.target.value)} style={{flex:1}} />
-                      <span style={{fontSize:11,color:"#aaa",minWidth:36}}>{currentItem.blip?.freqEnd||440}Hz</span>
+                      <span style={{fontSize:11,color:"#B8B0A8",minWidth:36}}>{currentItem.blip?.freqEnd||440}Hz</span>
                     </div>
                   )}
                   <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                    <span style={{fontSize:11,color:"#aaa"}}>Attack:</span>
+                    <span style={{fontSize:11,color:"#B8B0A8"}}>Attack:</span>
                     <input type="range" min={0.005} max={0.5} step={0.005} value={currentItem.blip?.attack||0.005}
                       onChange={e=>updateBlip("attack",+e.target.value)} style={{flex:1}} />
-                    <span style={{fontSize:11,color:"#aaa",minWidth:30}}>{((currentItem.blip?.attack||0.005)*1000).toFixed(0)}ms</span>
+                    <span style={{fontSize:11,color:"#B8B0A8",minWidth:30}}>{((currentItem.blip?.attack||0.005)*1000).toFixed(0)}ms</span>
                   </div>
                   <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                    <span style={{fontSize:11,color:"#aaa"}}>Decay:</span>
+                    <span style={{fontSize:11,color:"#B8B0A8"}}>Decay:</span>
                     <input type="range" min={0.01} max={1.0} step={0.01} value={currentItem.blip?.decay||(Math.max(0.01,(currentItem.blip?.dur||0.15)-(currentItem.blip?.attack||0.005)))}
                       onChange={e=>updateBlip("decay",+e.target.value)} style={{flex:1}} />
-                    <span style={{fontSize:11,color:"#aaa",minWidth:30}}>{((currentItem.blip?.decay||(Math.max(0.01,(currentItem.blip?.dur||0.15)-(currentItem.blip?.attack||0.005))))*1000).toFixed(0)}ms</span>
+                    <span style={{fontSize:11,color:"#B8B0A8",minWidth:30}}>{((currentItem.blip?.decay||(Math.max(0.01,(currentItem.blip?.dur||0.15)-(currentItem.blip?.attack||0.005))))*1000).toFixed(0)}ms</span>
                   </div>
                   <button style={{...S.btn(false),fontSize:10,width:"100%"}}
                     onClick={()=>{const b=currentItem.blip||{};playBlip(b.wave||"square",b.freq||440,b.dur||0.15,b.vol||0.25,b.freqEnd,b.attack,b.decay);}}>
                     ▶ Preview Blip
                   </button>
                   <div style={{marginTop:8}}>
-                    <div style={{fontSize:10,color:"#888",marginBottom:4}}>Blip Presets</div>
+                    <div style={{fontSize:10,color:"#6B6460",marginBottom:4}}>Blip Presets</div>
                     {BLIP_PACKS.map((pack,pi)=>(
                       <div key={pi} style={{marginBottom:3}}>
                         <button onClick={()=>setActiveBlipPack(activeBlipPack===pi?null:pi)}
@@ -2679,7 +2695,7 @@ export default function App() {
                 <div style={S.section}>
                   <div style={S.sectionTitle}>Exits ({rooms[selectedRoom].exits.length})</div>
                   {rooms[selectedRoom].exits.map((ex,i)=>(
-                    <div key={i} style={{fontSize:11,color:ex.isEnding?"#ffec27":"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#1E1B18",borderRadius:3,padding:"3px 6px"}}>
+                    <div key={i} style={{fontSize:11,color:ex.isEnding?"#F59E0B":"#C084FC",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#272320",borderRadius:3,padding:"3px 6px"}}>
                       <span>{ex.isEnding?"🏁 ":"🚪 "}({ex.x},{ex.y}) → {ex.isEnding?"ENDING":`Room ${ex.destRoom} @ (${ex.destX},${ex.destY})`}{ex.endingMessage?` "${ex.endingMessage}"`:""}</span>
                       <button style={{background:"none",border:"none",color:"#F59E0B",cursor:"pointer",fontSize:12,padding:"0 2px"}}
                         onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:rs[selectedRoom].exits.filter((_,j)=>j!==i)};return rs;})}>✕</button>
@@ -2710,6 +2726,24 @@ export default function App() {
         </>)}
       </div>
 
+      {/* Status Bar */}
+      <div style={{background:"#1E1B18",borderTop:"1px solid #3C3834",height:26,display:"flex",alignItems:"center",padding:"0 16px",gap:16,flexShrink:0}}>
+        <div style={{fontFamily:"'DM Mono',monospace",fontSize:9.5,color:"#6B6460",display:"flex",alignItems:"center",gap:5}}>
+          <div style={{width:5,height:5,borderRadius:"50%",background:"#34D399",boxShadow:"0 0 4px #34D399",flexShrink:0}} />
+          Ready
+        </div>
+        <div style={{fontFamily:"'DM Mono',monospace",fontSize:9.5,color:"#6B6460"}}>
+          {tab!=="room"&&tab!=="tune"?`${itemW}×${itemH} px · `:""}{palette.length} colors · {rooms.length} room{rooms.length!==1?"s":""}
+        </div>
+        <div style={{fontFamily:"'DM Mono',monospace",fontSize:9.5,color:"#6B6460",marginLeft:"auto",display:"flex",gap:10}}>
+          {[["D","draw"],["E","erase"],["F","fill"],["G","grid"],["⌘Z","undo"]].map(([k,v])=>(
+            <span key={k} style={{display:"flex",alignItems:"center",gap:3}}>
+              <span style={{display:"inline-flex",padding:"1px 4px",background:"#272320",border:"1px solid #3C3834",borderRadius:3,fontSize:8}}>{k}</span>
+              {v}
+            </span>
+          ))}
+        </div>
+      </div>
       {showImport&&<PngImportModal onImport={handleImport} onClose={()=>setShowImport(false)} palette={palette} maxColors={MAX_COLORS} />}
       {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={selectedRoom} tiles={tiles} sprites={sprites}
         palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune} onClose={()=>setShowPlaytest(false)} />}
