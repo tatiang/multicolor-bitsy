@@ -2736,6 +2736,9 @@ export default function App() {
       {cloudModal&&user&&<CloudSavesModal user={user} saves={cloudSaves} onSave={handleCloudSave} onLoad={handleCloudLoad} onDelete={handleCloudDelete} onClose={()=>setCloudModal(false)} loading={cloudLoading} />}
       {showBitsyImport&&<BitsyImportModal onImport={handleBitsyImport} onClose={()=>setShowBitsyImport(false)} />}
       {showTextImport&&<TextImportModal onImport={handleTextImport} onClose={()=>setShowTextImport(false)} palette={palette} />}
+      <div style={{position:"fixed",bottom:6,right:10,fontSize:10,color:"#3a4460",pointerEvents:"none",userSelect:"none",zIndex:1}}>
+        Updated {new Date(__BUILD_TIME__).toLocaleString(undefined,{month:"short",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit"})}
+      </div>
     </div>
   );
 }
