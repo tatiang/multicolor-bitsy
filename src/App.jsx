@@ -346,29 +346,46 @@ function nearestColor(r,g,b,palette) {
 function emptyGrid(w,h) { return Array.from({length:h},()=>Array(w).fill(0)); }
 
 // ─── Styles ───────────────────────────────────────────────────────────────────
+// Design tokens
+const C = {
+  bgBase:    "#0f1117",
+  bgPanel:   "#161b27",
+  bgAlt:     "#1c2233",
+  bgHover:   "#232d42",
+  bgActive:  "#1e2e5c",
+  border:    "#2a3650",
+  borderSub: "#1e2840",
+  textPri:   "#e8eaf0",
+  textSec:   "#8b93a8",
+  textMuted: "#4e5870",
+  accent:    "#4f7fff",
+  accentHov: "#6b93ff",
+  accentDim: "#1e2e5c",
+};
+
 const S = {
-  app:{ fontFamily:"'Inter',system-ui,sans-serif", background:"#1a1a2e", color:"#e0e0e0", minHeight:"100vh", display:"flex", flexDirection:"column" },
-  header:{ background:"#16213e", padding:"10px 20px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:"2px solid #0f3460", gap:12 },
-  title:{ fontSize:20, fontWeight:700, color:"#e94560", letterSpacing:1, whiteSpace:"nowrap" },
+  app:{ fontFamily:"'Inter',system-ui,sans-serif", background:C.bgBase, color:C.textPri, minHeight:"100vh", display:"flex", flexDirection:"column" },
+  header:{ background:C.bgPanel, padding:"8px 16px", display:"flex", alignItems:"center", justifyContent:"space-between", borderBottom:`1px solid ${C.border}`, gap:10 },
+  title:{ fontSize:17, fontWeight:700, color:C.textPri, letterSpacing:0.5, whiteSpace:"nowrap" },
   main:{ display:"flex", flex:1, overflow:"hidden" },
-  sidebar:{ width:256, background:"#16213e", padding:12, overflowY:"auto", borderRight:"2px solid #0f3460", flexShrink:0 },
-  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"flex-start", padding:16, overflow:"auto" },
+  sidebar:{ width:240, background:C.bgPanel, padding:"10px 10px", overflowY:"auto", borderRight:`1px solid ${C.border}`, flexShrink:0 },
+  center:{ flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:16, overflow:"auto", background:C.bgBase },
   centerRoom:{ flex:1, display:"flex", flexDirection:"column", alignItems:"stretch", justifyContent:"flex-start", overflow:"hidden", minWidth:0 },
-  rightPanel:{ width:290, background:"#16213e", padding:12, overflowY:"auto", borderLeft:"2px solid #0f3460", flexShrink:0 },
+  rightPanel:{ width:272, background:C.bgPanel, padding:"10px 10px", overflowY:"auto", borderLeft:`1px solid ${C.border}`, flexShrink:0 },
   section:{ marginBottom:14 },
-  sectionTitle:{ fontSize:11, fontWeight:700, textTransform:"uppercase", color:"#e94560", marginBottom:6, letterSpacing:0.5 },
-  btn:(active)=>({ padding:"5px 10px", background:active?"#e94560":"#0f3460", color:active?"#fff":"#e0e0e0", border:active?"1px solid #e94560":"1px solid #1a1a5e", borderRadius:4, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .12s" }),
-  btnGreen:{ padding:"5px 10px", background:"#008751", color:"#fff", border:"1px solid #00e436", borderRadius:4, cursor:"pointer", fontSize:12, fontWeight:600 },
-  input:{ background:"#0d1b3e", border:"1px solid #1a1a5e", color:"#e0e0e0", borderRadius:4, padding:"4px 8px", fontSize:12, width:"100%", boxSizing:"border-box" },
-  select:{ background:"#0d1b3e", border:"1px solid #1a1a5e", color:"#e0e0e0", borderRadius:4, padding:"4px 6px", fontSize:12 },
-  tab:(active)=>({ padding:"7px 14px", background:active?"#e94560":"#0f3460", color:active?"#fff":"#aaa", border:"none", borderRadius:"4px 4px 0 0", cursor:"pointer", fontSize:13, fontWeight:600, marginRight:2 }),
-  modal:{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,.75)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 },
-  modalContent:{ background:"#1a1a2e", border:"2px solid #0f3460", borderRadius:8, padding:24, maxWidth:520, width:"92%", maxHeight:"90vh", overflowY:"auto" },
+  sectionTitle:{ fontSize:10, fontWeight:700, textTransform:"uppercase", color:C.textMuted, marginBottom:7, letterSpacing:"0.08em" },
+  btn:(active)=>({ padding:"5px 10px", background:active?C.accentDim:C.bgAlt, color:active?C.accent:C.textSec, border:active?`1px solid ${C.accent}`:`1px solid ${C.border}`, borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:600, transition:"all .12s" }),
+  btnGreen:{ padding:"5px 10px", background:"rgba(0,135,81,0.15)", color:"#3dd68c", border:"1px solid rgba(61,214,140,0.4)", borderRadius:6, cursor:"pointer", fontSize:12, fontWeight:600 },
+  input:{ background:C.bgAlt, border:`1px solid ${C.border}`, color:C.textPri, borderRadius:6, padding:"5px 8px", fontSize:12, width:"100%", boxSizing:"border-box" },
+  select:{ background:C.bgAlt, border:`1px solid ${C.border}`, color:C.textPri, borderRadius:6, padding:"5px 7px", fontSize:12 },
+  tab:(active)=>({ padding:"9px 16px", background:"transparent", color:active?C.textPri:C.textSec, border:"none", borderBottom:active?`2px solid ${C.accent}`:"2px solid transparent", cursor:"pointer", fontSize:13, fontWeight:600, marginRight:0, transition:"color .12s, border-color .12s", position:"relative", top:1 }),
+  modal:{ position:"fixed", top:0, left:0, right:0, bottom:0, background:"rgba(0,0,0,.8)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:1000 },
+  modalContent:{ background:C.bgAlt, border:`1px solid ${C.border}`, borderRadius:10, padding:24, maxWidth:520, width:"92%", maxHeight:"90vh", overflowY:"auto" },
   row:{ display:"flex", gap:8, alignItems:"center", marginBottom:8, flexWrap:"wrap" },
-  label:{ fontSize:12, color:"#aaa", minWidth:56 },
-  colorSwatch:(color,selected)=>({ width:26, height:26, background:color, border:selected?"3px solid #e94560":"2px solid #333", borderRadius:4, cursor:"pointer", display:"inline-block", margin:2, boxShadow:selected?"0 0 6px #e94560":"none" }),
-  canvas:{ border:"2px solid #0f3460", borderRadius:4, cursor:"crosshair", imageRendering:"pixelated" },
-  frameThumb:(active)=>({ border:active?"2px solid #e94560":"2px solid #444", borderRadius:4, cursor:"pointer", imageRendering:"pixelated", margin:2, background:"#111", display:"block" }),
+  label:{ fontSize:12, color:C.textSec, minWidth:56 },
+  colorSwatch:(color,selected)=>({ width:26, height:26, background:color, border:selected?`3px solid ${C.accent}`:`2px solid ${C.border}`, borderRadius:5, cursor:"pointer", display:"inline-block", margin:2, boxShadow:selected?`0 0 0 1px ${C.accent}`:"none", transition:"transform .1s", transform:selected?"scale(1.1)":"scale(1)" }),
+  canvas:{ border:`1px solid ${C.border}`, borderRadius:6, cursor:"crosshair", imageRendering:"pixelated", boxShadow:`0 4px 20px rgba(0,0,0,0.5)` },
+  frameThumb:(active)=>({ border:active?`2px solid ${C.accent}`:`2px solid ${C.border}`, borderRadius:5, cursor:"pointer", imageRendering:"pixelated", margin:2, background:"#111", display:"block" }),
 };
 
 // ─── Pixel Canvas ─────────────────────────────────────────────────────────────
@@ -492,7 +509,7 @@ function RoomCanvas({ room, tiles, sprites, palette, roomW, roomH, tileW, tileH,
   };
   const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
   return (
-    <div style={{ overflow:"auto", maxWidth:"100%", maxHeight:"65vh", border:"2px solid #0f3460", borderRadius:4, background:palette[0]||"#000" }}>
+    <div style={{ overflow:"auto", maxWidth:"100%", maxHeight:"65vh", border:"1px solid #2a3650", borderRadius:4, background:palette[0]||"#000" }}>
       <canvas ref={ref} style={{ ...S.canvas, border:"none", borderRadius:0, width:cw, height:ch, cursor:"pointer", display:"block" }}
         onMouseDown={e=>{dragging.current=true;handle(e,true);}} onMouseMove={e=>handle(e)}
         onMouseUp={()=>{if(dragging.current){dragging.current=false;onStrokeEnd?.();}}}
@@ -553,11 +570,11 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
   return (
     <div style={S.modal} onClick={onClose}>
       <div style={S.modalContent} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 14px",color:"#e94560"}}>Import Image</h3>
+        <h3 style={{margin:"0 0 14px",color:"#4f7fff"}}>Import Image</h3>
         <input type="file" accept="image/*" onChange={handleFile} style={{...S.input,marginBottom:10}} />
         {preview&&<div style={{textAlign:"center",marginBottom:10}}>
-          <img src={imgData} alt="preview" style={{maxWidth:180,maxHeight:180,imageRendering:"pixelated",border:"1px solid #333",borderRadius:4}} />
-          <div style={{fontSize:11,color:"#888",marginTop:4}}>Original: {preview.width}×{preview.height}</div>
+          <img src={imgData} alt="preview" style={{maxWidth:180,maxHeight:180,imageRendering:"pixelated",border:"1px solid #2a3650",borderRadius:4}} />
+          <div style={{fontSize:11,color:"#8b93a8",marginTop:4}}>Original: {preview.width}×{preview.height}</div>
         </div>}
         <div style={S.row}><span style={S.label}>Import as:</span>
           <button style={S.btn(importMode==="sprite")} onClick={()=>setImportMode("sprite")}>Sprite/NPC</button>
@@ -651,13 +668,13 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, til
     <div style={S.modal} onClick={onClose}>
       <div style={{...S.modalContent,maxWidth:420}} onClick={e=>e.stopPropagation()}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <h3 style={{margin:0,color:isEnding?"#ffec27":"#e94560"}}>{isEnding?"🏁 Configure Ending":"🚪 Configure Exit"}</h3>
+          <h3 style={{margin:0,color:isEnding?"#ffec27":"#4f7fff"}}>{isEnding?"🏁 Configure Ending":"🚪 Configure Exit"}</h3>
           <div style={{display:"flex",gap:4}}>
             <button style={{...S.btn(visualMode),fontSize:10}} onClick={()=>setVisualMode(true)}>Visual</button>
             <button style={{...S.btn(!visualMode),fontSize:10}} onClick={()=>setVisualMode(false)}>Simple</button>
           </div>
         </div>
-        <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Exit at ({position.x},{position.y}) in Room {currentRoom}</p>
+        <p style={{fontSize:12,color:"#8b93a8",margin:"0 0 12px"}}>Exit at ({position.x},{position.y}) in Room {currentRoom}</p>
 
         <div style={S.row}>
           <span style={S.label}>Destination:</span>
@@ -743,12 +760,12 @@ function TuneEditor({ tune, onChange }) {
     <div>
       <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8,flexWrap:"wrap"}}>
         <button style={S.btn(playing)} onClick={playing?stopPlay:startPlay}>{playing?"⏹ Stop":"▶ Play"}</button>
-        <span style={{fontSize:11,color:"#aaa"}}>BPM:</span>
+        <span style={{fontSize:11,color:"#8b93a8"}}>BPM:</span>
         <input type="range" min={60} max={240} value={bpm} onChange={e=>setBpm(+e.target.value)} style={{width:70}} />
         <span style={{fontSize:11}}>{bpm}</span>
         <button style={{...S.btn(false),fontSize:10,marginLeft:"auto"}} onClick={()=>onChange(tune.map(()=>({semi:0,active:false})))}>Clear</button>
       </div>
-      <div style={{overflowX:"auto",overflowY:"auto",maxHeight:220,border:"1px solid #0f3460",borderRadius:4}}>
+      <div style={{overflowX:"auto",overflowY:"auto",maxHeight:220,border:"1px solid #2a3650",borderRadius:4}}>
         <div style={{display:"grid",gridTemplateColumns:`40px repeat(${TUNE_STEPS},1fr)`,gap:1,minWidth:440}}>
           {Array.from({length:ROWS},(_,ri)=>{
             const semi=ROWS-1-ri+12; // C4(12 semitones above C3) to B5
@@ -756,18 +773,18 @@ function TuneEditor({ tune, onChange }) {
             const name=NOTE_NAMES[semi%12];
             const natural=!name.includes("#");
             return [
-              <div key={`l${ri}`} style={{fontSize:9,color:natural?"#ccc":"#555",background:"#0d1b3e",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:3,height:10}}>
+              <div key={`l${ri}`} style={{fontSize:9,color:natural?"#ccc":"#555",background:"#1c2233",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:3,height:10}}>
                 {natural?`${name}${oct}`:""}
               </div>,
               ...Array.from({length:TUNE_STEPS},(_,si)=>{
                 const act=tune[si]?.active&&tune[si]?.semi===semi;
-                return <div key={`${ri}-${si}`} onClick={()=>toggle(si,semi)} style={{height:10,background:act?"#e94560":si===activeStep?"#1a3050":"#111",border:"1px solid #0a1428",cursor:"pointer",borderRadius:1}} />;
+                return <div key={`${ri}-${si}`} onClick={()=>toggle(si,semi)} style={{height:10,background:act?"#4f7fff":si===activeStep?"#1a3050":"#111",border:"1px solid #0a1428",cursor:"pointer",borderRadius:1}} />;
               })
             ];
           }).flat()}
         </div>
       </div>
-      <div style={{fontSize:10,color:"#555",marginTop:5}}>Click cells to place notes · Each column = one 16th note step</div>
+      <div style={{fontSize:10,color:"#4e5870",marginTop:5}}>Click cells to place notes · Each column = one 16th note step</div>
     </div>
   );
 }
@@ -928,9 +945,9 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
     <div style={S.modal}>
       <div style={{...S.modalContent,maxWidth:560}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-          <h3 style={{margin:0,color:"#e94560"}}>▶ Playtest</h3>
+          <h3 style={{margin:0,color:"#4f7fff"}}>▶ Playtest</h3>
           <div style={{display:"flex",gap:6,alignItems:"center"}}>
-            <span style={{fontSize:11,color:"#888",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{rooms[roomIdx]?.name}</span>
+            <span style={{fontSize:11,color:"#8b93a8",maxWidth:120,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{rooms[roomIdx]?.name}</span>
             <button style={{...S.btn(showInv),fontSize:11}} onClick={()=>setShowInv(v=>!v)}>🎒 {collected.length}</button>
             <button style={S.btn(false)} onClick={onClose}>✕</button>
           </div>
@@ -939,7 +956,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
           <div style={{textAlign:"center",padding:32}}>
             <div style={{fontSize:40,marginBottom:12}}>🎉</div>
             <div style={{fontSize:22,color:"#ffec27",fontWeight:700,marginBottom:8}}>{wonMsg||"You Win!"}</div>
-            <div style={{color:"#aaa",marginBottom:16}}>Items collected: {collected.length}</div>
+            <div style={{color:"#8b93a8",marginBottom:16}}>Items collected: {collected.length}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button style={S.btn(true)} onClick={restart}>↺ Play Again</button>
               <button style={S.btn(false)} onClick={onClose}>Back to Editor</button>
@@ -949,26 +966,26 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
           <>
             <canvas ref={canvasRef} style={{...S.canvas,display:"block",margin:"0 auto",width:cw*sc,height:ch*sc}} />
             {dialog && (
-              <div style={{background:"#0f3460",border:"1px solid #e94560",borderRadius:6,padding:12,marginTop:10}}>
+              <div style={{background:C.bgAlt,border:`1px solid ${C.accent}`,borderRadius:6,padding:12,marginTop:10}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                  <div style={{color:"#e94560",fontSize:11,fontWeight:700}}>{dialog.name}</div>
-                  {dialog.pages.length>1&&<div style={{fontSize:10,color:"#888"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
+                  <div style={{color:"#4f7fff",fontSize:11,fontWeight:700}}>{dialog.name}</div>
+                  {dialog.pages.length>1&&<div style={{fontSize:10,color:"#8b93a8"}}>{dialog.pageIdx+1}/{dialog.pages.length}</div>}
                 </div>
                 <div style={{fontSize:14,lineHeight:1.5,whiteSpace:"pre-wrap"}}>{dialog.pages[dialog.pageIdx]}</div>
-                <div style={{fontSize:11,color:"#555",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / ↵ to continue →":"Space / ↵ to close"}</div>
+                <div style={{fontSize:11,color:"#4e5870",marginTop:6}}>{dialog.pageIdx<dialog.pages.length-1?"Space / ↵ to continue →":"Space / ↵ to close"}</div>
               </div>
             )}
             {showInv&&(
-              <div style={{background:"#0d1b3e",border:"1px solid #0f3460",borderRadius:6,padding:10,marginTop:8}}>
+              <div style={{background:"#1c2233",border:"1px solid #2a3650",borderRadius:6,padding:10,marginTop:8}}>
                 <div style={{fontSize:11,fontWeight:700,color:"#ffec27",marginBottom:5}}>🎒 Inventory</div>
-                {collected.length===0?<div style={{fontSize:11,color:"#555"}}>Nothing yet.</div>:(
+                {collected.length===0?<div style={{fontSize:11,color:"#4e5870"}}>Nothing yet.</div>:(
                   <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
-                    {collected.map((it,i)=><span key={i} style={{background:"#1a1a2e",border:"1px solid #333",borderRadius:4,padding:"2px 8px",fontSize:12,color:"#ffec27"}}>{it.name}</span>)}
+                    {collected.map((it,i)=><span key={i} style={{background:"#0f1117",border:"1px solid #2a3650",borderRadius:4,padding:"2px 8px",fontSize:12,color:"#ffec27"}}>{it.name}</span>)}
                   </div>
                 )}
               </div>
             )}
-            <div style={{display:"flex",justifyContent:"space-between",marginTop:10,fontSize:11,color:"#555",flexWrap:"wrap",gap:4}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginTop:10,fontSize:11,color:"#4e5870",flexWrap:"wrap",gap:4}}>
               <span>Arrow keys to move · NPCs talk · 🌸 = exit portal</span>
               <span>Rooms: {roomIdx+1}/{rooms.length}</span>
             </div>
@@ -1312,9 +1329,9 @@ function render(){
   drawSprite(frame(sprs[0]),pos.x,pos.y);
   if(dlg){
     var bw=cv.width-16,bh=86,bx=8,by=cv.height-bh-8;
-    ctx.fillStyle='#0f3460';ctx.fillRect(bx,by,bw,bh);
-    ctx.strokeStyle='#e94560';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
-    ctx.fillStyle='#e94560';ctx.font='bold 10px monospace';ctx.fillText(dlg.name||'',bx+8,by+14);
+    ctx.fillStyle='#2a3650';ctx.fillRect(bx,by,bw,bh);
+    ctx.strokeStyle='#4f7fff';ctx.lineWidth=1;ctx.strokeRect(bx,by,bw,bh);
+    ctx.fillStyle='#4f7fff';ctx.font='bold 10px monospace';ctx.fillText(dlg.name||'',bx+8,by+14);
     ctx.fillStyle='#fff';ctx.font='12px monospace';
     var txt=dlg.pages[dlg.pi]||'',ml=Math.floor((bw-16)/7),yo=by+28;
     for(var ci=0;ci<txt.length&&yo<by+bh-14;){var ch2=txt.slice(ci,ci+ml),nl=ch2.indexOf('\\n');if(nl>=0){ctx.fillText(ch2.slice(0,nl),bx+8,yo);ci+=nl+1;}else{ctx.fillText(ch2,bx+8,yo);ci+=ml;}yo+=14;}
@@ -1381,13 +1398,13 @@ function ExportModal({ data, onClose }) {
     <div style={S.modal} onClick={onClose}>
       <div style={{ ...S.modalContent, maxWidth: 600 }} onClick={e => e.stopPropagation()}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <h3 style={{ margin: 0, color: "#e94560" }}>{data.title}</h3>
+          <h3 style={{ margin: 0, color: "#4f7fff" }}>{data.title}</h3>
           <button style={S.btn(false)} onClick={onClose}>✕</button>
         </div>
 
         {data.type === "text" && (
           <>
-            <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: "#8b93a8", marginBottom: 8 }}>
               {data.filename
                 ? <>Copy this HTML, save it as <code style={{ color: "#ffec27" }}>{data.filename}</code>, then open it in any browser to play — or share the file with students.</>
                 : <>Copy this text and paste it into a <code style={{ color: "#ffec27" }}>.txt</code> file, then rename it to <code style={{ color: "#ffec27" }}>.bitsy</code> — or paste it into the Bitsy editor directly.</>}
@@ -1412,13 +1429,13 @@ function ExportModal({ data, onClose }) {
 
         {data.type === "image" && (
           <>
-            <div style={{ fontSize: 12, color: "#aaa", marginBottom: 8 }}>
+            <div style={{ fontSize: 12, color: "#8b93a8", marginBottom: 8 }}>
               Right-click the image below and choose <b>Save Image As…</b> to download it.
             </div>
-            <div style={{ textAlign: "center", background: "#0d1b3e", borderRadius: 6, padding: 16, marginBottom: 10 }}>
+            <div style={{ textAlign: "center", background: "#1c2233", borderRadius: 6, padding: 16, marginBottom: 10 }}>
               <img src={data.content} alt={data.title} style={{ imageRendering: "pixelated", maxWidth: "100%", maxHeight: 300, border: "1px solid #333" }} />
             </div>
-            <div style={{ fontSize: 11, color: "#666", textAlign: "center" }}>
+            <div style={{ fontSize: 11, color: "#4e5870", textAlign: "center" }}>
               Right-click → Save Image As… · or long-press on mobile
             </div>
           </>
@@ -1502,7 +1519,7 @@ function TextImportModal({ onImport, onClose, palette }) {
     <div style={S.modal} onClick={onClose}>
       <div style={{...S.modalContent, maxWidth:480}} onClick={e=>e.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          <h3 style={{margin:0,color:'#e94560'}}>Import from Text / Emoji Art</h3>
+          <h3 style={{margin:0,color:'#4f7fff'}}>Import from Text / Emoji Art</h3>
           <button style={S.btn(false)} onClick={onClose}>✕</button>
         </div>
         <div style={{fontSize:11,color:'#888',marginBottom:8}}>
@@ -1512,22 +1529,22 @@ function TextImportModal({ onImport, onClose, palette }) {
           placeholder={"⬜ ⬛ ⬛ ⬜\n⬛ ⬜ ⬜ ⬛\n..."}
           style={{...S.input, height:100, resize:'vertical', fontFamily:'monospace', fontSize:13}} />
         <div style={{display:'flex',gap:8,alignItems:'center',marginTop:8,flexWrap:'wrap'}}>
-          <span style={{fontSize:11,color:'#aaa'}}>Target size:</span>
+          <span style={{fontSize:11,color:'#8b93a8'}}>Target size:</span>
           {[8,16].map(sz=><button key={sz} style={{...S.btn(targetSize===sz),fontSize:11}} onClick={()=>{setTargetSize(sz);setPreview(null);}}>{sz}×{sz}</button>)}
-          <span style={{fontSize:11,color:'#aaa',marginLeft:8}}>Import as:</span>
+          <span style={{fontSize:11,color:'#8b93a8',marginLeft:8}}>Import as:</span>
           {['sprite','tile','item'].map(m=><button key={m} style={{...S.btn(importAs===m),fontSize:11}} onClick={()=>setImportAs(m)}>{m}</button>)}
         </div>
-        {error && <div style={{color:'#e94560',fontSize:11,marginTop:6}}>{error}</div>}
+        {error && <div style={{color:'#4f7fff',fontSize:11,marginTop:6}}>{error}</div>}
         <button style={{...S.btnGreen,marginTop:10,width:'100%'}} onClick={handlePreview}>Preview</button>
         {preview && (
           <div style={{marginTop:10}}>
-            <div style={{fontSize:11,color:'#aaa',marginBottom:4}}>Preview ({preview[0].length}×{preview.length}):</div>
+            <div style={{fontSize:11,color:'#8b93a8',marginBottom:4}}>Preview ({preview[0].length}×{preview.length}):</div>
             <canvas ref={el=>{
               if(!el)return; const ps=Math.max(4,Math.floor(120/Math.max(preview[0].length,preview.length)));
               el.width=preview[0].length*ps; el.height=preview.length*ps;
               const ctx=el.getContext('2d');
               for(let y=0;y<preview.length;y++)for(let x=0;x<preview[0].length;x++){ctx.fillStyle=palette[preview[y][x]]||palette[0];ctx.fillRect(x*ps,y*ps,ps,ps);}
-            }} style={{imageRendering:'pixelated',display:'block',border:'2px solid #0f3460',borderRadius:3}} />
+            }} style={{imageRendering:'pixelated',display:'block',border:'1px solid #2a3650',borderRadius:3}} />
             <button style={{...S.btn(true),marginTop:10,width:'100%'}} onClick={doImport}>Import as {importAs}</button>
           </div>
         )}
@@ -1563,7 +1580,7 @@ function BitsyImportModal({ onImport, onClose }) {
     <div style={S.modal} onClick={onClose}>
       <div style={{...S.modalContent, maxWidth:440}} onClick={e=>e.stopPropagation()}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:12}}>
-          <h3 style={{margin:0,color:'#e94560'}}>Import .bitsy File</h3>
+          <h3 style={{margin:0,color:'#4f7fff'}}>Import .bitsy File</h3>
           <button style={S.btn(false)} onClick={onClose}>✕</button>
         </div>
         <div style={{fontSize:11,color:'#888',marginBottom:10}}>
@@ -1571,10 +1588,10 @@ function BitsyImportModal({ onImport, onClose }) {
         </div>
         <input ref={fileRef} type="file" accept=".bitsy,.txt,text/plain" onChange={handleFile}
           style={{...S.input, marginBottom:8, cursor:'pointer'}} />
-        {status && <div style={{fontSize:12,color:status.startsWith('✓')?'#00e436':'#e94560',marginBottom:10,padding:'6px 8px',background:'#0d1b3e',borderRadius:4}}>{status}</div>}
+        {status && <div style={{fontSize:12,color:status.startsWith('✓')?'#00e436':'#4f7fff',marginBottom:10,padding:'6px 8px',background:'#1c2233',borderRadius:4}}>{status}</div>}
         <div style={{display:'flex',gap:8,justifyContent:'flex-end'}}>
           <button style={S.btn(false)} onClick={onClose}>Cancel</button>
-          <button style={{...S.btn(true),background:'#e94560'}} disabled={!parsed} onClick={()=>{if(parsed)onImport(parsed);}}>Load Game</button>
+          <button style={{...S.btn(true),background:'#4f7fff'}} disabled={!parsed} onClick={()=>{if(parsed)onImport(parsed);}}>Load Game</button>
         </div>
       </div>
     </div>
@@ -1589,7 +1606,7 @@ function DialogPagesEditor({ value, onChange }) {
       {pages.map((page, i) => (
         <div key={i} style={{ marginBottom: 8 }}>
           <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:3 }}>
-            <span style={{ fontSize:10, color:"#888" }}>Page {i + 1}</span>
+            <span style={{ fontSize:10, color:"#8b93a8" }}>Page {i + 1}</span>
             <div style={{ display:"flex", gap:3 }}>
               {i > 0 && (
                 <button style={{ ...S.btn(false), fontSize:10, padding:"2px 6px" }}
@@ -1602,7 +1619,7 @@ function DialogPagesEditor({ value, onChange }) {
                   onClick={() => { const p=[...pages]; [p[i],p[i+1]]=[p[i+1],p[i]]; update(p); }}>↓</button>
               )}
               {pages.length > 1 && (
-                <button style={{ ...S.btn(false), fontSize:10, padding:"2px 6px", color:"#e94560", borderColor:"#e94560" }}
+                <button style={{ ...S.btn(false), fontSize:10, padding:"2px 6px", color:"#4f7fff", borderColor:"#4f7fff" }}
                   title="Remove this page"
                   onClick={() => update(pages.filter((_,j) => j !== i))}>✕</button>
               )}
@@ -1627,11 +1644,11 @@ function CloudSavesModal({ user, saves, onSave, onLoad, onDelete, onClose, loadi
     <div style={S.modal} onClick={onClose}>
       <div style={{ ...S.modalContent, maxWidth:480 }} onClick={e=>e.stopPropagation()}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-          <h3 style={{ margin:0, color:"#e94560" }}>☁️ Cloud Saves</h3>
+          <h3 style={{ margin:0, color:"#4f7fff" }}>☁️ Cloud Saves</h3>
           <button style={S.btn(false)} onClick={onClose}>✕</button>
         </div>
-        <div style={{ fontSize:12, color:"#aaa", marginBottom:12 }}>
-          Signed in as <b style={{ color:"#e0e0e0" }}>{user?.email}</b>
+        <div style={{ fontSize:12, color:"#8b93a8", marginBottom:12 }}>
+          Signed in as <b style={{ color:"#e8eaf0" }}>{user?.email}</b>
         </div>
         <div style={{ display:"flex", gap:8, marginBottom:16 }}>
           <input value={saveTitle} onChange={e=>setSaveTitle(e.target.value)}
@@ -1642,17 +1659,17 @@ function CloudSavesModal({ user, saves, onSave, onLoad, onDelete, onClose, loadi
           </button>
         </div>
         {saves.length === 0 ? (
-          <div style={{ fontSize:12, color:"#555", textAlign:"center", padding:16 }}>No saves yet.</div>
+          <div style={{ fontSize:12, color:"#4e5870", textAlign:"center", padding:16 }}>No saves yet.</div>
         ) : (
           <div>
             {saves.map(save => (
-              <div key={save.id} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6, background:"#0d1b3e", borderRadius:4, padding:"8px 10px" }}>
+              <div key={save.id} style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6, background:"#1c2233", borderRadius:4, padding:"8px 10px" }}>
                 <div style={{ flex:1, minWidth:0 }}>
-                  <div style={{ fontSize:13, color:"#e0e0e0", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{save.title}</div>
-                  <div style={{ fontSize:10, color:"#555" }}>{save.updatedAt ? new Date(save.updatedAt).toLocaleString() : ""}</div>
+                  <div style={{ fontSize:13, color:"#e8eaf0", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{save.title}</div>
+                  <div style={{ fontSize:10, color:"#4e5870" }}>{save.updatedAt ? new Date(save.updatedAt).toLocaleString() : ""}</div>
                 </div>
                 <button style={{ ...S.btn(false), fontSize:11 }} onClick={()=>onLoad(save)} disabled={loading}>Load</button>
-                <button style={{ ...S.btn(false), fontSize:11, color:"#e94560", borderColor:"#e94560" }} onClick={()=>onDelete(save.id)} disabled={loading}>✕</button>
+                <button style={{ ...S.btn(false), fontSize:11, color:"#4f7fff", borderColor:"#4f7fff" }} onClick={()=>onDelete(save.id)} disabled={loading}>✕</button>
               </div>
             ))}
           </div>
@@ -2142,11 +2159,11 @@ export default function App() {
                 onClick={()=>signInWithGoogle().catch(()=>{})}>🔑 Sign In</button>
             ) : (
               <>
-                <button style={{...S.btn(false),background:"#082040",borderColor:"#29adff",color:"#29adff",fontSize:11}}
+                <button style={{...S.btn(false),background:"#1a2540",borderColor:"#29adff",color:"#29adff",fontSize:11}}
                   onClick={openCloudModal}>☁️ Cloud Saves</button>
-                <span style={{fontSize:10,color:"#555",maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
+                <span style={{fontSize:10,color:"#4e5870",maxWidth:100,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}
                   title={user.email}>{user.displayName||user.email}</span>
-                <button style={{...S.btn(false),fontSize:10,color:"#666"}}
+                <button style={{...S.btn(false),fontSize:10,color:"#4e5870"}}
                   onClick={()=>signOutUser()}>Sign Out</button>
               </>
             )
@@ -2166,7 +2183,7 @@ export default function App() {
       </div>
 
       {/* Tabs */}
-      <div style={{background:"#16213e",padding:"0 20px",display:"flex"}}>
+      <div style={{background:C.bgPanel,padding:"0 20px",display:"flex",borderBottom:`1px solid ${C.border}`}}>
         {["sprite","tile","room","tune"].map(t=>(
           <button key={t} style={S.tab(tab===t)} onClick={()=>{setTab(t);setSelectedFrame(0);}}>
             {t==="sprite"?"🧑 Sprites":t==="tile"?"🟦 Tiles":t==="room"?"🗺 Rooms":"🎵 Tune"}
@@ -2215,7 +2232,7 @@ export default function App() {
                   onChange={e=>tab==="sprite"?resizeSprite(+e.target.value,spriteH):resizeTile(+e.target.value,tileH)}>
                   {GRID_OPTIONS.map(v=><option key={v} value={v}>{v}</option>)}
                 </select>
-                <span style={{color:"#888"}}>×</span>
+                <span style={{color:"#8b93a8"}}>×</span>
                 <select style={S.select} value={itemH}
                   onChange={e=>tab==="sprite"?resizeSprite(spriteW,+e.target.value):resizeTile(tileW,+e.target.value)}>
                   {GRID_OPTIONS.map(v=><option key={v} value={v}>{v}</option>)}
@@ -2233,19 +2250,19 @@ export default function App() {
                   <button key={t} style={S.btn(roomTool===t)} onClick={()=>setRoomTool(t)}>{label}</button>
                 ))}
               </div>
-              {roomTool==="npc"&&<div style={{fontSize:11,color:"#888",marginTop:6}}>Select a sprite below (not avatar) and click room to place</div>}
+              {roomTool==="npc"&&<div style={{fontSize:11,color:"#8b93a8",marginTop:6}}>Select a sprite below (not avatar) and click room to place</div>}
               {roomTool==="exit"&&<div style={{fontSize:11,color:"#ff44ee",marginTop:6}}>Click a cell to place an exit portal (pink ▶). Click again to remove.</div>}
               <div style={{marginTop:8,display:"flex",gap:4,alignItems:"center",flexWrap:"wrap"}}>
-                <span style={{fontSize:11,color:"#aaa"}}>Zoom:</span>
+                <span style={{fontSize:11,color:"#8b93a8"}}>Zoom:</span>
                 {[0.5,0.75,1,1.5,2].map(z=>(
                   <button key={z} style={{...S.btn(roomZoom===z),fontSize:10,padding:"3px 7px"}}
                     onClick={()=>setRoomZoom(z)}>{z===1?"1×":`${z}×`}</button>
                 ))}
               </div>
               <div style={{marginTop:6,display:"flex",gap:4,alignItems:"center"}}>
-                <span style={{fontSize:11,color:"#aaa"}}>Room:</span>
+                <span style={{fontSize:11,color:"#8b93a8"}}>Room:</span>
                 <select style={S.select} value={roomW} onChange={e=>setRoomW(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
-                <span style={{color:"#888"}}>×</span>
+                <span style={{color:"#8b93a8"}}>×</span>
                 <select style={S.select} value={roomH} onChange={e=>setRoomH(+e.target.value)}>{[8,12,16,20,24,32].map(v=><option key={v} value={v}>{v}</option>)}</select>
               </div>
             </div>
@@ -2265,7 +2282,7 @@ export default function App() {
               <>
                 {rooms.map((room,i)=>(
                   <div key={room.id} onClick={()=>setSelectedRoom(i)}
-                    style={{padding:"5px 8px",background:i===selectedRoom?"#0f3460":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid #e94560":"1px solid transparent"}}>
+                    style={{padding:"5px 8px",background:i===selectedRoom?"#2a3650":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid #4f7fff":"1px solid transparent"}}>
                     {room.name}
                   </div>
                 ))}
@@ -2275,13 +2292,13 @@ export default function App() {
               <>
                 {currentItems.filter(it=>!findQuery||it.name.toLowerCase().includes(findQuery.toLowerCase())).map((item)=>{const i=currentItems.indexOf(item);return(
                   <div key={item.id} onClick={()=>{tab==="sprite"?setSelectedSprite(i):setSelectedTile(i);setSelectedFrame(0);setFindQuery("");}}
-                    style={{padding:"3px 6px",background:i===selectedIdx?"#0f3460":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,display:"flex",alignItems:"center",gap:6,border:i===selectedIdx?"1px solid #e94560":"1px solid transparent"}}>
+                    style={{padding:"3px 6px",background:i===selectedIdx?"#2a3650":"transparent",borderRadius:4,cursor:"pointer",fontSize:12,marginBottom:2,display:"flex",alignItems:"center",gap:6,border:i===selectedIdx?"1px solid #4f7fff":"1px solid transparent"}}>
                     <div style={{width:20,height:20,overflow:"hidden",flexShrink:0}}>
                       <MiniCanvas grid={item.frames[0]} palette={palette} size={20} />
                     </div>
                     <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{item.name}</span>
                     {item.tileType&&item.tileType!=="walkable"&&<span style={{fontSize:9,color:TILE_TYPE_COLORS[item.tileType]||"#888",fontWeight:700}}>{item.tileType}</span>}
-                    {item.frames?.length>1&&<span style={{color:"#888",fontSize:10}}>{item.frames.length}f</span>}
+                    {item.frames?.length>1&&<span style={{color:"#8b93a8",fontSize:10}}>{item.frames.length}f</span>}
                   </div>
                 );})}
                 <div style={{display:"flex",gap:4,marginTop:4}}>
@@ -2296,7 +2313,7 @@ export default function App() {
           {tab!=="room"&&<div style={S.section}>
             <div style={S.sectionTitle}>Asset Packs</div>
             {tab==="sprite"&&selectedSprite===0&&(
-              <div style={{fontSize:10,color:"#29adff",background:"#082040",borderRadius:3,padding:"4px 6px",marginBottom:6,border:"1px solid #29adff"}}>
+              <div style={{fontSize:10,color:"#29adff",background:"#1a2540",borderRadius:3,padding:"4px 6px",marginBottom:6,border:"1px solid #29adff"}}>
                 Avatar selected — clicking a character sprite below will replace the avatar's pixels directly.
               </div>
             )}
@@ -2307,15 +2324,15 @@ export default function App() {
                   {pack.name} {activePack===pi?"▲":"▼"}
                 </button>
                 {activePack===pi&&(
-                  <div style={{display:"flex",flexWrap:"wrap",gap:3,padding:4,background:"#0d1b3e",borderRadius:4}}>
+                  <div style={{display:"flex",flexWrap:"wrap",gap:3,padding:4,background:"#1c2233",borderRadius:4}}>
                     {pack.assets.map((asset,ai)=>(
                       <div key={ai} onClick={()=>addFromPack(asset)}
                         title={`Add ${asset.name} (${asset.itemType}${asset.tileType?", "+asset.tileType:""})`}
-                        style={{cursor:"pointer",border:"1px solid #333",borderRadius:3,position:"relative",transition:"border .1s"}}
-                        onMouseEnter={e=>e.currentTarget.style.border="1px solid #e94560"}
+                        style={{cursor:"pointer",border:"1px solid #2a3650",borderRadius:3,position:"relative",transition:"border .1s"}}
+                        onMouseEnter={e=>e.currentTarget.style.border="1px solid #4f7fff"}
                         onMouseLeave={e=>e.currentTarget.style.border="1px solid #333"}>
                         <MiniCanvas grid={asset.grid} palette={palette} size={32} />
-                        <div style={{fontSize:8,color:"#aaa",textAlign:"center",marginTop:1,maxWidth:32,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",padding:"0 2px"}}>{asset.name}</div>
+                        <div style={{fontSize:8,color:"#8b93a8",textAlign:"center",marginTop:1,maxWidth:32,overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis",padding:"0 2px"}}>{asset.name}</div>
                       </div>
                     ))}
                   </div>
@@ -2336,14 +2353,14 @@ export default function App() {
               selectedTileId={tiles[selectedTile]?.id} selectedSpriteId={sprites[selectedSprite]?.id} />
           </div>
           {/* Below-canvas panel: Tiles · NPCs · Asset Packs */}
-          <div style={{borderTop:"2px solid #0f3460",background:"#16213e",display:"flex",flexShrink:0,overflowX:"auto",maxHeight:220}}>
+          <div style={{borderTop:"1px solid #2a3650",background:"#161b27",display:"flex",flexShrink:0,overflowX:"auto",maxHeight:220}}>
             {/* Tiles */}
-            <div style={{padding:"8px 10px",borderRight:"1px solid #0f3460",minWidth:140,maxWidth:240,overflowY:"auto"}}>
+            <div style={{padding:"8px 10px",borderRight:"1px solid #2a3650",minWidth:140,maxWidth:240,overflowY:"auto"}}>
               <div style={{...S.sectionTitle,marginBottom:5}}>Tiles</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
                 {tiles.map((tile,i)=>(
                   <div key={tile.id} onClick={()=>setSelectedTile(i)}
-                    style={{border:i===selectedTile?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative",flexShrink:0}}>
+                    style={{border:i===selectedTile?"2px solid #4f7fff":"2px solid #444",borderRadius:3,cursor:"pointer",position:"relative",flexShrink:0}}>
                     <MiniCanvas grid={tile.frames[0]} palette={palette} size={28} />
                     {tile.tileType&&tile.tileType!=="walkable"&&<div style={{position:"absolute",bottom:0,right:0,fontSize:7,background:TILE_TYPE_COLORS[tile.tileType],color:"#000",padding:"0 2px",fontWeight:700,borderRadius:"2px 0 0 0"}}>{tile.tileType[0]}</div>}
                   </div>
@@ -2351,17 +2368,17 @@ export default function App() {
               </div>
             </div>
             {/* NPCs */}
-            <div style={{padding:"8px 10px",borderRight:"1px solid #0f3460",minWidth:120,maxWidth:200,overflowY:"auto"}}>
+            <div style={{padding:"8px 10px",borderRight:"1px solid #2a3650",minWidth:120,maxWidth:200,overflowY:"auto"}}>
               <div style={{...S.sectionTitle,marginBottom:5}}>NPCs</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:3}}>
                 {sprites.map((spr,i)=>(
                   <div key={spr.id} onClick={()=>setSelectedSprite(i)}
-                    style={{border:i===selectedSprite?"2px solid #e94560":"2px solid #444",borderRadius:3,cursor:"pointer",opacity:i===0?0.4:1,flexShrink:0}}>
+                    style={{border:i===selectedSprite?"2px solid #4f7fff":"2px solid #444",borderRadius:3,cursor:"pointer",opacity:i===0?0.4:1,flexShrink:0}}>
                     <MiniCanvas grid={spr.frames[0]} palette={palette} size={28} />
                   </div>
                 ))}
               </div>
-              <div style={{fontSize:9,color:"#555",marginTop:4}}>Index 0 = player (avatar)</div>
+              <div style={{fontSize:9,color:"#4e5870",marginTop:4}}>Index 0 = player (avatar)</div>
             </div>
             {/* Asset Packs */}
             <div style={{padding:"8px 10px",flex:1,minWidth:180,overflowY:"auto"}}>
@@ -2374,12 +2391,12 @@ export default function App() {
                       {pack.name} {activePack===pi?"▲":"▼"}
                     </button>
                     {activePack===pi&&(
-                      <div style={{display:"flex",flexWrap:"wrap",gap:2,padding:4,background:"#0d1b3e",borderRadius:4,maxWidth:320}}>
+                      <div style={{display:"flex",flexWrap:"wrap",gap:2,padding:4,background:"#1c2233",borderRadius:4,maxWidth:320}}>
                         {pack.assets.map((asset,ai)=>(
                           <div key={ai} onClick={()=>addFromPack(asset)}
                             title={`Add ${asset.name}`}
-                            style={{cursor:"pointer",border:"1px solid #333",borderRadius:3,flexShrink:0}}
-                            onMouseEnter={e=>e.currentTarget.style.border="1px solid #e94560"}
+                            style={{cursor:"pointer",border:"1px solid #2a3650",borderRadius:3,flexShrink:0}}
+                            onMouseEnter={e=>e.currentTarget.style.border="1px solid #4f7fff"}
                             onMouseLeave={e=>e.currentTarget.style.border="1px solid #333"}>
                             <MiniCanvas grid={asset.grid} palette={palette} size={28} />
                           </div>
@@ -2392,14 +2409,14 @@ export default function App() {
             </div>
           </div>
         </div>
-        ) : (
+        ) : (<>
         <div style={S.center}>
           {tab==="tune"?(
             <div style={{width:"100%",maxWidth:640,padding:8}}>
-              <div style={{fontWeight:700,color:"#e94560",marginBottom:12,fontSize:14}}>🎵 Background Tune</div>
+              <div style={{fontWeight:700,color:"#4f7fff",marginBottom:12,fontSize:14}}>🎵 Background Tune</div>
               <TuneEditor tune={tune} onChange={setTune} />
               <div style={{marginTop:16}}>
-                <div style={{fontWeight:700,color:"#e94560",marginBottom:8,fontSize:12}}>Tune Presets</div>
+                <div style={{fontWeight:700,color:"#4f7fff",marginBottom:8,fontSize:12}}>Tune Presets</div>
                 {TUNE_PACKS.map((pack,pi)=>(
                   <div key={pi} style={{marginBottom:4}}>
                     <button onClick={()=>setActiveTunePack(activeTunePack===pi?null:pi)}
@@ -2423,7 +2440,7 @@ export default function App() {
                   </div>
                 ))}
               </div>
-              <div style={{marginTop:12,fontSize:11,color:"#555",lineHeight:1.8}}>
+              <div style={{marginTop:12,fontSize:11,color:"#4e5870",lineHeight:1.8}}>
                 The tune loops in the background while your game is playing.<br/>
                 Separate dialog pages with <code style={{color:"#ffec27"}}>---</code> on its own line for multi-page speech.
               </div>
@@ -2431,11 +2448,10 @@ export default function App() {
           ):(tab!=="tune"&&(
             <>
               <PixelCanvas grid={currentFrame} palette={palette} onDraw={handleDraw} onStrokeEnd={pushHistory} pixelSize={pixelSize} showGrid={showGrid} />
-              {currentItem&&<div style={{marginTop:6,fontSize:11,color:"#888"}}>{currentItem.name} · Frame {selectedFrame+1}/{currentItem.frames.length} · {itemW}×{itemH}</div>}
+              {currentItem&&<div style={{marginTop:6,fontSize:11,color:"#8b93a8"}}>{currentItem.name} · Frame {selectedFrame+1}/{currentItem.frames.length} · {itemW}×{itemH}</div>}
             </>
           ))}
         </div>
-        )}
 
         {/* Right Panel */}
         <div style={S.rightPanel}>
@@ -2448,18 +2464,18 @@ export default function App() {
 
               {/* Set as Avatar — shown on any non-avatar sprite */}
               {tab==="sprite"&&selectedSprite===0&&(
-                <div style={{background:"#0d1b3e",border:"1px solid #1a1a5e",borderRadius:4,padding:"6px 10px",marginBottom:12,fontSize:11,color:"#888"}}>
-                  🧑 <b style={{color:"#e94560"}}>This is the Avatar</b> — the player character.<br/>
+                <div style={{background:"#1c2233",border:"1px solid #2a3650",borderRadius:4,padding:"6px 10px",marginBottom:12,fontSize:11,color:"#8b93a8"}}>
+                  🧑 <b style={{color:"#4f7fff"}}>This is the Avatar</b> — the player character.<br/>
                   To set its look: select it here, then click any character sprite in an Asset Pack below to replace its pixels instantly.
                 </div>
               )}
               {tab==="sprite"&&selectedSprite>0&&(
                 <div style={{marginBottom:12}}>
-                  <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#082040",borderColor:"#29adff",color:"#29adff"}}
+                  <button style={{...S.btn(false),width:"100%",fontSize:11,background:"#1a2540",borderColor:"#29adff",color:"#29adff"}}
                     onClick={()=>setAsAvatar(selectedSprite)}>
                     👤 Set as Avatar (replace player appearance)
                   </button>
-                  <div style={{fontSize:10,color:"#555",marginTop:3}}>Copies this sprite's pixels into sprites[0], which is the playable character.</div>
+                  <div style={{fontSize:10,color:"#4e5870",marginTop:3}}>Copies this sprite's pixels into sprites[0], which is the playable character.</div>
                 </div>
               )}
 
@@ -2474,7 +2490,7 @@ export default function App() {
                     </button>
                   ))}
                 </div>
-                <div style={{fontSize:10,color:"#666",marginTop:4}}>
+                <div style={{fontSize:10,color:"#4e5870",marginTop:4}}>
                   🟢 walkable · 🔴 wall (blocks player) · 🟡 item (collect it!) · 🔵 end (win the game)
                 </div>
               </div>
@@ -2484,11 +2500,11 @@ export default function App() {
                 <div style={S.section}>
                   <div style={S.sectionTitle}>NPC Dialog</div>
                   {selectedSprite===0 ? (
-                    <div style={{fontSize:11,color:"#555",fontStyle:"italic",padding:"4px 0"}}>Avatar (player) has no dialog.</div>
+                    <div style={{fontSize:11,color:"#4e5870",fontStyle:"italic",padding:"4px 0"}}>Avatar (player) has no dialog.</div>
                   ) : (
                     <>
                       <DialogPagesEditor value={currentItem.dialog||""} onChange={updateDialog} />
-                      <div style={{fontSize:10,color:"#666",marginTop:3}}>Each page shows one at a time. Press Space or Enter in-game to advance.</div>
+                      <div style={{fontSize:10,color:"#4e5870",marginTop:3}}>Each page shows one at a time. Press Space or Enter in-game to advance.</div>
                     </>
                   )}
                 </div>
@@ -2504,10 +2520,10 @@ export default function App() {
                     ))}
                   </div>
                   <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
-                    <span style={{fontSize:11,color:"#aaa"}}>Pitch:</span>
+                    <span style={{fontSize:11,color:"#8b93a8"}}>Pitch:</span>
                     <input type="range" min={110} max={1760} step={10} value={currentItem.blip?.freq||440}
                       onChange={e=>updateBlip("freq",+e.target.value)} style={{flex:1}} />
-                    <span style={{fontSize:11,color:"#aaa",minWidth:36}}>{currentItem.blip?.freq||440}Hz</span>
+                    <span style={{fontSize:11,color:"#8b93a8",minWidth:36}}>{currentItem.blip?.freq||440}Hz</span>
                   </div>
                   <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
                     <span style={{fontSize:11,color:"#aaa"}}>Duration:</span>
@@ -2590,7 +2606,7 @@ export default function App() {
                     <div key={i} onClick={()=>setSelectedFrame(i)}
                       style={{...S.frameThumb(i===selectedFrame),position:"relative",width:40,height:40,overflow:"hidden"}}>
                       <MiniCanvas grid={frame} palette={palette} size={40} />
-                      <div style={{position:"absolute",bottom:1,right:2,fontSize:8,color:"#e94560",fontWeight:700}}>{i+1}</div>
+                      <div style={{position:"absolute",bottom:1,right:2,fontSize:8,color:"#4f7fff",fontWeight:700}}>{i+1}</div>
                     </div>
                   ))}
                 </div>
@@ -2636,7 +2652,7 @@ export default function App() {
                   ))}
                 </div>
                 <div style={{marginTop:6}}>
-                  <div style={{fontSize:10,color:"#888",marginBottom:3}}>Nudge</div>
+                  <div style={{fontSize:10,color:"#8b93a8",marginBottom:3}}>Nudge</div>
                   <div style={{display:"flex",gap:3,alignItems:"center",justifyContent:"center"}}>
                     {[
                       ["←",f=>f.map(r=>[...r.slice(1),0])],
@@ -2667,7 +2683,7 @@ export default function App() {
               </div>
               <div style={S.section}>
                 <div style={S.sectionTitle}>Legend</div>
-                <div style={{fontSize:11,color:"#aaa",lineHeight:1.8}}>
+                <div style={{fontSize:11,color:"#8b93a8",lineHeight:1.8}}>
                   {TILE_TYPES.map(t=>(
                     <div key={t} style={{color:TILE_TYPE_COLORS[t]||"#aaa"}}>
                       {t==="walkable"?"🟢":t==="wall"?"🔴":t==="item"?"🟡":"🔵"} {t}
@@ -2680,9 +2696,9 @@ export default function App() {
                 <div style={S.section}>
                   <div style={S.sectionTitle}>Exits ({rooms[selectedRoom].exits.length})</div>
                   {rooms[selectedRoom].exits.map((ex,i)=>(
-                    <div key={i} style={{fontSize:11,color:ex.isEnding?"#ffec27":"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#0d1b3e",borderRadius:3,padding:"3px 6px"}}>
+                    <div key={i} style={{fontSize:11,color:ex.isEnding?"#ffec27":"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#1c2233",borderRadius:3,padding:"3px 6px"}}>
                       <span>{ex.isEnding?"🏁 ":"🚪 "}({ex.x},{ex.y}) → {ex.isEnding?"ENDING":`Room ${ex.destRoom} @ (${ex.destX},${ex.destY})`}{ex.endingMessage?` "${ex.endingMessage}"`:""}</span>
-                      <button style={{background:"none",border:"none",color:"#e94560",cursor:"pointer",fontSize:12,padding:"0 2px"}}
+                      <button style={{background:"none",border:"none",color:"#4f7fff",cursor:"pointer",fontSize:12,padding:"0 2px"}}
                         onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:rs[selectedRoom].exits.filter((_,j)=>j!==i)};return rs;})}>✕</button>
                     </div>
                   ))}
@@ -2703,11 +2719,12 @@ export default function App() {
           {/* Shortcuts */}
           <div style={{...S.section,marginTop:12}}>
             <div style={S.sectionTitle}>Shortcuts</div>
-            <div style={{fontSize:10,color:"#555",lineHeight:1.8}}>
+            <div style={{fontSize:10,color:"#4e5870",lineHeight:1.8}}>
               D draw · E erase · F fill · G grid<br/>1–9 select color
             </div>
           </div>
         </div>
+        </>)}
       </div>
 
       {showImport&&<PngImportModal onImport={handleImport} onClose={()=>setShowImport(false)} palette={palette} maxColors={MAX_COLORS} />}
