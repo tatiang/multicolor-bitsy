@@ -1,0 +1,1285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Multicolor Bitsy — Design Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    /* Warm stone dark palette */
+    --bg-base:     #141210;
+    --bg-surface:  #1E1B18;
+    --bg-raised:   #272320;
+    --bg-hover:    #302C28;
+    --border:      #3C3834;
+    --border-soft: #2A2622;
+
+    /* Accent: amber warm */
+    --amber:       #F59E0B;
+    --amber-dim:   #92600A;
+    --amber-glow:  rgba(245,158,11,0.18);
+
+    /* Accent: pixel green */
+    --green:       #34D399;
+    --green-dim:   #1D7A57;
+
+    /* Accent: rose/pink */
+    --rose:        #FB7185;
+    --rose-dim:    #9F3348;
+
+    /* Accent: sky blue */
+    --sky:         #38BDF8;
+
+    /* Text */
+    --text-hi:     #F5F0EB;
+    --text-mid:    #B8B0A8;
+    --text-lo:     #6B6460;
+
+    /* Tile type colors */
+    --walkable:    #34D399;
+    --wall:        #FB7185;
+    --item:        #FCD34D;
+    --end:         #818CF8;
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg-base);
+    color: var(--text-hi);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow: hidden;
+  }
+
+  /* ── Pixel grid background texture ──────────────────────── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--border-soft) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border-soft) 1px, transparent 1px);
+    background-size: 24px 24px;
+    opacity: 0.4;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  #app {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  /* ── Header ──────────────────────────────────────────────── */
+  #header {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.4);
+  }
+
+  .brand {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 11px;
+    color: var(--amber);
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    text-shadow: 0 0 20px var(--amber-glow);
+    line-height: 1.2;
+  }
+
+  .header-divider {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .game-title-input {
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text-hi);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    padding: 6px 10px;
+    width: 200px;
+    outline: none;
+    transition: border-color 0.15s, box-shadow 0.15s;
+  }
+  .game-title-input:focus {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 2px var(--amber-glow);
+  }
+
+  .header-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-left: auto;
+    flex-wrap: nowrap;
+  }
+
+  /* ── Buttons ─────────────────────────────────────────────── */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text-mid);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11.5px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.12s;
+    line-height: 1;
+  }
+  .btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-hi);
+    border-color: var(--amber-dim);
+  }
+  .btn.active {
+    background: var(--amber);
+    border-color: var(--amber);
+    color: #141210;
+    font-weight: 600;
+  }
+  .btn.green {
+    border-color: var(--green-dim);
+    color: var(--green);
+  }
+  .btn.green:hover {
+    background: rgba(52,211,153,0.12);
+  }
+  .btn.sky {
+    border-color: #1E6A8A;
+    color: var(--sky);
+  }
+  .btn.sky:hover {
+    background: rgba(56,189,248,0.1);
+  }
+  .btn.rose {
+    border-color: var(--rose-dim);
+    color: var(--rose);
+  }
+  .btn.amber {
+    border-color: var(--amber-dim);
+    color: var(--amber);
+  }
+  .btn.amber:hover {
+    background: var(--amber-glow);
+  }
+  .btn.icon-only {
+    padding: 5px 7px;
+  }
+
+  /* ── Tabs ────────────────────────────────────────────────── */
+  #tabs {
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 40px;
+    flex-shrink: 0;
+  }
+
+  .tab {
+    padding: 7px 16px 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--text-lo);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.15s, border-color 0.15s;
+    position: relative;
+    top: 1px;
+  }
+  .tab:hover { color: var(--text-mid); }
+  .tab.active {
+    color: var(--amber);
+    border-bottom-color: var(--amber);
+    font-weight: 600;
+  }
+  .tab-icon {
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  /* ── Main layout ─────────────────────────────────────────── */
+  #main {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Left sidebar ────────────────────────────────────────── */
+  #sidebar {
+    width: 240px;
+    background: var(--bg-surface);
+    border-right: 1px solid var(--border);
+    padding: 14px 12px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-lo);
+    margin-bottom: 8px;
+  }
+
+  /* ── Palette ─────────────────────────────────────────────── */
+  .palette-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 3px;
+    margin-bottom: 10px;
+  }
+
+  .swatch {
+    aspect-ratio: 1;
+    border-radius: 3px;
+    border: 1.5px solid transparent;
+    cursor: pointer;
+    transition: transform 0.1s, box-shadow 0.1s;
+    position: relative;
+  }
+  .swatch:hover { transform: scale(1.15); z-index: 2; }
+  .swatch.selected {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px var(--amber-dim), 0 0 8px var(--amber-glow);
+    transform: scale(1.1);
+  }
+
+  .color-edit-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 2px;
+  }
+  .color-input-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    background: #ff004d;
+  }
+  .color-hex-input {
+    flex: 1;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    color: var(--text-hi);
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    outline: none;
+  }
+  .color-hex-input:focus {
+    border-color: var(--amber);
+  }
+  .color-idx {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-lo);
+    min-width: 16px;
+    text-align: right;
+  }
+
+  /* ── Tools ───────────────────────────────────────────────── */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 5px;
+  }
+
+  .tool-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 8px 4px 6px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 9.5px;
+    color: var(--text-mid);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    transition: all 0.12s;
+  }
+  .tool-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-hi);
+  }
+  .tool-btn.active {
+    background: var(--amber-glow);
+    border-color: var(--amber-dim);
+    color: var(--amber);
+  }
+  .tool-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+
+  .grid-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 8px;
+    cursor: pointer;
+    color: var(--text-mid);
+    font-size: 11.5px;
+  }
+  .toggle-track {
+    width: 32px;
+    height: 18px;
+    background: var(--green);
+    border-radius: 9px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .toggle-thumb {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 14px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+  }
+
+  /* ── Size config ─────────────────────────────────────────── */
+  .size-row {
+    display: flex;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .size-chip {
+    padding: 3px 8px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10.5px;
+    color: var(--text-mid);
+    cursor: pointer;
+    transition: all 0.12s;
+  }
+  .size-chip.active {
+    background: var(--amber-glow);
+    border-color: var(--amber-dim);
+    color: var(--amber);
+  }
+
+  /* ── Asset packs ─────────────────────────────────────────── */
+  .pack-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 9px;
+    border-radius: 6px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: all 0.12s;
+  }
+  .pack-item:hover {
+    background: var(--bg-hover);
+    border-color: var(--amber-dim);
+  }
+  .pack-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .pack-name {
+    font-size: 11.5px;
+    color: var(--text-hi);
+  }
+  .pack-chevron {
+    margin-left: auto;
+    color: var(--text-lo);
+    font-size: 10px;
+  }
+
+  /* ── Center panel ────────────────────────────────────────── */
+  #center {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 20px 24px;
+    overflow: auto;
+    gap: 14px;
+  }
+
+  .canvas-wrapper {
+    position: relative;
+  }
+
+  .pixel-canvas {
+    display: block;
+    image-rendering: pixelated;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    box-shadow:
+      0 0 0 1px var(--border-soft),
+      0 8px 32px rgba(0,0,0,0.5),
+      inset 0 0 0 1px rgba(255,255,255,0.03);
+    cursor: crosshair;
+  }
+
+  .canvas-toolbar {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+
+  /* Fake pixel canvas (drawn in JS) */
+  #editor-canvas {
+    width: 384px;
+    height: 384px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    cursor: crosshair;
+    image-rendering: pixelated;
+    background: #000;
+  }
+
+  /* Frames row */
+  .frames-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  .frame-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-raised);
+    cursor: pointer;
+    image-rendering: pixelated;
+    transition: border-color 0.12s;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .frame-thumb.active {
+    border-color: var(--amber);
+    box-shadow: 0 0 0 1px var(--amber-dim);
+  }
+  .frame-thumb canvas {
+    image-rendering: pixelated;
+  }
+
+  .add-frame-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px dashed var(--border);
+    background: none;
+    color: var(--text-lo);
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s;
+  }
+  .add-frame-btn:hover {
+    border-color: var(--amber-dim);
+    color: var(--amber);
+  }
+
+  /* ── Right panel ─────────────────────────────────────────── */
+  #right-panel {
+    width: 264px;
+    background: var(--bg-surface);
+    border-left: 1px solid var(--border);
+    padding: 14px 12px;
+    overflow-y: auto;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  /* Sprite list */
+  .sprite-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+
+  .sprite-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  .sprite-item:hover { background: var(--bg-raised); }
+  .sprite-item.active {
+    background: var(--bg-hover);
+    border-color: var(--amber-dim);
+  }
+  .sprite-mini {
+    width: 32px;
+    height: 32px;
+    border-radius: 3px;
+    background: #000;
+    flex-shrink: 0;
+    image-rendering: pixelated;
+    overflow: hidden;
+  }
+  .sprite-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .sprite-name {
+    font-size: 12px;
+    color: var(--text-hi);
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .sprite-type {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    margin-top: 2px;
+    display: inline-block;
+  }
+  .sprite-type.walkable { background: rgba(52,211,153,0.15); color: var(--walkable); }
+  .sprite-type.wall     { background: rgba(251,113,133,0.15); color: var(--wall); }
+  .sprite-type.item     { background: rgba(252,211,77,0.15);  color: var(--item); }
+  .sprite-type.end      { background: rgba(129,140,248,0.15); color: var(--end); }
+
+  .list-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px;
+    border-radius: 5px;
+    border: 1px dashed var(--border);
+    background: none;
+    color: var(--text-lo);
+    font-size: 11.5px;
+    cursor: pointer;
+    margin-top: 4px;
+    transition: all 0.12s;
+  }
+  .list-add-btn:hover {
+    border-color: var(--amber-dim);
+    color: var(--amber);
+    background: var(--amber-glow);
+  }
+
+  /* Properties */
+  .prop-field {
+    margin-bottom: 10px;
+  }
+  .prop-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-lo);
+    margin-bottom: 4px;
+  }
+  .prop-input {
+    width: 100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    color: var(--text-hi);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .prop-input:focus { border-color: var(--amber); }
+
+  .prop-textarea {
+    width: 100%;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    color: var(--text-hi);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11.5px;
+    padding: 6px 8px;
+    border-radius: 5px;
+    outline: none;
+    resize: vertical;
+    min-height: 70px;
+    transition: border-color 0.15s;
+  }
+  .prop-textarea:focus { border-color: var(--amber); }
+
+  .tile-type-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+  }
+  .tile-type-btn {
+    padding: 6px 4px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text-mid);
+    font-size: 10.5px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+  }
+  .tile-type-btn.walkable.active { background: rgba(52,211,153,0.15); border-color: var(--walkable); color: var(--walkable); }
+  .tile-type-btn.wall.active     { background: rgba(251,113,133,0.15); border-color: var(--wall);     color: var(--wall); }
+  .tile-type-btn.item.active     { background: rgba(252,211,77,0.15);  border-color: var(--item);     color: var(--item); }
+  .tile-type-btn.end.active      { background: rgba(129,140,248,0.15); border-color: var(--end);      color: var(--end); }
+
+  /* Transform buttons */
+  .transform-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+  .transform-btn {
+    padding: 5px 3px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text-mid);
+    font-size: 10px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+  }
+  .transform-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-hi);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-base); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-lo); }
+
+  /* ── Transforms fade-in ──────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  #sidebar, #center, #right-panel { animation: fadeUp 0.3s ease both; }
+  #sidebar      { animation-delay: 0.05s; }
+  #center       { animation-delay: 0.1s; }
+  #right-panel  { animation-delay: 0.15s; }
+
+  /* ── Status / hint bar ───────────────────────────────────── */
+  #statusbar {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border);
+    height: 26px;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 16px;
+    flex-shrink: 0;
+  }
+  .status-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 9.5px;
+    color: var(--text-lo);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .status-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 4px var(--green);
+  }
+
+  /* ── Color badge ─────────────────────────────────────────── */
+  .kbd {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 5px;
+    border-radius: 3px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    color: var(--text-lo);
+  }
+
+  /* ── Separator line ──────────────────────────────────────── */
+  .sep {
+    border: none;
+    border-top: 1px solid var(--border-soft);
+    margin: 2px 0;
+  }
+
+  /* Preview row */
+  .preview-section {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    background: var(--bg-raised);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+  }
+  .preview-label-col {
+    flex: 1;
+  }
+  .preview-lbl {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-lo);
+    margin-bottom: 4px;
+  }
+  .preview-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-hi);
+  }
+  .anim-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 5px;
+    border: 1px solid var(--border);
+    background: var(--bg-raised);
+    color: var(--text-mid);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.12s;
+  }
+  .anim-btn:hover { color: var(--amber); border-color: var(--amber-dim); }
+  .anim-btn.playing { color: var(--amber); border-color: var(--amber-dim); background: var(--amber-glow); }
+
+  /* Inline canvas for mini sprite preview */
+  canvas.sprite-canvas {
+    image-rendering: pixelated;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ── HEADER ──────────────────────────────────────── -->
+  <div id="header">
+    <span class="brand">MULTICOLOR<br>BITSY</span>
+    <div class="header-divider"></div>
+    <input class="game-title-input" type="text" value="My Pixel Adventure" placeholder="Game title…">
+    <div class="header-actions">
+      <button class="btn sky" title="Cloud Saves">☁ Saves</button>
+      <div class="header-divider" style="height:20px"></div>
+      <button class="btn icon-only" title="Undo (⌘Z)">↩</button>
+      <button class="btn icon-only" title="Redo (⌘⇧Z)">↪</button>
+      <div class="header-divider" style="height:20px"></div>
+      <button class="btn green">📂 Import .bitsy</button>
+      <button class="btn green">⬆ Image</button>
+      <button class="btn">⬛ Text Art</button>
+      <div class="header-divider" style="height:20px"></div>
+      <button class="btn" onclick="alert('Playtest!')">▶ Playtest</button>
+      <button class="btn amber">🌐 Export HTML</button>
+      <button class="btn">Export .bitsy</button>
+    </div>
+  </div>
+
+  <!-- ── TABS ───────────────────────────────────────── -->
+  <div id="tabs">
+    <button class="tab active" onclick="setTab(this,'sprite')">
+      <span class="tab-icon">🧑</span> Sprites
+    </button>
+    <button class="tab" onclick="setTab(this,'tile')">
+      <span class="tab-icon">🟦</span> Tiles
+    </button>
+    <button class="tab" onclick="setTab(this,'room')">
+      <span class="tab-icon">🗺</span> Rooms
+    </button>
+    <button class="tab" onclick="setTab(this,'tune')">
+      <span class="tab-icon">🎵</span> Tune
+    </button>
+  </div>
+
+  <!-- ── MAIN ───────────────────────────────────────── -->
+  <div id="main">
+
+    <!-- LEFT SIDEBAR -->
+    <div id="sidebar">
+
+      <!-- Palette -->
+      <div class="section">
+        <div class="section-label">Color Palette</div>
+        <div class="palette-grid" id="palette-grid"></div>
+        <div class="color-edit-row">
+          <div class="color-input-swatch" id="color-swatch"></div>
+          <input class="color-hex-input" id="color-hex" type="text" value="#FF004D" maxlength="7">
+          <span class="color-idx" id="color-idx">02</span>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="section">
+        <div class="section-label">Tools</div>
+        <div class="tool-grid">
+          <button class="tool-btn active" onclick="selectTool(this)">
+            <span class="tool-icon">✏️</span>
+            Draw <span class="kbd">D</span>
+          </button>
+          <button class="tool-btn" onclick="selectTool(this)">
+            <span class="tool-icon">🧹</span>
+            Erase <span class="kbd">E</span>
+          </button>
+          <button class="tool-btn" onclick="selectTool(this)">
+            <span class="tool-icon">🪣</span>
+            Fill <span class="kbd">F</span>
+          </button>
+        </div>
+        <label class="grid-toggle">
+          <div class="toggle-track"><div class="toggle-thumb"></div></div>
+          Show pixel grid <span class="kbd">G</span>
+        </label>
+      </div>
+
+      <!-- Size -->
+      <div class="section">
+        <div class="section-label">Sprite Size</div>
+        <div class="size-row">
+          <button class="size-chip active">8 × 8</button>
+          <button class="size-chip">16 × 16</button>
+          <button class="size-chip">32 × 32</button>
+        </div>
+      </div>
+
+      <hr class="sep">
+
+      <!-- Asset packs -->
+      <div class="section">
+        <div class="section-label">Asset Packs</div>
+        <div class="pack-item">
+          <div class="pack-dot" style="background:#34D399"></div>
+          <span class="pack-name">🐝 Bug Pack</span>
+          <span class="pack-chevron">›</span>
+        </div>
+        <div class="pack-item">
+          <div class="pack-dot" style="background:#FBBF24"></div>
+          <span class="pack-name">⚔️ Fantasy Pack</span>
+          <span class="pack-chevron">›</span>
+        </div>
+        <div class="pack-item">
+          <div class="pack-dot" style="background:#38BDF8"></div>
+          <span class="pack-name">🚀 Space Pack</span>
+          <span class="pack-chevron">›</span>
+        </div>
+        <div class="pack-item">
+          <div class="pack-dot" style="background:#FB7185"></div>
+          <span class="pack-name">🏫 School Pack</span>
+          <span class="pack-chevron">›</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- CENTER -->
+    <div id="center">
+
+      <!-- Top: frames row + animate controls -->
+      <div style="display:flex; gap:10px; align-items:center; width:100%; max-width:420px;">
+        <div class="section-label" style="margin-bottom:0; white-space:nowrap">Frames</div>
+        <div class="frames-row" id="frames-row">
+          <!-- Filled by JS -->
+        </div>
+        <button class="add-frame-btn" title="Add frame">+</button>
+        <button class="anim-btn playing" title="Toggle animation preview">▶</button>
+      </div>
+
+      <!-- Pixel editor canvas -->
+      <canvas id="editor-canvas" width="192" height="192"></canvas>
+
+      <!-- Canvas actions -->
+      <div class="canvas-toolbar">
+        <button class="btn icon-only" title="Export PNG">PNG</button>
+        <button class="btn icon-only" title="Export spritesheet">Sheet</button>
+        <button class="btn icon-only" title="Clear canvas" style="color:var(--rose);border-color:var(--rose-dim)">⌫ Clear</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="right-panel">
+
+      <!-- Live preview -->
+      <div class="preview-section">
+        <div class="preview-label-col">
+          <div class="preview-lbl">Preview</div>
+          <div class="preview-name">avatar</div>
+        </div>
+        <canvas id="preview-canvas" width="48" height="48"
+          style="width:48px;height:48px;image-rendering:pixelated;background:#000;border-radius:4px;border:1px solid var(--border)"></canvas>
+      </div>
+
+      <!-- Sprite list -->
+      <div class="section">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="section-label" style="margin:0">Sprites</div>
+          <button class="btn icon-only" style="font-size:10px;padding:3px 6px;color:var(--text-lo)">✕ Delete</button>
+        </div>
+        <div class="sprite-list" id="sprite-list">
+          <!-- Filled by JS -->
+        </div>
+        <button class="list-add-btn">+ New Sprite</button>
+      </div>
+
+      <hr class="sep">
+
+      <!-- Properties -->
+      <div class="section">
+        <div class="section-label">Properties</div>
+
+        <div class="prop-field">
+          <div class="prop-label">Name</div>
+          <input class="prop-input" type="text" value="avatar">
+        </div>
+
+        <div class="prop-field">
+          <div class="prop-label">Tile Type</div>
+          <div class="tile-type-grid">
+            <button class="tile-type-btn walkable active">🟢 Walkable</button>
+            <button class="tile-type-btn wall">🔴 Wall</button>
+            <button class="tile-type-btn item">🟡 Item</button>
+            <button class="tile-type-btn end">🔵 End</button>
+          </div>
+        </div>
+
+        <div class="prop-field">
+          <div class="prop-label">Dialog</div>
+          <textarea class="prop-textarea" placeholder="NPC dialog text…&#10;Use --- to add pages"></textarea>
+        </div>
+
+        <div class="prop-field">
+          <div class="prop-label">Transforms</div>
+          <div class="transform-grid">
+            <button class="transform-btn">↔ Flip H</button>
+            <button class="transform-btn">↕ Flip V</button>
+            <button class="transform-btn">↻ Rotate</button>
+            <button class="transform-btn">⊞ Invert</button>
+            <button class="transform-btn">⊡ Outline</button>
+            <button class="transform-btn">⊠ Shift</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STATUS BAR -->
+  <div id="statusbar">
+    <div class="status-item">
+      <div class="status-dot"></div>
+      Ready
+    </div>
+    <div class="status-item">8×8 px · 16 colors · 1 room</div>
+    <div class="status-item" style="margin-left:auto">
+      <span class="kbd">D</span> draw &nbsp;
+      <span class="kbd">E</span> erase &nbsp;
+      <span class="kbd">F</span> fill &nbsp;
+      <span class="kbd">G</span> grid &nbsp;
+      <span class="kbd">⌘Z</span> undo
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Palette data ──────────────────────────────────────────────────────────────
+const PALETTE = [
+  "#000000","#ffffff","#ff004d","#ffa300",
+  "#ffec27","#00e436","#29adff","#7e2553",
+  "#83769c","#ff77a8","#ffccaa","#1d2b53",
+  "#008751","#ab5236","#5f574f","#c2c3c7",
+];
+
+let selectedColor = 2; // #ff004d
+
+// ── Render palette ────────────────────────────────────────────────────────────
+const grid = document.getElementById('palette-grid');
+PALETTE.forEach((color, i) => {
+  const s = document.createElement('div');
+  s.className = 'swatch' + (i === selectedColor ? ' selected' : '');
+  s.style.background = color;
+  s.title = `${i}: ${color}`;
+  s.onclick = () => {
+    document.querySelectorAll('.swatch').forEach(x => x.classList.remove('selected'));
+    s.classList.add('selected');
+    selectedColor = i;
+    document.getElementById('color-swatch').style.background = color;
+    document.getElementById('color-hex').value = color;
+    document.getElementById('color-idx').textContent = String(i).padStart(2,'0');
+  };
+  grid.appendChild(s);
+});
+document.getElementById('color-swatch').style.background = PALETTE[selectedColor];
+document.getElementById('color-hex').value = PALETTE[selectedColor];
+document.getElementById('color-idx').textContent = String(selectedColor).padStart(2,'0');
+
+// ── Tool selection ────────────────────────────────────────────────────────────
+function selectTool(el) {
+  document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────────
+function setTab(el) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Demo pixel canvas ─────────────────────────────────────────────────────────
+const GRID_W = 8, GRID_H = 8;
+// A simple avatar-style sprite
+const SPRITE_DATA = [
+  [0,0,1,1,1,1,0,0],
+  [0,1,1,2,2,1,1,0],
+  [0,1,2,2,2,2,1,0],
+  [0,1,1,1,1,1,1,0],
+  [0,0,1,1,1,1,0,0],
+  [0,1,3,1,1,3,1,0],
+  [0,1,3,1,1,3,1,0],
+  [0,0,1,0,0,1,0,0],
+];
+
+let pixelData = SPRITE_DATA.map(r => [...r]);
+
+function drawEditorCanvas() {
+  const canvas = document.getElementById('editor-canvas');
+  const ctx = canvas.getContext('2d');
+  const ps = canvas.width / GRID_W; // 24px per pixel
+  for (let y = 0; y < GRID_H; y++) {
+    for (let x = 0; x < GRID_W; x++) {
+      ctx.fillStyle = PALETTE[pixelData[y][x]] || '#000';
+      ctx.fillRect(x * ps, y * ps, ps, ps);
+    }
+  }
+  // Grid overlay
+  ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+  ctx.lineWidth = 1;
+  for (let x = 0; x <= GRID_W; x++) {
+    ctx.beginPath(); ctx.moveTo(x*ps+0.5, 0); ctx.lineTo(x*ps+0.5, canvas.height); ctx.stroke();
+  }
+  for (let y = 0; y <= GRID_H; y++) {
+    ctx.beginPath(); ctx.moveTo(0, y*ps+0.5); ctx.lineTo(canvas.width, y*ps+0.5); ctx.stroke();
+  }
+}
+
+// ── Drawing on canvas ─────────────────────────────────────────────────────────
+const edCanvas = document.getElementById('editor-canvas');
+let drawing = false;
+
+function getCell(e) {
+  const rect = edCanvas.getBoundingClientRect();
+  const scaleX = edCanvas.width / rect.width;
+  const scaleY = edCanvas.height / rect.height;
+  const ps = edCanvas.width / GRID_W;
+  return {
+    x: Math.floor((e.clientX - rect.left) * scaleX / ps),
+    y: Math.floor((e.clientY - rect.top) * scaleY / ps),
+  };
+}
+
+edCanvas.addEventListener('mousedown', e => {
+  drawing = true;
+  const {x,y} = getCell(e);
+  if (x >= 0 && x < GRID_W && y >= 0 && y < GRID_H) {
+    pixelData[y][x] = selectedColor;
+    drawEditorCanvas();
+    drawPreview();
+  }
+});
+edCanvas.addEventListener('mousemove', e => {
+  if (!drawing) return;
+  const {x,y} = getCell(e);
+  if (x >= 0 && x < GRID_W && y >= 0 && y < GRID_H) {
+    pixelData[y][x] = selectedColor;
+    drawEditorCanvas();
+    drawPreview();
+  }
+});
+window.addEventListener('mouseup', () => { drawing = false; });
+
+// ── Preview canvas ─────────────────────────────────────────────────────────────
+function drawPreview() {
+  const canvas = document.getElementById('preview-canvas');
+  const ctx = canvas.getContext('2d');
+  const ps = canvas.width / GRID_W;
+  for (let y = 0; y < GRID_H; y++) {
+    for (let x = 0; x < GRID_W; x++) {
+      ctx.fillStyle = PALETTE[pixelData[y][x]] || '#000';
+      ctx.fillRect(x*ps, y*ps, ps, ps);
+    }
+  }
+}
+
+// ── Frames row ────────────────────────────────────────────────────────────────
+const framesRow = document.getElementById('frames-row');
+[SPRITE_DATA, [[0,0,0,0,0,0,0,0],[0,0,1,0,0,1,0,0],[0,0,1,0,0,1,0,0],[0,1,1,1,1,1,1,0],[0,1,1,1,1,1,1,0],[0,0,1,0,0,1,0,0],[0,1,0,0,0,0,1,0],[0,0,0,0,0,0,0,0]]].forEach((frame, fi) => {
+  const wrap = document.createElement('div');
+  wrap.className = 'frame-thumb' + (fi === 0 ? ' active' : '');
+  const fc = document.createElement('canvas');
+  fc.width = 32; fc.height = 32;
+  fc.style.imageRendering = 'pixelated';
+  fc.style.width = '32px'; fc.style.height = '32px';
+  const fctx = fc.getContext('2d');
+  const fps = 32 / GRID_W;
+  for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) {
+    fctx.fillStyle = PALETTE[frame[y][x]] || '#000';
+    fctx.fillRect(x*fps, y*fps, fps, fps);
+  }
+  wrap.appendChild(fc);
+  wrap.onclick = () => {
+    document.querySelectorAll('.frame-thumb').forEach(t => t.classList.remove('active'));
+    wrap.classList.add('active');
+  };
+  framesRow.appendChild(wrap);
+});
+
+// ── Sprite list ────────────────────────────────────────────────────────────────
+const SPRITES = [
+  { name: 'avatar', type: 'walkable', data: SPRITE_DATA },
+  { name: 'bee', type: 'walkable', data: [
+    [0,0,1,0,0,1,0,0],[0,1,1,0,0,1,1,0],[0,0,4,4,4,4,0,0],[0,0,4,0,0,4,0,0],
+    [0,0,4,4,4,4,0,0],[0,0,4,0,0,4,0,0],[0,0,4,4,4,4,0,0],[0,0,0,4,4,0,0,0],
+  ]},
+  { name: 'mushroom', type: 'item', data: [
+    [0,0,2,2,2,2,0,0],[0,2,2,1,2,2,2,0],[2,2,2,2,2,1,2,2],[2,2,2,2,2,2,2,2],
+    [0,2,2,2,2,2,2,0],[0,0,1,1,1,1,0,0],[0,0,1,1,1,1,0,0],[0,0,0,0,0,0,0,0],
+  ]},
+  { name: 'flower', type: 'walkable', data: [
+    [0,0,9,0,0,9,0,0],[0,9,9,9,9,9,9,0],[0,9,9,4,4,9,9,0],[0,0,4,4,4,4,0,0],
+    [0,9,9,4,4,9,9,0],[0,9,9,9,9,9,9,0],[0,0,0,12,12,0,0,0],[0,0,12,12,12,0,0,0],
+  ]},
+];
+
+const spriteList = document.getElementById('sprite-list');
+SPRITES.forEach((spr, i) => {
+  const item = document.createElement('div');
+  item.className = 'sprite-item' + (i === 0 ? ' active' : '');
+
+  const mini = document.createElement('div');
+  mini.className = 'sprite-mini';
+  const mc = document.createElement('canvas');
+  mc.width = 32; mc.height = 32;
+  mc.style.cssText = 'image-rendering:pixelated;width:32px;height:32px';
+  const mctx = mc.getContext('2d');
+  const mps = 32 / GRID_W;
+  for (let y = 0; y < GRID_H; y++) for (let x = 0; x < GRID_W; x++) {
+    mctx.fillStyle = PALETTE[spr.data[y][x]] || '#000';
+    mctx.fillRect(x*mps, y*mps, mps, mps);
+  }
+  mini.appendChild(mc);
+
+  const meta = document.createElement('div');
+  meta.className = 'sprite-meta';
+  meta.innerHTML = `<div class="sprite-name">${spr.name}</div><div class="sprite-type ${spr.type}">${spr.type}</div>`;
+
+  item.appendChild(mini);
+  item.appendChild(meta);
+  item.onclick = () => {
+    document.querySelectorAll('.sprite-item').forEach(s => s.classList.remove('active'));
+    item.classList.add('active');
+    pixelData = spr.data.map(r => [...r]);
+    drawEditorCanvas();
+    drawPreview();
+  };
+  spriteList.appendChild(item);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+drawEditorCanvas();
+drawPreview();
+
+// ── Size chips ────────────────────────────────────────────────────────────────
+document.querySelectorAll('.size-chip').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.size-chip').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  };
+});
+
+// ── Tile type buttons ──────────────────────────────────────────────────────────
+document.querySelectorAll('.tile-type-btn').forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll('.tile-type-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  };
+});
+</script>
+</body>
+</html>
