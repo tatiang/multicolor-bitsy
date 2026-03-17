@@ -22,16 +22,20 @@ function getAudioCtx() {
   try { if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)(); return _audioCtx; } catch(e) { return null; }
 }
 function noteFreq(semi) { return 130.81 * Math.pow(2, semi / 12); }
-function playBlip(wave="square", freq=440, dur=0.15, vol=0.25) {
+function playBlip(wave="square", freq=440, dur=0.15, vol=0.25, freqEnd, attack, decay) {
   try {
     const ctx = getAudioCtx(); if (!ctx) return;
     const osc = ctx.createOscillator();
     const gain = ctx.createGain();
     osc.connect(gain); gain.connect(ctx.destination);
     osc.type = wave; osc.frequency.value = freq;
-    gain.gain.setValueAtTime(vol, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + dur);
-    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur);
+    if (freqEnd && freqEnd !== freq) osc.frequency.linearRampToValueAtTime(freqEnd, ctx.currentTime + dur);
+    const atk = attack || 0.005;
+    const dcy = decay != null ? decay : Math.max(0.01, dur - atk);
+    gain.gain.setValueAtTime(0.001, ctx.currentTime);
+    gain.gain.linearRampToValueAtTime(vol, ctx.currentTime + atk);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + atk + dcy);
+    osc.start(ctx.currentTime); osc.stop(ctx.currentTime + dur + 0.01);
   } catch(e) {}
 }
 
@@ -185,6 +189,103 @@ const ASSET_PACKS = [
       ]},
     ],
   },
+  {
+    name: "🚗 Roadtrip Pack", color: "#ffa300",
+    assets: [
+      { name:"Car", itemType:"sprite", tileType:"walkable", dialog:"Honk honk! Hop in!", grid:[
+        [0,0,0,0,0,0,0,0],[0,0,2,2,2,2,0,0],[0,2,2,6,6,2,2,0],[2,2,2,2,2,2,2,2],
+        [2,15,2,2,2,2,15,2],[0,14,14,0,0,14,14,0],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],
+      ]},
+      { name:"Road", itemType:"tile", tileType:"walkable", grid:[
+        [14,14,14,14,14,14,14,14],[14,14,14,14,14,14,14,14],[14,14,14,14,14,14,14,14],[14,14,14,4,4,14,14,14],
+        [14,14,14,4,4,14,14,14],[14,14,14,14,14,14,14,14],[14,14,14,14,14,14,14,14],[14,14,14,14,14,14,14,14],
+      ]},
+      { name:"Gas Station", itemType:"sprite", tileType:"walkable", dialog:"Fill 'er up!", grid:[
+        [0,2,2,2,2,2,2,0],[0,2,1,1,1,1,2,0],[0,2,2,2,2,2,2,0],[0,0,15,15,15,0,0,0],
+        [0,0,15,14,15,0,0,0],[0,0,15,15,15,0,0,0],[0,0,0,14,0,0,0,0],[0,0,14,14,14,0,0,0],
+      ]},
+      { name:"Diner", itemType:"sprite", tileType:"walkable", dialog:"Best pie in the state!", grid:[
+        [0,2,2,2,2,2,2,0],[2,1,1,1,1,1,1,2],[2,1,4,1,1,4,1,2],[2,2,2,2,2,2,2,2],
+        [2,2,2,2,2,2,2,2],[0,2,4,2,2,4,2,0],[0,2,2,2,2,2,2,0],[0,0,0,0,0,0,0,0],
+      ]},
+      { name:"Motel", itemType:"sprite", tileType:"wall", dialog:"", grid:[
+        [11,11,11,11,11,11,11,11],[11,4,11,4,11,4,11,11],[11,4,11,4,11,4,11,11],[11,11,11,11,11,11,11,11],
+        [11,11,11,11,11,11,11,11],[11,4,11,13,11,4,11,11],[11,11,11,13,11,11,11,11],[14,14,14,14,14,14,14,14],
+      ]},
+      { name:"Cactus", itemType:"sprite", tileType:"wall", dialog:"", grid:[
+        [0,0,0,5,5,0,0,0],[0,5,0,5,5,0,5,0],[0,5,5,5,5,5,5,0],[0,0,0,5,5,0,0,0],
+        [0,0,0,5,5,0,0,0],[0,0,0,5,5,0,0,0],[0,0,0,12,12,0,0,0],[0,0,12,12,12,12,0,0],
+      ]},
+      { name:"Highway Sign", itemType:"sprite", tileType:"item", dialog:"", grid:[
+        [0,5,5,5,5,5,5,0],[0,5,1,1,1,1,5,0],[0,5,1,1,1,1,5,0],[0,5,5,5,5,5,5,0],
+        [0,0,0,8,8,0,0,0],[0,0,0,8,8,0,0,0],[0,0,0,8,8,0,0,0],[0,0,8,8,8,8,0,0],
+      ]},
+      { name:"Mountains", itemType:"tile", tileType:"wall", grid:[
+        [11,11,11,8,8,11,11,11],[11,11,8,8,8,8,11,11],[11,8,8,15,8,8,8,11],[8,8,15,15,8,8,8,8],
+        [8,15,15,15,15,8,8,8],[15,15,15,15,15,15,8,15],[15,15,15,15,15,15,15,15],[15,15,15,15,15,15,15,15],
+      ]},
+    ],
+  },
+];
+
+// ─── Sound Packs ─────────────────────────────────────────────────────────────
+const TUNE_PACKS = [
+  { name:"🐝 Bug Tunes", presets:[
+    { name:"Garden Waltz", steps:[{semi:24,active:true},{semi:0,active:false},{semi:26,active:true},{semi:0,active:false},{semi:28,active:true},{semi:0,active:false},{semi:26,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false},{semi:22,active:true},{semi:0,active:false},{semi:20,active:true},{semi:0,active:false},{semi:22,active:true},{semi:0,active:false}] },
+    { name:"Buzzy Hop", steps:[{semi:30,active:true},{semi:30,active:true},{semi:0,active:false},{semi:28,active:true},{semi:0,active:false},{semi:26,active:true},{semi:26,active:true},{semi:0,active:false},{semi:28,active:true},{semi:0,active:false},{semi:30,active:true},{semi:0,active:false},{semi:0,active:false},{semi:28,active:true},{semi:0,active:false},{semi:0,active:false}] },
+    { name:"Pollen Dance", steps:[{semi:20,active:true},{semi:22,active:true},{semi:24,active:true},{semi:26,active:true},{semi:28,active:true},{semi:26,active:true},{semi:24,active:true},{semi:22,active:true},{semi:20,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false},{semi:28,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false}] },
+  ]},
+  { name:"⚔️ Fantasy Tunes", presets:[
+    { name:"Castle March", steps:[{semi:12,active:true},{semi:0,active:false},{semi:12,active:true},{semi:16,active:true},{semi:19,active:true},{semi:0,active:false},{semi:19,active:true},{semi:0,active:false},{semi:17,active:true},{semi:0,active:false},{semi:16,active:true},{semi:0,active:false},{semi:14,active:true},{semi:12,active:true},{semi:0,active:false},{semi:12,active:true}] },
+    { name:"Dungeon Creep", steps:[{semi:12,active:true},{semi:0,active:false},{semi:0,active:false},{semi:15,active:true},{semi:0,active:false},{semi:0,active:false},{semi:13,active:true},{semi:0,active:false},{semi:0,active:false},{semi:16,active:true},{semi:0,active:false},{semi:0,active:false},{semi:12,active:true},{semi:0,active:false},{semi:0,active:false},{semi:0,active:false}] },
+  ]},
+  { name:"🚀 Space Tunes", presets:[
+    { name:"Orbit Drift", steps:[{semi:24,active:true},{semi:0,active:false},{semi:0,active:false},{semi:0,active:false},{semi:31,active:true},{semi:0,active:false},{semi:0,active:false},{semi:28,active:true},{semi:0,active:false},{semi:0,active:false},{semi:0,active:false},{semi:26,active:true},{semi:0,active:false},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false}] },
+    { name:"Star Pulse", steps:[{semi:36,active:true},{semi:34,active:true},{semi:32,active:true},{semi:30,active:true},{semi:28,active:true},{semi:30,active:true},{semi:32,active:true},{semi:34,active:true},{semi:36,active:true},{semi:34,active:true},{semi:32,active:true},{semi:30,active:true},{semi:28,active:true},{semi:30,active:true},{semi:32,active:true},{semi:34,active:true}] },
+    { name:"Alien Signal", steps:[{semi:18,active:true},{semi:30,active:true},{semi:18,active:true},{semi:0,active:false},{semi:22,active:true},{semi:34,active:true},{semi:22,active:true},{semi:0,active:false},{semi:18,active:true},{semi:30,active:true},{semi:0,active:false},{semi:0,active:false},{semi:14,active:true},{semi:26,active:true},{semi:0,active:false},{semi:0,active:false}] },
+  ]},
+  { name:"🏫 School Tunes", presets:[
+    { name:"Recess Bell", steps:[{semi:28,active:true},{semi:24,active:true},{semi:26,active:true},{semi:22,active:true},{semi:24,active:true},{semi:0,active:false},{semi:28,active:true},{semi:24,active:true},{semi:26,active:true},{semi:22,active:true},{semi:24,active:true},{semi:0,active:false},{semi:28,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false}] },
+    { name:"Study Hall", steps:[{semi:20,active:true},{semi:0,active:false},{semi:22,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false},{semi:0,active:false},{semi:0,active:false},{semi:20,active:true},{semi:0,active:false},{semi:22,active:true},{semi:0,active:false},{semi:20,active:true},{semi:0,active:false},{semi:0,active:false},{semi:0,active:false}] },
+  ]},
+  { name:"🚗 Roadtrip Tunes", presets:[
+    { name:"Highway Cruise", steps:[{semi:16,active:true},{semi:0,active:false},{semi:19,active:true},{semi:0,active:false},{semi:21,active:true},{semi:0,active:false},{semi:23,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false},{semi:23,active:true},{semi:0,active:false},{semi:21,active:true},{semi:0,active:false},{semi:19,active:true},{semi:0,active:false}] },
+    { name:"Desert Drive", steps:[{semi:12,active:true},{semi:14,active:true},{semi:17,active:true},{semi:0,active:false},{semi:12,active:true},{semi:14,active:true},{semi:19,active:true},{semi:0,active:false},{semi:12,active:true},{semi:14,active:true},{semi:17,active:true},{semi:0,active:false},{semi:19,active:true},{semi:17,active:true},{semi:14,active:true},{semi:0,active:false}] },
+    { name:"Open Road", steps:[{semi:24,active:true},{semi:24,active:true},{semi:28,active:true},{semi:0,active:false},{semi:26,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false},{semi:22,active:true},{semi:22,active:true},{semi:26,active:true},{semi:0,active:false},{semi:24,active:true},{semi:0,active:false},{semi:22,active:true},{semi:0,active:false}] },
+  ]},
+];
+
+const BLIP_PACKS = [
+  { name:"🐝 Bug Blips", presets:[
+    { name:"Chirp", wave:"square", freq:880, dur:0.08, vol:0.2 },
+    { name:"Buzz", wave:"sawtooth", freq:220, dur:0.15, vol:0.25 },
+    { name:"Flutter", wave:"sine", freq:660, dur:0.12, vol:0.2, freqEnd:1100 },
+    { name:"Cricket", wave:"square", freq:1200, dur:0.06, vol:0.15, freqEnd:800 },
+  ]},
+  { name:"⚔️ Fantasy Blips", presets:[
+    { name:"Sword Ding", wave:"triangle", freq:1000, dur:0.1, vol:0.3, freqEnd:1400 },
+    { name:"Magic Chime", wave:"sine", freq:600, dur:0.25, vol:0.2, freqEnd:1200, attack:0.02 },
+    { name:"Dark Rumble", wave:"sawtooth", freq:110, dur:0.3, vol:0.2, attack:0.05, decay:0.25 },
+    { name:"Potion Pop", wave:"sine", freq:440, dur:0.15, vol:0.25, freqEnd:880 },
+  ]},
+  { name:"🚀 Space Blips", presets:[
+    { name:"Laser", wave:"sawtooth", freq:1400, dur:0.1, vol:0.2, freqEnd:200 },
+    { name:"Comm Beep", wave:"sine", freq:800, dur:0.08, vol:0.15, freqEnd:1000 },
+    { name:"Warp", wave:"sine", freq:200, dur:0.4, vol:0.2, freqEnd:1600, attack:0.01, decay:0.35 },
+    { name:"Alert", wave:"square", freq:660, dur:0.12, vol:0.25, freqEnd:440 },
+  ]},
+  { name:"🏫 School Blips", presets:[
+    { name:"Bell Ding", wave:"triangle", freq:880, dur:0.2, vol:0.25 },
+    { name:"Pencil Tap", wave:"square", freq:1200, dur:0.04, vol:0.15 },
+    { name:"Whisper", wave:"sine", freq:400, dur:0.15, vol:0.1, attack:0.03 },
+    { name:"Eraser", wave:"sawtooth", freq:300, dur:0.08, vol:0.1, freqEnd:150 },
+  ]},
+  { name:"🚗 Roadtrip Blips", presets:[
+    { name:"Horn Honk", wave:"square", freq:520, dur:0.15, vol:0.3, freqEnd:440 },
+    { name:"Engine Rev", wave:"sawtooth", freq:110, dur:0.3, vol:0.2, freqEnd:220, attack:0.05 },
+    { name:"Radio Blip", wave:"sine", freq:700, dur:0.1, vol:0.2, freqEnd:900 },
+    { name:"Turn Signal", wave:"square", freq:660, dur:0.08, vol:0.15 },
+  ]},
 ];
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
@@ -486,30 +587,124 @@ function PngImportModal({ onImport, onClose, palette, maxColors }) {
 }
 
 // ─── Exit Config Modal ────────────────────────────────────────────────────────
-function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose }) {
+function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, tiles, sprites, palette, roomW, roomH, tileW, tileH }) {
   const firstOther = rooms.findIndex((_,i)=>i!==currentRoom);
   const [destRoom, setDestRoom] = useState(firstOther>=0?firstOther:0);
   const [destX, setDestX] = useState(4);
   const [destY, setDestY] = useState(4);
+  const [visualMode, setVisualMode] = useState(true);
+  const [isEnding, setIsEnding] = useState(false);
+  const [endingMessage, setEndingMessage] = useState("");
+  const [twoWay, setTwoWay] = useState(false);
+  const thumbRef = useRef(null);
+
+  // Draw room thumbnail with arrival highlight
+  useEffect(()=>{
+    const cv=thumbRef.current; if(!cv||!visualMode)return;
+    const room=rooms[destRoom]; if(!room)return;
+    const ps=Math.max(1,Math.floor(220/Math.max(roomW*tileW,roomH*tileH)));
+    cv.width=roomW*tileW*ps; cv.height=roomH*tileH*ps;
+    const ctx=cv.getContext("2d");
+    ctx.fillStyle=palette[0]||"#000"; ctx.fillRect(0,0,cv.width,cv.height);
+    for(let ry=0;ry<roomH;ry++) for(let rx=0;rx<roomW;rx++){
+      const tid=room.tiles[ry]?.[rx]; if(!tid)continue;
+      const tile=tiles.find(t=>t.id===tid); if(!tile)continue;
+      const f=tile.frames[0]; if(!f)continue;
+      for(let py=0;py<tileH;py++) for(let px=0;px<tileW;px++){
+        const v=f[py]?.[px]; if(!v)continue;
+        ctx.fillStyle=palette[v]||palette[0];
+        ctx.fillRect((rx*tileW+px)*ps,(ry*tileH+py)*ps,ps,ps);
+      }
+    }
+    // Draw NPCs
+    (room.npcs||[]).forEach(n=>{
+      const spr=sprites.find(s=>s.id===n.spriteId); if(!spr)return;
+      const f=spr.frames[0]; if(!f)return;
+      for(let py=0;py<f.length;py++) for(let px=0;px<(f[0]?.length||0);px++){
+        const v=f[py]?.[px]; if(!v)continue;
+        ctx.fillStyle=palette[v]||palette[0];
+        ctx.fillRect((n.x*tileW+px)*ps,(n.y*tileH+py)*ps,ps,ps);
+      }
+    });
+    // Draw exits
+    (room.exits||[]).forEach(e=>{
+      ctx.fillStyle="rgba(255,0,200,0.2)";
+      ctx.fillRect(e.x*tileW*ps,e.y*tileH*ps,tileW*ps,tileH*ps);
+    });
+    // Highlight arrival position
+    ctx.strokeStyle="#00ff88"; ctx.lineWidth=2;
+    ctx.strokeRect(destX*tileW*ps,destY*tileH*ps,tileW*ps,tileH*ps);
+    ctx.fillStyle="rgba(0,255,136,0.25)";
+    ctx.fillRect(destX*tileW*ps,destY*tileH*ps,tileW*ps,tileH*ps);
+  },[destRoom,destX,destY,rooms,tiles,sprites,palette,roomW,roomH,tileW,tileH,visualMode]);
+
+  const handleThumbClick=(e)=>{
+    const cv=thumbRef.current; if(!cv)return;
+    const rect=cv.getBoundingClientRect();
+    const ps=Math.max(1,Math.floor(220/Math.max(roomW*tileW,roomH*tileH)));
+    const cx=Math.floor((e.clientX-rect.left)/(tileW*ps));
+    const cy=Math.floor((e.clientY-rect.top)/(tileH*ps));
+    if(cx>=0&&cx<roomW&&cy>=0&&cy<roomH){ setDestX(cx); setDestY(cy); }
+  };
+
   return (
     <div style={S.modal} onClick={onClose}>
-      <div style={{...S.modalContent,maxWidth:340}} onClick={e=>e.stopPropagation()}>
-        <h3 style={{margin:"0 0 12px",color:"#e94560"}}>🚪 Configure Exit</h3>
-        <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Exit at ({position.x},{position.y}) teleports player to:</p>
+      <div style={{...S.modalContent,maxWidth:420}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+          <h3 style={{margin:0,color:isEnding?"#ffec27":"#e94560"}}>{isEnding?"🏁 Configure Ending":"🚪 Configure Exit"}</h3>
+          <div style={{display:"flex",gap:4}}>
+            <button style={{...S.btn(visualMode),fontSize:10}} onClick={()=>setVisualMode(true)}>Visual</button>
+            <button style={{...S.btn(!visualMode),fontSize:10}} onClick={()=>setVisualMode(false)}>Simple</button>
+          </div>
+        </div>
+        <p style={{fontSize:12,color:"#aaa",margin:"0 0 12px"}}>Exit at ({position.x},{position.y}) in Room {currentRoom}</p>
+
         <div style={S.row}>
           <span style={S.label}>Destination:</span>
           <select style={S.select} value={destRoom} onChange={e=>setDestRoom(+e.target.value)}>
             {rooms.map((r,i)=><option key={i} value={i}>{i}: {r.name}{i===currentRoom?" (same)":""}</option>)}
           </select>
         </div>
-        <div style={S.row}>
-          <span style={S.label}>Arrive X:</span>
-          <input type="number" min={0} max={31} value={destX} onChange={e=>setDestX(+e.target.value||0)} style={{...S.input,width:54}} />
-          <span style={S.label}>Y:</span>
-          <input type="number" min={0} max={31} value={destY} onChange={e=>setDestY(+e.target.value||0)} style={{...S.input,width:54}} />
+
+        {visualMode ? (
+          <div style={{margin:"10px 0"}}>
+            <div style={{fontSize:11,color:"#888",marginBottom:4}}>Click to set arrival position:</div>
+            <canvas ref={thumbRef} onClick={handleThumbClick}
+              style={{imageRendering:"pixelated",cursor:"crosshair",border:"1px solid #0f3460",borderRadius:4,display:"block",maxWidth:"100%"}} />
+            <div style={{fontSize:10,color:"#555",marginTop:4}}>Arrival: ({destX},{destY})</div>
+          </div>
+        ) : (
+          <div style={S.row}>
+            <span style={S.label}>Arrive X:</span>
+            <input type="number" min={0} max={roomW-1} value={destX} onChange={e=>setDestX(+e.target.value||0)} style={{...S.input,width:54}} />
+            <span style={S.label}>Y:</span>
+            <input type="number" min={0} max={roomH-1} value={destY} onChange={e=>setDestY(+e.target.value||0)} style={{...S.input,width:54}} />
+          </div>
+        )}
+
+        <div style={{borderTop:"1px solid #1a1a2e",paddingTop:10,marginTop:8}}>
+          <label style={{display:"flex",alignItems:"center",gap:6,fontSize:12,cursor:"pointer",color:"#ffec27",marginBottom:6}}>
+            <input type="checkbox" checked={isEnding} onChange={e=>setIsEnding(e.target.checked)} />
+            This exit triggers an ending
+          </label>
+          {isEnding&&(
+            <div style={{marginBottom:6}}>
+              <span style={{fontSize:11,color:"#aaa"}}>Ending message (optional):</span>
+              <input value={endingMessage} onChange={e=>setEndingMessage(e.target.value)}
+                placeholder="You reached the destination!" style={{...S.input,width:"100%",marginTop:3}} />
+            </div>
+          )}
+          <label style={{display:"flex",alignItems:"center",gap:6,fontSize:12,cursor:"pointer",color:"#29adff"}}>
+            <input type="checkbox" checked={twoWay} onChange={e=>setTwoWay(e.target.checked)} />
+            Create two-way exit (also add reverse exit in destination room)
+          </label>
         </div>
+
         <div style={{display:"flex",gap:8,marginTop:14}}>
-          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({x:position.x,y:position.y,destRoom,destX,destY})}>✓ Add Exit</button>
+          <button style={{...S.btn(true),flex:1}} onClick={()=>onConfirm({
+            x:position.x,y:position.y,destRoom,destX,destY,
+            isEnding,endingMessage:isEnding?endingMessage:undefined,twoWay
+          })}>✓ {isEnding?"Add Ending":"Add Exit"}</button>
           <button style={{...S.btn(false),flex:1}} onClick={onClose}>Cancel</button>
         </div>
       </div>
@@ -594,6 +789,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
   const [collected,setCollected]=useState([]);
   const [dialog,setDialog]=useState(null); // {pages,pageIdx,name}
   const [won,setWon]=useState(false);
+  const [wonMsg,setWonMsg]=useState("");
   const [removedItems,setRemovedItems]=useState([]); // "roomIdx,x,y"
   const [showInv,setShowInv]=useState(false);
   const canvasRef=useRef(null);
@@ -683,6 +879,11 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
       // Check exits
       const exit=(room.exits||[]).find(ex=>ex.x===nx&&ex.y===ny);
       if(exit){
+        if(exit.isEnding){
+          setWon(true);
+          setWonMsg(exit.endingMessage||"You reached the exit!");
+          return;
+        }
         setRoomIdx(exit.destRoom);
         setPos({x:exit.destX,y:exit.destY});
         playBlip("sine",660,0.18,0.2);
@@ -695,8 +896,8 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
         if(spr?.dialog){
           const pages=spr.dialog.split(/\n?---\n?/).map(p=>p.trim()).filter(Boolean);
           setDialog({pages:pages.length?pages:[spr.dialog],pageIdx:0,name:spr.name});
-          const w=spr.blip?.wave||"square", f=spr.blip?.freq||440;
-          playBlip(w,f,0.1,0.2);
+          const bl=spr.blip||{};
+          playBlip(bl.wave||"square",bl.freq||440,bl.dur||0.1,bl.vol||0.2,bl.freqEnd,bl.attack,bl.decay);
         }
         return;
       }
@@ -713,7 +914,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
           playBlip("triangle",880,0.2,0.3);
         }
       }
-      if(tt==="end")setWon(true);
+      if(tt==="end"){setWon(true);setWonMsg(tile?.name?"You reached "+tile.name+"!":"You Win!");}
     };
     window.addEventListener("keydown",handler);
     return()=>window.removeEventListener("keydown",handler);
@@ -721,7 +922,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
 
   const cw=roomW*tileW*ps, ch=roomH*tileH*ps;
   const maxD=400, sc=Math.min(maxD/cw,maxD/ch,1);
-  const restart=()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setDialog(null);setShowInv(false); };
+  const restart=()=>{ setRoomIdx(0);setPos(findStart(rooms[0]));setCollected([]);setRemovedItems([]);setWon(false);setWonMsg("");setDialog(null);setShowInv(false); };
 
   return (
     <div style={S.modal}>
@@ -737,7 +938,7 @@ function PlaytestModal({ rooms, startRoom=0, tiles, sprites, palette, roomW, roo
         {won ? (
           <div style={{textAlign:"center",padding:32}}>
             <div style={{fontSize:40,marginBottom:12}}>🎉</div>
-            <div style={{fontSize:22,color:"#ffec27",fontWeight:700,marginBottom:8}}>You Win!</div>
+            <div style={{fontSize:22,color:"#ffec27",fontWeight:700,marginBottom:8}}>{wonMsg||"You Win!"}</div>
             <div style={{color:"#aaa",marginBottom:16}}>Items collected: {collected.length}</div>
             <div style={{display:"flex",gap:8,justifyContent:"center"}}>
               <button style={S.btn(true)} onClick={restart}>↺ Play Again</button>
@@ -1090,7 +1291,7 @@ function findStart(rm){if(!rm)return{x:1,y:1};for(var ry=0;ry<RH;ry++)for(var rx
 pos=findStart(rms[0]);
 var ac=null;
 function getAC(){if(!ac)ac=new(window.AudioContext||window.webkitAudioContext)();return ac;}
-function blip(w,f,d,v){try{var a=getAC(),o=a.createOscillator(),g=a.createGain();o.type=w||'square';o.frequency.value=f||440;g.gain.value=v||0.15;g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+(d||0.15));o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+(d||0.15));}catch(e){}}
+function blip(w,f,d,v,fe,atk,dcy){try{var a=getAC(),o=a.createOscillator(),g=a.createGain();o.type=w||'square';o.frequency.value=f||440;var dr=d||0.15;if(fe&&fe!==(f||440))o.frequency.linearRampToValueAtTime(fe,a.currentTime+dr);var ak=atk||0.005,dc=dcy!=null?dcy:Math.max(0.01,dr-ak);g.gain.setValueAtTime(0.001,a.currentTime);g.gain.linearRampToValueAtTime(v||0.15,a.currentTime+ak);g.gain.exponentialRampToValueAtTime(0.001,a.currentTime+ak+dc);o.connect(g);g.connect(a.destination);o.start();o.stop(a.currentTime+dr+0.01);}catch(e){}}
 function nf(s){return 130.81*Math.pow(2,s/12);}
 var ts2=0,tsi=null;
 function startTune(){if(!tn||!tn.some(function(s){return s.active;}))return;tsi=setInterval(function(){var n=tn[ts2];if(n&&n.active)blip('sine',nf(n.semi),0.12,0.08);ts2=(ts2+1)%tn.length;},170);}
@@ -1137,9 +1338,9 @@ document.addEventListener('keydown',function(e){
   var rm=rms[ri],nx=pos.x+dx[0],ny=pos.y+dx[1];
   if(nx<0||nx>=RW||ny<0||ny>=RH)return;
   var ex=(rm.exits||[]).find(function(e){return e.x===nx&&e.y===ny;});
-  if(ex){ri=typeof ex.destRoom==='number'?ex.destRoom:parseInt(ex.destRoom)||0;pos={x:ex.destX,y:ex.destY};blip('sine',660,0.18,0.2);return;}
+  if(ex){if(ex.isEnding){won=true;wonTxt=ex.endingMessage||'You reached the exit!';if(tsi)clearInterval(tsi);return;}ri=typeof ex.destRoom==='number'?ex.destRoom:parseInt(ex.destRoom)||0;pos={x:ex.destX,y:ex.destY};blip('sine',660,0.18,0.2);return;}
   var npc=(rm.npcs||[]).find(function(n){return n.x===nx&&n.y===ny;});
-  if(npc){var sp=sprs.find(function(s){return s.id===npc.spriteId;});if(sp&&sp.dialog){var pgs=sp.dialog.split(/\\n?---\\n?/).map(function(p){return p.trim();}).filter(Boolean);dlg={pages:pgs.length?pgs:[sp.dialog],pi:0,name:sp.name};blip((sp.blip&&sp.blip.wave)||'square',(sp.blip&&sp.blip.freq)||440,0.1,0.2);}return;}
+  if(npc){var sp=sprs.find(function(s){return s.id===npc.spriteId;});if(sp&&sp.dialog){var pgs=sp.dialog.split(/\\n?---\\n?/).map(function(p){return p.trim();}).filter(Boolean);dlg={pages:pgs.length?pgs:[sp.dialog],pi:0,name:sp.name};var bl=sp.blip||{};blip(bl.wave||'square',bl.freq||440,bl.dur||0.1,bl.vol||0.2,bl.freqEnd,bl.attack,bl.decay);}return;}
   var tid=rm.tiles[ny]&&rm.tiles[ny][nx],tl=tls.find(function(t){return t.id===tid;}),tt=(tl&&tl.tileType)||'walkable';
   if(tt==='wall')return;
   pos={x:nx,y:ny};
@@ -1477,6 +1678,8 @@ export default function App() {
   const [exportModal,setExportModal]=useState(null); // {type,title,content}
   const [gameTitle,setGameTitle]=useState("My Multicolor Bitsy Game");
   const [activePack,setActivePack]=useState(null);
+  const [activeTunePack,setActiveTunePack]=useState(null);
+  const [activeBlipPack,setActiveBlipPack]=useState(null);
   const [exitModal,setExitModal]=useState(null); // {x,y} being configured
   const [findQuery,setFindQuery]=useState("");
   const [tune,setTune]=useState(Array.from({length:TUNE_STEPS},()=>({semi:12,active:false})));
@@ -1702,7 +1905,7 @@ export default function App() {
         setSpriteW(grid[0].length);setSpriteH(grid.length);
         setSelectedFrame(0);
       } else {
-        const n={id:uid(),name:asset.name,frames:[grid],tileType:asset.tileType||"walkable",dialog:asset.dialog||""};
+        const n={id:uid(),name:asset.name,frames:[grid],tileType:asset.tileType||"walkable",dialog:asset.dialog||"",blip:{wave:"square",freq:440}};
         setSprites(p=>{setSelectedSprite(p.length);return[...p,n];});
         setSpriteW(grid[0].length);setSpriteH(grid.length);setTab("sprite");
         setSelectedFrame(0);
@@ -1895,10 +2098,17 @@ export default function App() {
   };
 
   const confirmExit=(exitData)=>{
+    const {twoWay,...exitEntry}=exitData;
     setRooms(prev=>{
       const rs=[...prev];
-      const room={...rs[selectedRoom],exits:[...(rs[selectedRoom].exits||[]).filter(e=>!(e.x===exitData.x&&e.y===exitData.y)),exitData]};
-      rs[selectedRoom]=room; return rs;
+      // Add exit to current room
+      rs[selectedRoom]={...rs[selectedRoom],exits:[...(rs[selectedRoom].exits||[]).filter(e=>!(e.x===exitEntry.x&&e.y===exitEntry.y)),exitEntry]};
+      // Add reverse exit if two-way
+      if(twoWay&&exitEntry.destRoom!==selectedRoom){
+        const reverse={x:exitEntry.destX,y:exitEntry.destY,destRoom:selectedRoom,destX:exitEntry.x,destY:exitEntry.y};
+        rs[exitEntry.destRoom]={...rs[exitEntry.destRoom],exits:[...(rs[exitEntry.destRoom].exits||[]).filter(e=>!(e.x===reverse.x&&e.y===reverse.y)),reverse]};
+      }
+      return rs;
     });
     setExitModal(null);
   };
@@ -2188,7 +2398,32 @@ export default function App() {
             <div style={{width:"100%",maxWidth:640,padding:8}}>
               <div style={{fontWeight:700,color:"#e94560",marginBottom:12,fontSize:14}}>🎵 Background Tune</div>
               <TuneEditor tune={tune} onChange={setTune} />
-              <div style={{marginTop:16,fontSize:11,color:"#555",lineHeight:1.8}}>
+              <div style={{marginTop:16}}>
+                <div style={{fontWeight:700,color:"#e94560",marginBottom:8,fontSize:12}}>Tune Presets</div>
+                {TUNE_PACKS.map((pack,pi)=>(
+                  <div key={pi} style={{marginBottom:4}}>
+                    <button onClick={()=>setActiveTunePack(activeTunePack===pi?null:pi)}
+                      style={{...S.btn(activeTunePack===pi),width:"100%",textAlign:"left",marginBottom:2,fontSize:11}}>
+                      {pack.name} {activeTunePack===pi?"▲":"▼"}
+                    </button>
+                    {activeTunePack===pi&&(
+                      <div style={{display:"flex",flexWrap:"wrap",gap:4,padding:"4px 0"}}>
+                        {pack.presets.map((preset,ti)=>(
+                          <div key={ti} style={{display:"flex",gap:2}}>
+                            <button style={{...S.btn(false),fontSize:10,padding:"3px 6px"}}
+                              onClick={()=>{preset.steps.forEach((s,i)=>{if(s.active)playBlip("square",noteFreq(s.semi),0.08,0.25);});
+                                let i=0;const iv=setInterval(()=>{const s=preset.steps[i];if(s?.active)playBlip("square",noteFreq(s.semi),0.08,0.25);i++;if(i>=16)clearInterval(iv);},150);
+                              }}>▶ {preset.name}</button>
+                            <button style={{...S.btn(false),fontSize:10,padding:"3px 6px"}}
+                              onClick={()=>setTune(preset.steps.map(s=>({...s})))}>Apply</button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+              <div style={{marginTop:12,fontSize:11,color:"#555",lineHeight:1.8}}>
                 The tune loops in the background while your game is playing.<br/>
                 Separate dialog pages with <code style={{color:"#ffec27"}}>---</code> on its own line for multi-page speech.
               </div>
@@ -2274,10 +2509,76 @@ export default function App() {
                       onChange={e=>updateBlip("freq",+e.target.value)} style={{flex:1}} />
                     <span style={{fontSize:11,color:"#aaa",minWidth:36}}>{currentItem.blip?.freq||440}Hz</span>
                   </div>
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                    <span style={{fontSize:11,color:"#aaa"}}>Duration:</span>
+                    <input type="range" min={0.05} max={1.0} step={0.01} value={currentItem.blip?.dur||0.15}
+                      onChange={e=>updateBlip("dur",+e.target.value)} style={{flex:1}} />
+                    <span style={{fontSize:11,color:"#aaa",minWidth:30}}>{(currentItem.blip?.dur||0.15).toFixed(2)}s</span>
+                  </div>
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                    <span style={{fontSize:11,color:"#aaa"}}>Volume:</span>
+                    <input type="range" min={0} max={1.0} step={0.01} value={currentItem.blip?.vol||0.25}
+                      onChange={e=>updateBlip("vol",+e.target.value)} style={{flex:1}} />
+                    <span style={{fontSize:11,color:"#aaa",minWidth:24}}>{Math.round((currentItem.blip?.vol||0.25)*100)}%</span>
+                  </div>
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                    <label style={{fontSize:11,color:"#aaa",display:"flex",alignItems:"center",gap:4,cursor:"pointer"}}>
+                      <input type="checkbox" checked={!!currentItem.blip?.freqEnd} onChange={e=>{
+                        if(e.target.checked) updateBlip("freqEnd",currentItem.blip?.freq||440);
+                        else updateBlip("freqEnd",undefined);
+                      }} /> Pitch sweep
+                    </label>
+                  </div>
+                  {currentItem.blip?.freqEnd!=null&&(
+                    <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                      <span style={{fontSize:11,color:"#aaa"}}>End:</span>
+                      <input type="range" min={110} max={1760} step={10} value={currentItem.blip?.freqEnd||440}
+                        onChange={e=>updateBlip("freqEnd",+e.target.value)} style={{flex:1}} />
+                      <span style={{fontSize:11,color:"#aaa",minWidth:36}}>{currentItem.blip?.freqEnd||440}Hz</span>
+                    </div>
+                  )}
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                    <span style={{fontSize:11,color:"#aaa"}}>Attack:</span>
+                    <input type="range" min={0.005} max={0.5} step={0.005} value={currentItem.blip?.attack||0.005}
+                      onChange={e=>updateBlip("attack",+e.target.value)} style={{flex:1}} />
+                    <span style={{fontSize:11,color:"#aaa",minWidth:30}}>{((currentItem.blip?.attack||0.005)*1000).toFixed(0)}ms</span>
+                  </div>
+                  <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:4}}>
+                    <span style={{fontSize:11,color:"#aaa"}}>Decay:</span>
+                    <input type="range" min={0.01} max={1.0} step={0.01} value={currentItem.blip?.decay||(Math.max(0.01,(currentItem.blip?.dur||0.15)-(currentItem.blip?.attack||0.005)))}
+                      onChange={e=>updateBlip("decay",+e.target.value)} style={{flex:1}} />
+                    <span style={{fontSize:11,color:"#aaa",minWidth:30}}>{((currentItem.blip?.decay||(Math.max(0.01,(currentItem.blip?.dur||0.15)-(currentItem.blip?.attack||0.005))))*1000).toFixed(0)}ms</span>
+                  </div>
                   <button style={{...S.btn(false),fontSize:10,width:"100%"}}
-                    onClick={()=>playBlip(currentItem.blip?.wave||"square",currentItem.blip?.freq||440,0.15)}>
+                    onClick={()=>{const b=currentItem.blip||{};playBlip(b.wave||"square",b.freq||440,b.dur||0.15,b.vol||0.25,b.freqEnd,b.attack,b.decay);}}>
                     ▶ Preview Blip
                   </button>
+                  <div style={{marginTop:8}}>
+                    <div style={{fontSize:10,color:"#888",marginBottom:4}}>Blip Presets</div>
+                    {BLIP_PACKS.map((pack,pi)=>(
+                      <div key={pi} style={{marginBottom:3}}>
+                        <button onClick={()=>setActiveBlipPack(activeBlipPack===pi?null:pi)}
+                          style={{...S.btn(activeBlipPack===pi),fontSize:9,padding:"2px 6px",width:"100%",textAlign:"left"}}>
+                          {pack.name} {activeBlipPack===pi?"▲":"▼"}
+                        </button>
+                        {activeBlipPack===pi&&(
+                          <div style={{display:"flex",flexDirection:"column",gap:2,padding:"3px 0"}}>
+                            {pack.presets.map((preset,bi)=>(
+                              <div key={bi} style={{display:"flex",gap:2}}>
+                                <button style={{...S.btn(false),fontSize:9,padding:"2px 5px",flex:1,textAlign:"left"}}
+                                  onClick={()=>playBlip(preset.wave,preset.freq,preset.dur||0.15,preset.vol||0.25,preset.freqEnd,preset.attack,preset.decay)}>
+                                  ▶ {preset.name}</button>
+                                <button style={{...S.btn(false),fontSize:9,padding:"2px 5px"}}
+                                  onClick={()=>{
+                                    setSprites(prev=>{const items=[...prev];items[selectedSprite]={...items[selectedSprite],blip:{wave:preset.wave,freq:preset.freq,dur:preset.dur,vol:preset.vol,freqEnd:preset.freqEnd,attack:preset.attack,decay:preset.decay}};return items;});
+                                  }}>Apply</button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -2379,8 +2680,8 @@ export default function App() {
                 <div style={S.section}>
                   <div style={S.sectionTitle}>Exits ({rooms[selectedRoom].exits.length})</div>
                   {rooms[selectedRoom].exits.map((ex,i)=>(
-                    <div key={i} style={{fontSize:11,color:"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#0d1b3e",borderRadius:3,padding:"3px 6px"}}>
-                      <span>({ex.x},{ex.y}) → Room {ex.destRoom} @ ({ex.destX},{ex.destY})</span>
+                    <div key={i} style={{fontSize:11,color:ex.isEnding?"#ffec27":"#ff44ee",display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3,background:"#0d1b3e",borderRadius:3,padding:"3px 6px"}}>
+                      <span>{ex.isEnding?"🏁 ":"🚪 "}({ex.x},{ex.y}) → {ex.isEnding?"ENDING":`Room ${ex.destRoom} @ (${ex.destX},${ex.destY})`}{ex.endingMessage?` "${ex.endingMessage}"`:""}</span>
                       <button style={{background:"none",border:"none",color:"#e94560",cursor:"pointer",fontSize:12,padding:"0 2px"}}
                         onClick={()=>setRooms(prev=>{const rs=[...prev];rs[selectedRoom]={...rs[selectedRoom],exits:rs[selectedRoom].exits.filter((_,j)=>j!==i)};return rs;})}>✕</button>
                     </div>
@@ -2413,7 +2714,8 @@ export default function App() {
       {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={selectedRoom} tiles={tiles} sprites={sprites}
         palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune} onClose={()=>setShowPlaytest(false)} />}
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
-      {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)} />}
+      {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)}
+        tiles={tiles} sprites={sprites} palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} />}
       {cloudModal&&user&&<CloudSavesModal user={user} saves={cloudSaves} onSave={handleCloudSave} onLoad={handleCloudLoad} onDelete={handleCloudDelete} onClose={()=>setCloudModal(false)} loading={cloudLoading} />}
       {showBitsyImport&&<BitsyImportModal onImport={handleBitsyImport} onClose={()=>setShowBitsyImport(false)} />}
       {showTextImport&&<TextImportModal onImport={handleTextImport} onClose={()=>setShowTextImport(false)} palette={palette} />}
