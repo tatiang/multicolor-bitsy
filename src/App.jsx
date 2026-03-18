@@ -1314,7 +1314,6 @@ function render(){
     if(removed[ri+','+rx+','+ry])continue;
     drawSprite(frame(t),rx,ry);
   }
-  (rm.exits||[]).forEach(function(e){ctx.fillStyle='rgba(255,0,200,0.18)';ctx.fillRect(e.x*TW*PS,e.y*TH*PS,TW*PS,TH*PS);});
   (rm.npcs||[]).forEach(function(n){var sp=sprs.find(function(s){return s.id===n.spriteId;});if(sp)drawSprite(frame(sp),n.x,n.y);});
   drawSprite(frame(sprs[0]),pos.x,pos.y);
   if(dlg){
