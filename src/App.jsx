@@ -828,11 +828,6 @@ function PlaytestModal({ rooms, startRoom=0, avatarStart, tiles, sprites, palett
         ctx.fillRect((rx*tileW+px)*ps,(ry*tileH+py)*ps,ps,ps);
       }
     }
-    // Exits (faint pink glow)
-    (room.exits||[]).forEach(ex=>{
-      ctx.fillStyle="rgba(255,0,200,0.2)";
-      ctx.fillRect(ex.x*tileW*ps,ex.y*tileH*ps,tileW*ps,tileH*ps);
-    });
     // NPCs
     (room.npcs||[]).forEach(npc=>{
       const spr=sprites.find(s=>s.id===npc.spriteId); if(!spr)return;
