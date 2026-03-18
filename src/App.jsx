@@ -15,6 +15,8 @@ const TILE_TYPES = ["walkable","wall","item","end"];
 const TILE_TYPE_COLORS = { walkable:"#00e436", wall:"#ff004d", item:"#ffec27", end:"#29adff" };
 const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
 const TUNE_STEPS = 16;
+// Bitsy tempo: milliseconds per 16th-note step
+const BITSY_TEMPOS = { SLW: 250, MED: 188, FST: 125, XFST: 94 };
 
 // ─── Sound ────────────────────────────────────────────────────────────────────
 let _audioCtx = null;
@@ -713,29 +715,35 @@ function ExitConfigModal({ rooms, currentRoom, position, onConfirm, onClose, til
 }
 
 // ─── Tune Editor ──────────────────────────────────────────────────────────────
-function TuneEditor({ tune, onChange }) {
+function TuneEditor({ tune, onChange, tuneTempo='MED', onTempoChange }) {
   const [playing, setPlaying] = useState(false);
-  const [bpm, setBpm] = useState(160);
   const [activeStep, setActiveStep] = useState(-1);
   const ivRef = useRef(null);
   const stepRef = useRef(0);
 
   const toggle = (si, semi) => {
-    onChange(tune.map((s,i)=> i===si ? (s.active&&s.semi===semi?{semi:0,active:false}:{semi,active:true}) : s));
+    onChange(tune.map((s,i)=> i===si ? (s.active&&s.semi===semi?{semi:0,active:false,beats:0}:{semi,active:true,beats:1}) : s));
   };
 
   const startPlay = () => {
     setPlaying(true); stepRef.current=0;
+    const stepMs=BITSY_TEMPOS[tuneTempo]??188;
     ivRef.current = setInterval(()=>{
       const s=stepRef.current;
       const note=tune[s];
-      if(note?.active) playBlip("square",noteFreq(note.semi),0.08,0.25);
+      if(note?.active){
+        const dur=Math.max(0.06,(note.beats||1)*stepMs/1000);
+        playBlip("square",noteFreq(note.semi),dur,0.25);
+      }
       setActiveStep(s);
       stepRef.current=(s+1)%tune.length;
-    }, Math.round(60000/bpm/4));
+    }, stepMs);
   };
   const stopPlay = ()=>{ setPlaying(false); setActiveStep(-1); clearInterval(ivRef.current); };
+  useEffect(()=>{ if(playing){stopPlay();startPlay();} },[tuneTempo]);
   useEffect(()=>()=>clearInterval(ivRef.current),[]);
+
+  const TEMPO_LABELS = {SLW:'Slow',MED:'Med',FST:'Fast',XFST:'V.Fast'};
 
   // Show 2 octaves (C4–B5), top = high
   const ROWS = 24;
@@ -743,10 +751,12 @@ function TuneEditor({ tune, onChange }) {
     <div>
       <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8,flexWrap:"wrap"}}>
         <button style={S.btn(playing)} onClick={playing?stopPlay:startPlay}>{playing?"⏹ Stop":"▶ Play"}</button>
-        <span style={{fontSize:11,color:"#B8B0A8"}}>BPM:</span>
-        <input type="range" min={60} max={240} value={bpm} onChange={e=>setBpm(+e.target.value)} style={{width:70}} />
-        <span style={{fontSize:11}}>{bpm}</span>
-        <button style={{...S.btn(false),fontSize:10,marginLeft:"auto"}} onClick={()=>onChange(tune.map(()=>({semi:0,active:false})))}>Clear</button>
+        <span style={{fontSize:10,color:"#B8B0A8",marginLeft:4}}>Tempo:</span>
+        {Object.entries(TEMPO_LABELS).map(([k,label])=>(
+          <button key={k} style={{...S.btn(tuneTempo===k),fontSize:10,padding:"2px 6px"}}
+            onClick={()=>onTempoChange?.(k)}>{label}</button>
+        ))}
+        <button style={{...S.btn(false),fontSize:10,marginLeft:"auto"}} onClick={()=>onChange(tune.map(()=>({semi:0,active:false,beats:0})))}>Clear</button>
       </div>
       <div style={{overflowX:"auto",overflowY:"auto",maxHeight:220,border:"1px solid #3C3834",borderRadius:4}}>
         <div style={{display:"grid",gridTemplateColumns:`40px repeat(${tune.length},1fr)`,gap:1,minWidth:Math.max(440,tune.length*10)}}>
@@ -773,7 +783,7 @@ function TuneEditor({ tune, onChange }) {
 }
 
 // ─── Playtest Modal ───────────────────────────────────────────────────────────
-function PlaytestModal({ rooms, startRoom=0, avatarStart, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, onClose }) {
+function PlaytestModal({ rooms, startRoom=0, avatarStart, tiles, sprites, palette, roomW, roomH, tileW, tileH, tune, tuneTempo='MED', onClose }) {
   const initRoom = avatarStart?.room ?? startRoom;
   const findStart = (r) => {
     if(!r)return{x:1,y:1};
@@ -799,19 +809,23 @@ function PlaytestModal({ rooms, startRoom=0, avatarStart, tiles, sprites, palett
   const ps=Math.max(3,Math.floor(400/Math.max(roomW*tileW,roomH*tileH)));
   const playerSpr=sprites[0];
 
-  // Background tune playback
+  // Background tune playback — use bitsy tempo and beats for correct duration
   useEffect(()=>{
     if(!tune)return;
     const active=tune.filter(s=>s.active);
     if(!active.length)return;
+    const stepMs=BITSY_TEMPOS[tuneTempo]??188;
     let s=0;
     tuneRef.current=setInterval(()=>{
       const note=tune[s];
-      if(note?.active) playBlip("sine",noteFreq(note.semi),0.12,0.08);
+      if(note?.active){
+        const dur=Math.max(0.06,(note.beats||1)*stepMs/1000);
+        playBlip("sine",noteFreq(note.semi),dur,0.08);
+      }
       s=(s+1)%tune.length;
-    },170);
+    },stepMs);
     return()=>clearInterval(tuneRef.current);
-  },[tune]);
+  },[tune,tuneTempo]);
 
   const drawAll=useCallback(()=>{
     const ctx=canvasRef.current?.getContext("2d"); if(!ctx)return;
@@ -1060,15 +1074,20 @@ function parseBitsyData(text) {
     if(line.startsWith('END ')&&!line.match(/^END\s+\S+\s+\d+,\d+/)){const id=line.slice(4).trim();i++;const txt=[];while(i<lines.length&&lines[i].trim()!=='')txt.push(lines[i++]);endDefs[id]=txt.join('\n');continue;}
     if(line.startsWith('TUNE ')){
       const tuneId=line.slice(5).trim(); i++;
-      const measures=[]; let curTrack0=null;
+      const measures=[]; let curTrack0=null; let tuneTmpId=null;
+      // Each bar: melody line, harmony line, then '>' separator
+      // We capture only the melody (first line of each bar)
+      let expectHarmony=false;
       while(i<lines.length&&lines[i].trim()!==''){
         const tl=lines[i].trim();
-        if(tl==='>'){if(curTrack0!==null)measures.push(curTrack0);curTrack0=null;i++;}
-        else if(tl.startsWith('NAME ')||tl.startsWith('TMP ')||tl.startsWith('KEY ')||tl.startsWith('SQR ')||tl.startsWith('ARP ')){i++;}
-        else{if(curTrack0===null)curTrack0=tl;i++;} // first track of each measure = melody
+        if(tl==='>'){if(curTrack0!==null)measures.push(curTrack0);curTrack0=null;expectHarmony=false;i++;}
+        else if(tl.startsWith('TMP ')){tuneTmpId=tl.slice(4).trim();i++;}
+        else if(tl.startsWith('NAME ')||tl.startsWith('KEY ')||tl.startsWith('SQR ')||tl.startsWith('ARP ')){i++;}
+        else if(!expectHarmony&&curTrack0===null){curTrack0=tl;expectHarmony=true;i++;} // melody line
+        else{i++;} // harmony line or extra metadata - skip
       }
       if(curTrack0!==null)measures.push(curTrack0);
-      tuneDefs[tuneId]={id:tuneId,measures};continue;
+      tuneDefs[tuneId]={id:tuneId,measures,tempo:tuneTmpId};continue;
     }
     if(line.startsWith('BLIP ')){
       const blipId=line.slice(5).trim(); i++;
@@ -1171,8 +1190,12 @@ function parseBitsyData(text) {
     const steps=[];
     for(const melodyLine of tuneDef.measures){
       melodyLine.split(',').forEach(tok=>{
-        const semi=parseBitsyPitch(tok.trim());
-        steps.push({semi:semi!==null?semi+12:12,active:semi!==null});
+        const t=tok.trim();
+        // extract leading beat count (e.g. "2G" → beats=2, "8B" → beats=8, "G" → beats=1, "0" → beats=0)
+        const bm=t.match(/^(\d+)/);
+        const beats=bm?parseInt(bm[1]):1;
+        const semi=parseBitsyPitch(t);
+        steps.push({semi:semi!==null?semi+12:12,active:semi!==null,beats:semi!==null?beats:0});
       });
     }
     if(!steps.length)return null;
@@ -1183,6 +1206,7 @@ function parseBitsyData(text) {
   Object.values(roomDefs).forEach(r=>{if(r.tuneId)tuneCounts[r.tuneId]=(tuneCounts[r.tuneId]||0)+1;});
   const topTuneId=Object.entries(tuneCounts).sort((a,b)=>b[1]-a[1])[0]?.[0];
   const convertedTune=topTuneId?convertBitsyTune(tuneDefs[topTuneId]):null;
+  const topTuneTempo=topTuneId?tuneDefs[topTuneId]?.tempo:null;
 
   const avatarPos=sprDefs['A']?.pos;
   const avatarStart=avatarPos
@@ -1196,7 +1220,7 @@ function parseBitsyData(text) {
     tiles:newTiles.length?newTiles:[{id:uid(),name:'wall',frames:[emptyGrid(8,8)],tileType:'wall'}],
     rooms:newRooms.length?newRooms:[{id:uid(),name:'room 0',tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[]}],
     roomW:detectedRoomW, roomH:detectedRoomH, tileW:detectedTileW, tileH:detectedTileH,
-    avatarStart, tune:convertedTune
+    avatarStart, tune:convertedTune, tuneTempo:topTuneTempo
   };
 }
 
@@ -1356,8 +1380,8 @@ function exportBitsyData(gameTitle, palette, sprites, tiles, rooms, tune, colorM
 }
 
 // ─── HTML Game Export ─────────────────────────────────────────────────────────
-function buildHtmlExport(gameTitle, palette, sprites, tiles, rooms, tune, tileW, tileH, roomW, roomH) {
-  const stateJson = JSON.stringify({gameTitle,palette,sprites,tiles,rooms,tune,tileW,tileH,roomW,roomH}).replace(/<\/script>/gi,'<\\/script>');
+function buildHtmlExport(gameTitle, palette, sprites, tiles, rooms, tune, tileW, tileH, roomW, roomH, tuneTempo='MED') {
+  const stateJson = JSON.stringify({gameTitle,palette,sprites,tiles,rooms,tune,tuneTempo,tileW,tileH,roomW,roomH}).replace(/<\/script>/gi,'<\\/script>');
   const engine = `(function(){
 var S=${stateJson};
 var pal=S.palette,sprs=S.sprites,tls=S.tiles,rms=S.rooms,tn=S.tune;
@@ -1788,6 +1812,7 @@ export default function App() {
   const [cloudSaves,setCloudSaves]=useState([]);
   const [cloudLoading,setCloudLoading]=useState(false);
   const [avatarStart,setAvatarStart]=useState({room:0,x:1,y:1});
+  const [tuneTempo,setTuneTempo]=useState('MED');
 
   // Modal state for new features
   const [showBitsyImport,setShowBitsyImport]=useState(false);
@@ -2035,7 +2060,7 @@ export default function App() {
   };
   const exportHtml=()=>{
     try{
-      const html=buildHtmlExport(gameTitle,palette,sprites,tiles,rooms,tune,tileW,tileH,roomW,roomH);
+      const html=buildHtmlExport(gameTitle,palette,sprites,tiles,rooms,tune,tileW,tileH,roomW,roomH,tuneTempo);
       setExportModal({type:"text",title:"Export HTML Game",content:html,filename:`${(gameTitle||'game').replace(/[^a-z0-9]/gi,'_').toLowerCase()}.html`});
     }catch(err){alert("Export failed: "+err.message);}
   };
@@ -2053,6 +2078,7 @@ export default function App() {
     if(data.tileH){setTileH(data.tileH);setSpriteH(data.tileH);}
     if(data.avatarStart){setAvatarStart(data.avatarStart);setSelectedRoom(data.avatarStart.room);}
     if(data.tune){setTune(data.tune);}
+    if(data.tuneTempo){setTuneTempo(data.tuneTempo);}
     setSelectedSprite(0);setSelectedTile(0);setSelectedFrame(0);
     setShowBitsyImport(false);
   };
@@ -2147,7 +2173,7 @@ export default function App() {
     if(!user)return;
     setCloudLoading(true);
     try{
-      const state={gameTitle,palette,sprites,tiles,rooms,tune};
+      const state={gameTitle,palette,sprites,tiles,rooms,tune,tuneTempo};
       await saveGame(user.uid,uid(),title,state);
       const saves=await loadAllGames(user.uid); setCloudSaves(saves);
     }catch(e){ alert("Save failed: "+e.message); }
@@ -2162,6 +2188,7 @@ export default function App() {
       if(state.tiles){ setTiles(state.tiles); setSelectedTile(0); }
       if(state.rooms){ setRooms(state.rooms); setSelectedRoom(0); }
       if(state.tune) setTune(state.tune);
+      if(state.tuneTempo) setTuneTempo(state.tuneTempo);
       // Advance ID counter past any loaded IDs to avoid collisions
       const allIds=[...(state.sprites||[]),...(state.tiles||[]),...(state.rooms||[])].map(x=>x.id||"");
       const maxN=allIds.reduce((m,id)=>{ const n=parseInt(id.replace("id_","")); return isNaN(n)?m:Math.max(m,n); },0);
@@ -2493,7 +2520,7 @@ export default function App() {
           {tab==="tune"?(
             <div style={{width:"100%",maxWidth:640,padding:8}}>
               <div style={{fontWeight:700,color:"#F59E0B",marginBottom:12,fontSize:14}}>🎵 Background Tune</div>
-              <TuneEditor tune={tune} onChange={setTune} />
+              <TuneEditor tune={tune} onChange={setTune} tuneTempo={tuneTempo} onTempoChange={setTuneTempo} />
               <div style={{marginTop:16}}>
                 <div style={{fontWeight:700,color:"#F59E0B",marginBottom:8,fontSize:12}}>Tune Presets</div>
                 {TUNE_PACKS.map((pack,pi)=>(
@@ -2828,7 +2855,7 @@ export default function App() {
       </div>
       {showImport&&<PngImportModal onImport={handleImport} onClose={()=>setShowImport(false)} palette={palette} maxColors={MAX_COLORS} />}
       {showPlaytest&&<PlaytestModal rooms={rooms} startRoom={selectedRoom} avatarStart={avatarStart} tiles={tiles} sprites={sprites}
-        palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune} onClose={()=>setShowPlaytest(false)} />}
+        palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} tune={tune} tuneTempo={tuneTempo} onClose={()=>setShowPlaytest(false)} />}
       {exportModal&&<ExportModal data={exportModal} onClose={()=>setExportModal(null)} />}
       {exitModal&&<ExitConfigModal rooms={rooms} currentRoom={selectedRoom} position={exitModal} onConfirm={confirmExit} onClose={()=>setExitModal(null)}
         tiles={tiles} sprites={sprites} palette={palette} roomW={roomW} roomH={roomH} tileW={tileW} tileH={tileH} />}
