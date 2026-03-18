@@ -731,7 +731,7 @@ function TuneEditor({ tune, onChange }) {
       const note=tune[s];
       if(note?.active) playBlip("square",noteFreq(note.semi),0.08,0.25);
       setActiveStep(s);
-      stepRef.current=(s+1)%TUNE_STEPS;
+      stepRef.current=(s+1)%tune.length;
     }, Math.round(60000/bpm/4));
   };
   const stopPlay = ()=>{ setPlaying(false); setActiveStep(-1); clearInterval(ivRef.current); };
@@ -749,7 +749,7 @@ function TuneEditor({ tune, onChange }) {
         <button style={{...S.btn(false),fontSize:10,marginLeft:"auto"}} onClick={()=>onChange(tune.map(()=>({semi:0,active:false})))}>Clear</button>
       </div>
       <div style={{overflowX:"auto",overflowY:"auto",maxHeight:220,border:"1px solid #3C3834",borderRadius:4}}>
-        <div style={{display:"grid",gridTemplateColumns:`40px repeat(${TUNE_STEPS},1fr)`,gap:1,minWidth:440}}>
+        <div style={{display:"grid",gridTemplateColumns:`40px repeat(${tune.length},1fr)`,gap:1,minWidth:Math.max(440,tune.length*10)}}>
           {Array.from({length:ROWS},(_,ri)=>{
             const semi=ROWS-1-ri+12; // C4(12 semitones above C3) to B5
             const oct=Math.floor(semi/12)+3;
@@ -759,7 +759,7 @@ function TuneEditor({ tune, onChange }) {
               <div key={`l${ri}`} style={{fontSize:9,color:natural?"#B8B0A8":"#6B6460",background:"#1E1B18",display:"flex",alignItems:"center",justifyContent:"flex-end",paddingRight:3,height:10}}>
                 {natural?`${name}${oct}`:""}
               </div>,
-              ...Array.from({length:TUNE_STEPS},(_,si)=>{
+              ...Array.from({length:tune.length},(_,si)=>{
                 const act=tune[si]?.active&&tune[si]?.semi===semi;
                 return <div key={`${ri}-${si}`} onClick={()=>toggle(si,semi)} style={{height:10,background:act?"#F59E0B":si===activeStep?"#302C28":"#1A1714",border:"1px solid #2A2622",cursor:"pointer",borderRadius:1}} />;
               })
@@ -808,7 +808,7 @@ function PlaytestModal({ rooms, startRoom=0, avatarStart, tiles, sprites, palett
     tuneRef.current=setInterval(()=>{
       const note=tune[s];
       if(note?.active) playBlip("sine",noteFreq(note.semi),0.12,0.08);
-      s=(s+1)%TUNE_STEPS;
+      s=(s+1)%tune.length;
     },170);
     return()=>clearInterval(tuneRef.current);
   },[tune]);
@@ -991,7 +991,7 @@ function parseBitsyData(text) {
   let i = 0;
   let roomFormat = 0, drawFormat = 0;
   let gameTitle = '';
-  const palettes = {}, roomDefs = {}, tileDefs = {}, sprDefs = {}, itmDefs = {}, dlgDefs = {}, endDefs = {}, tuneDefs = {};
+  const palettes = {}, roomDefs = {}, tileDefs = {}, sprDefs = {}, itmDefs = {}, dlgDefs = {}, endDefs = {}, tuneDefs = {}, blipDefs = {};
 
   const skipBlanks = () => { while(i < lines.length && lines[i].trim() === '') i++; };
   const readBlock = () => { const b=[]; while(i < lines.length && lines[i].trim() !== '') b.push(lines[i++]); return b; };
@@ -1036,7 +1036,7 @@ function parseBitsyData(text) {
     const parseDrawBlock=(defId, kind)=>{
       i++;
       const frames=[]; let rows=[];
-      const props={name:'',wal:false,col:kind==='SPR'?2:kind==='ITM'?2:1,dlgId:null,pos:null};
+      const props={name:'',wal:false,col:kind==='SPR'?2:kind==='ITM'?2:1,dlgId:null,pos:null,blipId:null};
       while(i<lines.length && lines[i].trim()!=='') {
         const r=lines[i].trim();
         if(r==='>'){frames.push(rows);rows=[];i++;}
@@ -1046,6 +1046,7 @@ function parseBitsyData(text) {
           else if(r.startsWith('COL '))props.col=+r.slice(4);
           else if(r.startsWith('DLG '))props.dlgId=r.slice(4).trim();
           else if(r.startsWith('POS ')){const m=r.match(/^POS\s+(\S+)\s+(\d+),(\d+)/);if(m)props.pos={room:m[1],x:+m[2],y:+m[3]};}
+          else if(r.startsWith('BLIP '))props.blipId=r.slice(5).trim();
           i++;
         } else { rows.push(r); i++; }
       }
@@ -1069,6 +1070,24 @@ function parseBitsyData(text) {
       if(curTrack0!==null)measures.push(curTrack0);
       tuneDefs[tuneId]={id:tuneId,measures};continue;
     }
+    if(line.startsWith('BLIP ')){
+      const blipId=line.slice(5).trim(); i++;
+      const blipData={id:blipId,notes:'',env:[0,8,8,8,8],wave:'square',name:''};
+      let gotNotes=false;
+      while(i<lines.length&&lines[i].trim()!==''){
+        const bl=lines[i].trim();
+        if(!gotNotes&&!bl.startsWith('NAME ')&&!bl.startsWith('ENV ')&&!bl.startsWith('BEAT ')&&!bl.startsWith('SQR ')&&!bl.startsWith('SAW ')&&!bl.startsWith('TRI ')&&!bl.startsWith('SIN ')){
+          blipData.notes=bl; gotNotes=true; i++;
+        } else if(bl.startsWith('NAME ')) { blipData.name=bl.slice(5); i++; }
+        else if(bl.startsWith('ENV '))    { blipData.env=bl.slice(4).trim().split(/\s+/).map(Number); i++; }
+        else if(bl.startsWith('SQR '))    { blipData.wave='square'; i++; }
+        else if(bl.startsWith('SAW '))    { blipData.wave='sawtooth'; i++; }
+        else if(bl.startsWith('TRI '))    { blipData.wave='triangle'; i++; }
+        else if(bl.startsWith('SIN '))    { blipData.wave='sine'; i++; }
+        else { i++; }
+      }
+      blipDefs[blipId]=blipData; continue;
+    }
     i++; // skip unrecognized lines
   }
 
@@ -1083,16 +1102,42 @@ function parseBitsyData(text) {
   Object.values(itmDefs).forEach(t=>{const id=uid();itmBitsyToId[t.id]=id;newTiles.push({id,name:t.name||`item_${t.id}`,frames:t.frames.length?t.frames:[emptyGrid(8,8)],tileType:'item'});});
   Object.keys(endDefs).forEach(endId=>{const id=uid();endBitsyToId[endId]=id;const f=emptyGrid(8,8);for(let y=0;y<8;y++)for(let x=0;x<8;x++)if(y===0||y===7||x===0||x===7)f[y][x]=2;newTiles.push({id,name:`end_${endId}`,frames:[f],tileType:'end'});});
 
+  // Note conversion helpers (used by blip import and tune import)
+  const NOTE_SEMIS={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+  const parseBitsyPitch=(token)=>{
+    if(!token||token==='0')return null;
+    const m=token.match(/^\d*([A-G])(#|b)?(\d?)$/);
+    if(!m)return null;
+    const acc=m[2]==='#'?1:m[2]==='b'?-1:0;
+    const oct=m[3]!==''?parseInt(m[3]):4;
+    return (oct-4)*12+(NOTE_SEMIS[m[1]]||0)+acc;
+  };
+  // Convert a blipDef to app blip format {wave, freq, dur, vol, attack, decay}
+  const blipFromDef=(blipId)=>{
+    const def=blipDefs[blipId];
+    if(!def)return{wave:'square',freq:440};
+    const firstNote=def.notes.split(',')[0]?.trim();
+    const semi=parseBitsyPitch(firstNote);
+    const freq=semi!==null?noteFreq(12+semi):440;
+    const atk=(def.env[0]||0)/15*0.3;
+    const dec=(def.env[1]||8)/15*0.5;
+    const dur=Math.max(0.05,((def.env[3]||8)/15)*0.5+atk);
+    const result={wave:def.wave||'square',freq:Math.round(freq),dur:+dur.toFixed(3),vol:0.25};
+    if(atk>0.005)result.attack=+atk.toFixed(3);
+    if(dec>0.02)result.decay=+dec.toFixed(3);
+    return result;
+  };
+
   // Build sprites
   const newSprites=[];
   const sprBitsyToIdx={};
   const avatar=sprDefs['A'];
-  newSprites.push({id:uid(),name:avatar?.name||'avatar',frames:avatar?.frames?.length?avatar.frames:[emptyGrid(8,8)],tileType:'walkable',dialog:'',blip:{wave:'square',freq:440}});
+  newSprites.push({id:uid(),name:avatar?.name||'avatar',frames:avatar?.frames?.length?avatar.frames:[emptyGrid(8,8)],tileType:'walkable',dialog:'',blip:avatar?.blipId?blipFromDef(avatar.blipId):{wave:'square',freq:440}});
   sprBitsyToIdx['A']=0;
   Object.entries(sprDefs).forEach(([sid,spr])=>{
     if(sid==='A')return;
     const idx=newSprites.length; sprBitsyToIdx[sid]=idx;
-    newSprites.push({id:uid(),name:spr.name||`sprite_${sid}`,frames:spr.frames.length?spr.frames:[emptyGrid(8,8)],tileType:'walkable',dialog:spr.dlgId?dlgDefs[spr.dlgId]||'':'',blip:{wave:'square',freq:440}});
+    newSprites.push({id:uid(),name:spr.name||`sprite_${sid}`,frames:spr.frames.length?spr.frames:[emptyGrid(8,8)],tileType:'walkable',dialog:spr.dlgId?dlgDefs[spr.dlgId]||'':'',blip:spr.blipId?blipFromDef(spr.blipId):{wave:'square',freq:440}});
   });
 
   // Build rooms
@@ -1119,29 +1164,18 @@ function parseBitsyData(text) {
   const detectedTileW=Object.values(tileDefs)[0]?.frames?.[0]?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.[0]?.length||8;
   const detectedTileH=Object.values(tileDefs)[0]?.frames?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.length||8;
 
-  // Convert Bitsy TUNE to 16-step format
-  const NOTE_SEMIS={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
-  const parseBitsyPitch=(token)=>{
-    if(!token||token==='0')return null;
-    const m=token.match(/^\d*([A-G])(#|b)?(\d?)$/);
-    if(!m)return null;
-    const acc=m[2]==='#'?1:m[2]==='b'?-1:0;
-    const oct=m[3]!==''?parseInt(m[3]):4;
-    return (oct-4)*12+(NOTE_SEMIS[m[1]]||0)+acc;
-  };
+  // Convert Bitsy TUNE to variable-length step array
   const convertBitsyTune=(tuneDef)=>{
     if(!tuneDef||!tuneDef.measures.length)return null;
-    // Collect up to 16 notes from the melody track across all measures
+    // Collect ALL notes from all measures (no cap)
     const steps=[];
     for(const melodyLine of tuneDef.measures){
-      if(steps.length>=16)break;
       melodyLine.split(',').forEach(tok=>{
-        if(steps.length>=16)return;
         const semi=parseBitsyPitch(tok.trim());
         steps.push({semi:semi!==null?semi+12:12,active:semi!==null});
       });
     }
-    while(steps.length<16)steps.push({semi:12,active:false});
+    if(!steps.length)return null;
     return steps;
   };
   // Pick the most-referenced tune across all rooms
