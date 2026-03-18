@@ -991,7 +991,7 @@ function parseBitsyData(text) {
   let i = 0;
   let roomFormat = 0, drawFormat = 0;
   let gameTitle = '';
-  const palettes = {}, roomDefs = {}, tileDefs = {}, sprDefs = {}, itmDefs = {}, dlgDefs = {}, endDefs = {};
+  const palettes = {}, roomDefs = {}, tileDefs = {}, sprDefs = {}, itmDefs = {}, dlgDefs = {}, endDefs = {}, tuneDefs = {};
 
   const skipBlanks = () => { while(i < lines.length && lines[i].trim() === '') i++; };
   const readBlock = () => { const b=[]; while(i < lines.length && lines[i].trim() !== '') b.push(lines[i++]); return b; };
@@ -1027,6 +1027,7 @@ function parseBitsyData(text) {
         else if(rline.startsWith('NAME ')){room.name=rline.slice(5);i++;}
         else if(rline.startsWith('PAL ')){room.palId=rline.slice(4).trim();i++;}
         else if(rline.startsWith('ENS ')||rline.startsWith('TUT ')){i++;} // skip unsupported
+        else if(rline.startsWith('TUNE ')){room.tuneId=rline.slice(5).trim();i++;}
         else { room.tiles.push(roomFormat===1?rline.split(',').map(s=>s.trim()):rline.split('')); i++; }
       }
       roomDefs[id]=room; continue;
@@ -1056,6 +1057,18 @@ function parseBitsyData(text) {
     if(line.startsWith('ITM ')&&!line.match(/^ITM\s+\S+\s+\d+,\d+/)){const d=parseDrawBlock(line.slice(4).trim(),'ITM');itmDefs[d.id]=d;continue;}
     if(line.startsWith('DLG ')){const id=line.slice(4).trim();i++;const txt=[];while(i<lines.length&&lines[i].trim()!=='')txt.push(lines[i++]);dlgDefs[id]=txt.join('\n');continue;}
     if(line.startsWith('END ')&&!line.match(/^END\s+\S+\s+\d+,\d+/)){const id=line.slice(4).trim();i++;const txt=[];while(i<lines.length&&lines[i].trim()!=='')txt.push(lines[i++]);endDefs[id]=txt.join('\n');continue;}
+    if(line.startsWith('TUNE ')){
+      const tuneId=line.slice(5).trim(); i++;
+      const measures=[]; let curTrack0=null;
+      while(i<lines.length&&lines[i].trim()!==''){
+        const tl=lines[i].trim();
+        if(tl==='>'){if(curTrack0!==null)measures.push(curTrack0);curTrack0=null;i++;}
+        else if(tl.startsWith('NAME ')||tl.startsWith('TMP ')||tl.startsWith('KEY ')||tl.startsWith('SQR ')||tl.startsWith('ARP ')){i++;}
+        else{if(curTrack0===null)curTrack0=tl;i++;} // first track of each measure = melody
+      }
+      if(curTrack0!==null)measures.push(curTrack0);
+      tuneDefs[tuneId]={id:tuneId,measures};continue;
+    }
     i++; // skip unrecognized lines
   }
 
@@ -1106,6 +1119,37 @@ function parseBitsyData(text) {
   const detectedTileW=Object.values(tileDefs)[0]?.frames?.[0]?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.[0]?.length||8;
   const detectedTileH=Object.values(tileDefs)[0]?.frames?.[0]?.length||Object.values(sprDefs)[0]?.frames?.[0]?.length||8;
 
+  // Convert Bitsy TUNE to 16-step format
+  const NOTE_SEMIS={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+  const parseBitsyPitch=(token)=>{
+    if(!token||token==='0')return null;
+    const m=token.match(/^\d*([A-G])(#|b)?(\d?)$/);
+    if(!m)return null;
+    const acc=m[2]==='#'?1:m[2]==='b'?-1:0;
+    const oct=m[3]!==''?parseInt(m[3]):4;
+    return (oct-4)*12+(NOTE_SEMIS[m[1]]||0)+acc;
+  };
+  const convertBitsyTune=(tuneDef)=>{
+    if(!tuneDef||!tuneDef.measures.length)return null;
+    // Collect up to 16 notes from the melody track across all measures
+    const steps=[];
+    for(const melodyLine of tuneDef.measures){
+      if(steps.length>=16)break;
+      melodyLine.split(',').forEach(tok=>{
+        if(steps.length>=16)return;
+        const semi=parseBitsyPitch(tok.trim());
+        steps.push({semi:semi!==null?semi+12:12,active:semi!==null});
+      });
+    }
+    while(steps.length<16)steps.push({semi:12,active:false});
+    return steps;
+  };
+  // Pick the most-referenced tune across all rooms
+  const tuneCounts={};
+  Object.values(roomDefs).forEach(r=>{if(r.tuneId)tuneCounts[r.tuneId]=(tuneCounts[r.tuneId]||0)+1;});
+  const topTuneId=Object.entries(tuneCounts).sort((a,b)=>b[1]-a[1])[0]?.[0];
+  const convertedTune=topTuneId?convertBitsyTune(tuneDefs[topTuneId]):null;
+
   const avatarPos=sprDefs['A']?.pos;
   const avatarStart=avatarPos
     ? {room: roomBitsyToIdx[avatarPos.room] ?? 0, x: avatarPos.x, y: avatarPos.y}
@@ -1118,7 +1162,7 @@ function parseBitsyData(text) {
     tiles:newTiles.length?newTiles:[{id:uid(),name:'wall',frames:[emptyGrid(8,8)],tileType:'wall'}],
     rooms:newRooms.length?newRooms:[{id:uid(),name:'room 0',tiles:emptyGrid(16,16).map(r=>r.map(()=>null)),npcs:[],exits:[]}],
     roomW:detectedRoomW, roomH:detectedRoomH, tileW:detectedTileW, tileH:detectedTileH,
-    avatarStart
+    avatarStart, tune:convertedTune
   };
 }
 
@@ -1974,6 +2018,7 @@ export default function App() {
     if(data.tileW){setTileW(data.tileW);setSpriteW(data.tileW);}
     if(data.tileH){setTileH(data.tileH);setSpriteH(data.tileH);}
     if(data.avatarStart){setAvatarStart(data.avatarStart);setSelectedRoom(data.avatarStart.room);}
+    if(data.tune){setTune(data.tune);}
     setSelectedSprite(0);setSelectedTile(0);setSelectedFrame(0);
     setShowBitsyImport(false);
   };
