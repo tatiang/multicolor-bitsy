@@ -230,6 +230,156 @@ const ASSET_PACKS = [
   },
 ];
 
+// ─── Room Templates ──────────────────────────────────────────────────────────
+// Each template references asset names from its pack. Legend chars map to assets.
+// "." = empty, letters map to tiles/sprites defined in the legend.
+const ROOM_TEMPLATES = [
+  {
+    name: "🌿 Garden", pack: "🐝 Bug Pack", color: "#00e436", size: 16,
+    legend: { g:"Grass", f:"Flower", m:"Mushroom", l:"Leaf" },
+    npcs: [
+      { asset:"Bee", x:4, y:4 },
+      { asset:"Butterfly", x:10, y:3 },
+      { asset:"Caterpillar", x:7, y:11 },
+      { asset:"Ladybug", x:12, y:8 },
+    ],
+    grid: [
+      "gggggggggggggggg",
+      "gfggggggggggggfg",
+      "gggggggggggggggg",
+      "gggggggggggfgggg",
+      "gggggggggggggggg",
+      "ggfggggggggggggg",
+      "gggggggggggggggg",
+      "ggggggmggggggggg",
+      "gggggggggggggggg",
+      "gggggggggggfgggg",
+      "gggggggggggggggg",
+      "gggggggggggggglg",
+      "gglggggggggggggg",
+      "ggggggfggggggggg",
+      "gggggggggggggggg",
+      "gfggggggggggggfg",
+    ],
+  },
+  {
+    name: "🏰 Dungeon", pack: "⚔️ Fantasy Pack", color: "#ffa300", size: 16,
+    legend: { w:"Stone Wall", d:"Dungeon Floor", g:"Fantasy Grass", t:"Torch" },
+    npcs: [
+      { asset:"Knight", x:3, y:7 },
+      { asset:"Wizard", x:12, y:4 },
+      { asset:"Chest", x:7, y:2 },
+    ],
+    grid: [
+      "wwwwwwwwwwwwwwww",
+      "wddddddddddddgw",
+      "wddddddddddddgw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wdddddddddddddw",
+      "wgdddddddddddgw",
+      "wgdddddddddddgw",
+      "wwwwwwwdwwwwwwww",
+    ],
+  },
+  {
+    name: "🛸 Space Station", pack: "🚀 Space Pack", color: "#29adff", size: 16,
+    legend: { s:"Star Field", m:"Moon Surface", w:"Space Wall" },
+    npcs: [
+      { asset:"Alien", x:5, y:5 },
+      { asset:"Rocket", x:12, y:12 },
+      { asset:"Crystal", x:3, y:10 },
+      { asset:"Planet", x:10, y:3 },
+    ],
+    grid: [
+      "wwwwwwwwwwwwwwww",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmmw",
+      "smmmmmmmmmmmmmmw",
+      "smmmmmmmmmmmmmms",
+      "wmmmmmmmmmmmmmmw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wmmmmmmmmmmmmmsw",
+      "wwwwwwwswwwwwwww",
+    ],
+  },
+  {
+    name: "🏫 Classroom", pack: "🏫 School Pack", color: "#ff77a8", size: 16,
+    legend: { b:"Brick Wall", f:"School Floor", s:"Sidewalk" },
+    npcs: [
+      { asset:"Student", x:4, y:5 },
+      { asset:"Student", x:8, y:5 },
+      { asset:"Student", x:4, y:9 },
+      { asset:"Student", x:8, y:9 },
+      { asset:"Book", x:12, y:3 },
+      { asset:"Desk", x:3, y:5 },
+      { asset:"Desk", x:7, y:5 },
+      { asset:"Desk", x:3, y:9 },
+      { asset:"Desk", x:7, y:9 },
+    ],
+    grid: [
+      "bbbbbbbbbbbbbbbb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bffffffffffffffb",
+      "bsssssssssssssbb",
+      "bbbbbbbbbbbbbbbb",
+    ],
+  },
+  {
+    name: "🛣 Highway", pack: "🚗 Roadtrip Pack", color: "#ffa300", size: 16,
+    legend: { r:"Road", c:"Cactus", m:"Mountains", h:"Highway Sign" },
+    npcs: [
+      { asset:"Car", x:7, y:12 },
+      { asset:"Gas Station", x:3, y:3 },
+      { asset:"Diner", x:11, y:3 },
+      { asset:"Motel", x:11, y:10 },
+    ],
+    grid: [
+      "..mmm......mmm..",
+      "................",
+      "................",
+      "................",
+      "................",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      ".....rrrrr......",
+      "..c..rrrrr..c...",
+    ],
+  },
+];
+
 // ─── Sound Packs ─────────────────────────────────────────────────────────────
 const TUNE_PACKS = [
   { name:"🐝 Bug Tunes", presets:[
@@ -2161,6 +2311,56 @@ export default function App() {
     setRooms(p=>[...p,n]);setSelectedRoom(rooms.length);
   };
 
+  const applyRoomTemplate=(template)=>{
+    const pack=ASSET_PACKS.find(p=>p.name===template.pack);
+    if(!pack)return;
+    const sz=template.size||16;
+    // Ensure needed tiles exist, collect their IDs
+    const tileIdMap={};
+    const newTiles=[...tiles];
+    const newSprites=[...sprites];
+    Object.values(template.legend).forEach(assetName=>{
+      const existing=newTiles.find(t=>t.name===assetName);
+      if(existing){ tileIdMap[assetName]=existing.id; return; }
+      const asset=pack.assets.find(a=>a.name===assetName&&a.itemType==="tile");
+      if(!asset)return;
+      const id=uid();
+      newTiles.push({id,name:asset.name,frames:[asset.grid.map(r=>[...r])],tileType:asset.tileType||"walkable"});
+      tileIdMap[assetName]=id;
+    });
+    // Build tile grid from template
+    const tileGrid=[];
+    for(let y=0;y<sz;y++){
+      const row=[];
+      for(let x=0;x<sz;x++){
+        const ch=template.grid[y]?.[x];
+        if(!ch||ch==="."){ row.push(null); continue; }
+        const assetName=template.legend[ch];
+        row.push(assetName?tileIdMap[assetName]||null:null);
+      }
+      tileGrid.push(row);
+    }
+    // Add NPC sprites if needed, collect placements
+    const npcPlacements=[];
+    (template.npcs||[]).forEach(npc=>{
+      let spr=newSprites.find(s=>s.name===npc.asset);
+      if(!spr){
+        const asset=pack.assets.find(a=>a.name===npc.asset&&a.itemType==="sprite");
+        if(!asset)return;
+        spr={id:uid(),name:asset.name,frames:[asset.grid.map(r=>[...r])],tileType:asset.tileType||"walkable",dialog:asset.dialog||"",blip:{wave:"square",freq:440}};
+        newSprites.push(spr);
+      }
+      npcPlacements.push({x:npc.x,y:npc.y,spriteId:spr.id});
+    });
+    // Create the room
+    const room={id:uid(),name:template.name.replace(/^[^\w]+ /,""),tiles:tileGrid,npcs:npcPlacements,exits:[]};
+    setTiles(newTiles);
+    setSprites(newSprites);
+    setRooms(p=>{setSelectedRoom(p.length);return[...p,room];});
+    setRoomW(sz);setRoomH(sz);
+    setTab("room");
+  };
+
   // Cloud save / load
   const openCloudModal=async()=>{
     if(!user)return;
@@ -2381,7 +2581,7 @@ export default function App() {
               <>
                 {rooms.map((room,i)=>(
                   <div key={room.id} onClick={()=>setSelectedRoom(i)}
-                    style={{padding:"5px 8px",background:i===selectedRoom?"#302C28":"transparent",borderRadius:5,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid rgba(57,255,133,0.15)":"1px solid transparent",color:i===selectedRoom?"#39ff85":"#8a94a6",transition:"all .1s"}}>
+                    style={{padding:"5px 8px",background:i===selectedRoom?"rgba(57,255,133,0.08)":"transparent",borderRadius:5,cursor:"pointer",fontSize:12,marginBottom:2,border:i===selectedRoom?"1px solid rgba(57,255,133,0.15)":"1px solid transparent",color:i===selectedRoom?"#39ff85":"#8a94a6",transition:"all .1s"}}>
                     {room.name}
                   </div>
                 ))}
@@ -2394,7 +2594,7 @@ export default function App() {
                   const [btc,btbg]=tBadge[item.tileType]||["#556070","transparent"];
                   return(
                   <div key={item.id} onClick={()=>{tab==="sprite"?setSelectedSprite(i):setSelectedTile(i);setSelectedFrame(0);setFindQuery("");}}
-                    style={{padding:"5px 7px",background:i===selectedIdx?"#302C28":"transparent",borderRadius:5,cursor:"pointer",marginBottom:2,display:"flex",alignItems:"center",gap:8,border:i===selectedIdx?"1px solid rgba(57,255,133,0.15)":"1px solid transparent",transition:"background .1s"}}>
+                    style={{padding:"5px 7px",background:i===selectedIdx?"rgba(57,255,133,0.08)":"transparent",borderRadius:5,cursor:"pointer",marginBottom:2,display:"flex",alignItems:"center",gap:8,border:i===selectedIdx?"1px solid rgba(57,255,133,0.15)":"1px solid transparent",transition:"background .1s"}}>
                     <div style={{width:32,height:32,overflow:"hidden",flexShrink:0,borderRadius:3,background:"#07080a"}}>
                       <MiniCanvas grid={item.frames[0]} palette={palette} size={32} />
                     </div>
@@ -2409,11 +2609,33 @@ export default function App() {
                 );})}
                 <div style={{display:"flex",gap:4,marginTop:4}}>
                   <button style={{...S.btn(false),flex:1,fontSize:11}} onClick={addItem}>+ Add</button>
-                  <button style={{...S.btn(false),flex:1,fontSize:11,color:"#FB7185",borderColor:"#9F3348"}} onClick={deleteItem} disabled={currentItems.length<=1}>Del</button>
+                  <button style={{...S.btn(false),flex:1,fontSize:11,color:"#FB7185",border:"1px solid #9F3348"}} onClick={deleteItem} disabled={currentItems.length<=1}>Del</button>
                 </div>
               </>
             )}
           </div>
+
+          {/* Room Templates */}
+          {tab==="room"&&(
+            <div style={S.section}>
+              <div style={S.sectionTitle}>Room Templates</div>
+              <div style={{fontSize:10,color:"#556070",marginBottom:6,lineHeight:1.5}}>
+                Add a pre-built room with tiles & NPCs from an asset pack.
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:3}}>
+                {ROOM_TEMPLATES.map((tmpl,i)=>(
+                  <button key={i} onClick={()=>applyRoomTemplate(tmpl)}
+                    style={{display:"flex",alignItems:"center",gap:8,padding:"7px 10px",background:"#181c23",border:"1px solid rgba(255,255,255,0.06)",borderRadius:6,cursor:"pointer",fontSize:11,color:"#8a94a6",fontFamily:"'JetBrains Mono',monospace",transition:"all .12s",textAlign:"left"}}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(57,255,133,0.2)";e.currentTarget.style.color="#e8ecf2";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,0.06)";e.currentTarget.style.color="#8a94a6";}}>
+                    <span style={{fontSize:14,lineHeight:1}}>{tmpl.name.split(" ")[0]}</span>
+                    <span style={{flex:1}}>{tmpl.name.split(" ").slice(1).join(" ")}</span>
+                    <span style={{fontSize:9,color:"#556070"}}>{tmpl.size}×{tmpl.size}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Asset Packs — hidden in room mode (shown in below-canvas panel instead) */}
           {tab!=="room"&&<div style={S.section}>
