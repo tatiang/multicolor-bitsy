@@ -2356,7 +2356,20 @@ export default function App() {
     const room={id:uid(),name:template.name.replace(/^[^\w]+ /,""),tiles:tileGrid,npcs:npcPlacements,exits:[]};
     setTiles(newTiles);
     setSprites(newSprites);
-    setRooms(p=>{setSelectedRoom(p.length);return[...p,room];});
+    setRooms(p=>{
+      const newIdx=p.length;
+      setSelectedRoom(newIdx);
+      // Place avatar in the new room at a walkable spot
+      let ax=1,ay=1;
+      for(let y=0;y<sz;y++){for(let x=0;x<sz;x++){
+        const tid=tileGrid[y]?.[x];
+        if(!tid)continue;
+        const t=newTiles.find(t2=>t2.id===tid);
+        if(t&&t.tileType!=="wall"){ax=x;ay=y;y=sz;break;}
+      }}
+      setAvatarStart({room:newIdx,x:ax,y:ay});
+      return[...p,room];
+    });
     setRoomW(sz);setRoomH(sz);
     setTab("room");
   };
